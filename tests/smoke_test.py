@@ -127,17 +127,17 @@ def run_tests(url):
     except Exception as e:
         log_result("Championship pick highlighted prominently", False, str(e))
 
-    # Test 8: Autofill buttons visible on bracket page
+    # Test 8: Autofill button visible on bracket page
     try:
         with NovaAct(starting_page=url) as nova:
             nova.act("Type 'smoketest_user' in the Username field")
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
-            result = nova.act("Look for autofill buttons above the bracket. Do you see buttons labeled 'Chalk', 'Smart', and 'Random' (possibly with emoji icons like 🏅, 🧠, 🎲)?")
-            log_result("Autofill buttons visible on bracket", True)
+            result = nova.act("Look for an 'Autofill' button above the bracket (possibly with a 🪄 emoji). Do you see it?")
+            log_result("Autofill button visible on bracket", True)
     except Exception as e:
-        log_result("Autofill buttons visible on bracket", False, str(e))
+        log_result("Autofill button visible on bracket", False, str(e))
 
     # Test 9: Chalk autofill fills all picks
     try:
@@ -146,7 +146,7 @@ def run_tests(url):
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
-            nova.act("Click the 'Chalk' button")
+            nova.act("Click the 'Autofill' button, then click 'Chalk' from the dropdown menu")
             result = nova.act("Look at the picks counter near the top. Does it show '63/63 picks made'? Also check if a Champion is now displayed in the center of the bracket.")
             log_result("Chalk autofill fills all 63 picks", True)
     except Exception as e:
@@ -183,7 +183,7 @@ def run_tests(url):
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
-            nova.act("Click the 'Chalk' button")
+            nova.act("Click the 'Autofill' button, then click 'Chalk' from the dropdown menu")
             nova.act("Click the 'Save Picks' button")
             result = nova.act("Look at the confirmation dialog. Under 'Final Four', are all four regions showing actual team names (not '—' dashes)? Also check the pick counter shows '63/63'. Report what you see for each region and the counter.")
             response = (getattr(result, 'response', '') or '').lower()
@@ -219,7 +219,7 @@ def run_tests(url):
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
-            nova.act("Click the 'Chalk' button")
+            nova.act("Click the 'Autofill' button, then click 'Chalk' from the dropdown menu")
             nova.act("Click the 'Save Picks' button")
             nova.act("Click the 'Save Picks' button inside the confirmation dialog")
             result = nova.act("Do you see a success message like 'Picks saved' or a green notification? Or did you see an error message? Describe what you see.")
@@ -463,13 +463,26 @@ def run_tests(url):
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
-            nova.act("Click the 'Chalk' button")
+            nova.act("Click the 'Autofill' button, then click 'Chalk' from the dropdown menu")
             result = nova.act("Look at the pick counter. Does it say '63/63 picks made'? Report the exact text you see for the picks counter.")
             response = (getattr(result, 'response', '') or '').lower()
             passed = '63/63' in response
             log_result("Pick counter shows 63/63 after chalk autofill", passed, getattr(result, 'response', ''))
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
+
+    # Test: Autofill dropdown menu with Smart, Random, Chalk options
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click the 'Autofill' button")
+            result = nova.act("Do you see a dropdown menu with options 'Smart', 'Random', and 'Chalk'? Report what menu items you see.")
+            log_result("Autofill dropdown menu with options", True, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Autofill dropdown menu with options", False, str(e))
 
     # Test: Autofill preserves existing picks (only fills empty slots)
     try:
@@ -481,7 +494,7 @@ def run_tests(url):
             nova.act("Click the 'Reset Picks' button if visible, then confirm the reset")
             nova.act("Click on a team name in the first matchup of the first region to make a single pick")
             result_before = nova.act("Look at the pick counter. What does it say? Report the exact text like 'X/63 picks made'.")
-            nova.act("Click the 'Chalk' button to autofill remaining picks")
+            nova.act("Click the 'Autofill' button, then click 'Chalk' from the dropdown menu to autofill remaining picks")
             result_after = nova.act("Look at the pick counter. Does it now say '63/63 picks made'? Report the exact text.")
             log_result("Autofill preserves existing picks and fills empty slots", True, f"Before: {getattr(result_before, 'response', '')} | After: {getattr(result_after, 'response', '')}")
     except Exception as e:

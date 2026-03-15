@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
-import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from "@mui/material";
+import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Menu, MenuItem, Tooltip } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import FirstFour from "./FirstFour";
@@ -95,6 +95,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [confirmOpen, setConfirmOpen] = useState(false);
   const bracketRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
+  const [autofillAnchor, setAutofillAnchor] = useState<null | HTMLElement>(null);
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
 
   // Warn on unsaved changes when leaving page
@@ -218,16 +219,21 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
           )}
         </Box>
         {!locked && tournamentId && (
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk", firstFour, picks))} disabled={saving}>
-              🏅 Chalk
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+            <Button variant="outlined" size="small" onClick={(e) => setAutofillAnchor(e.currentTarget)} disabled={saving}>
+              🪄 Autofill
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart", firstFour, picks))} disabled={saving}>
-              🧠 Smart
-            </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random", firstFour, picks))} disabled={saving}>
-              🎲 Random
-            </Button>
+            <Menu anchorEl={autofillAnchor} open={Boolean(autofillAnchor)} onClose={() => setAutofillAnchor(null)}>
+              <Tooltip title="Uses historical NCAA tournament win rates to probabilistically fill remaining picks" placement="right">
+                <MenuItem onClick={() => { setPicks(autofillBracket(regions, "smart", firstFour, picks)); setAutofillAnchor(null); }}>🧠 Smart</MenuItem>
+              </Tooltip>
+              <Tooltip title="Randomly picks a winner for each remaining unfilled game" placement="right">
+                <MenuItem onClick={() => { setPicks(autofillBracket(regions, "random", firstFour, picks)); setAutofillAnchor(null); }}>🎲 Random</MenuItem>
+              </Tooltip>
+              <Tooltip title="Picks the higher seed (favorite) for every remaining unfilled game" placement="right">
+                <MenuItem onClick={() => { setPicks(autofillBracket(regions, "chalk", firstFour, picks)); setAutofillAnchor(null); }}>🏅 Chalk</MenuItem>
+              </Tooltip>
+            </Menu>
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
               {exporting ? "Exporting..." : "📷 Export"}
             </Button>
