@@ -10,7 +10,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Add countdown timer showing time until picks lock
 - [x] Show pick distribution stats (e.g. "75% of players picked Duke to win this game")
 - [x] Add ability for users to reset/clear all their picks
-- [ ] Show "max possible remaining score" on leaderboard (how high could each player still get)
+- [x] Show "max possible remaining score" on leaderboard (how high could each player still get)
 
 ### Medium Priority
 - [ ] Add bracket PDF/image export so users can share their picks
