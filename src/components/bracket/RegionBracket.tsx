@@ -110,6 +110,8 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
   const renderConnectors = (fromRound: number) => {
     const fromCount = gamesPerRound[fromRound];
     const toCount = fromCount / 2;
+    const isLeft = direction === "left";
+    const border = `2px solid ${regionColor}`;
     // Each pair of "from" matchups merges into one "to" matchup
     return (
       <Box
@@ -124,10 +126,10 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
       >
         {Array.from({ length: toCount }, (_, i) => (
           <Box key={i} sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
-            {/* Top half: horizontal line from top matchup, then vertical down to center */}
-            <Box sx={{ flex: 1, borderRight: `2px solid ${regionColor}`, borderBottom: direction === "left" ? `2px solid ${regionColor}` : "none", borderTop: direction === "right" ? `2px solid ${regionColor}` : "none" }} />
-            {/* Bottom half: horizontal line from bottom matchup, then vertical up to center */}
-            <Box sx={{ flex: 1, borderRight: `2px solid ${regionColor}`, borderTop: direction === "left" ? `2px solid ${regionColor}` : "none", borderBottom: direction === "right" ? `2px solid ${regionColor}` : "none" }} />
+            {/* Top half */}
+            <Box sx={{ flex: 1, ...(isLeft ? { borderRight: border, borderBottom: border } : { borderLeft: border, borderBottom: border }) }} />
+            {/* Bottom half */}
+            <Box sx={{ flex: 1, ...(isLeft ? { borderRight: border, borderTop: border } : { borderLeft: border, borderTop: border }) }} />
           </Box>
         ))}
       </Box>
