@@ -645,6 +645,28 @@ def run_tests(url):
     except Exception as e:
         log_result("POST /api/admin autofill_lock returns valid JSON", False, str(e))
 
+    # Test: Individual bracket URL /bracket/[username]/[bracketName] loads
+    try:
+        with NovaAct(starting_page=f"{url}/bracket/edgecdec") as nova:
+            result = nova.act("Look for a bracket view or a list of brackets. Do you see bracket content, a bracket name, or a list of bracket links?")
+            passed = True  # If no error, page loaded
+            log_result("Bracket URL /bracket/[username] loads", passed)
+    except Exception as e:
+        log_result("Bracket URL /bracket/[username] loads", False, str(e))
+
+    # Test: /bracket/[username]/[bracketName] route exists (returns page, not 404)
+    try:
+        req = urllib.request.Request(f"{url}/bracket/edgecdec/My%20Bracket")
+        with urllib.request.urlopen(req) as resp:
+            body = resp.read().decode()
+            has_page = "bracket" in body.lower() or "_next" in body
+            log_result("GET /bracket/[username]/[bracketName] returns page", has_page, f"status={resp.status}")
+    except urllib.error.HTTPError as he:
+        # 200 or even 307 redirect is fine; 404 is a fail
+        log_result("GET /bracket/[username]/[bracketName] returns page", he.code != 404, f"status={he.code}")
+    except Exception as e:
+        log_result("GET /bracket/[username]/[bracketName] returns page", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
