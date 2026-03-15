@@ -359,16 +359,16 @@ def run_tests(url):
     except Exception as e:
         log_result("Update Results Data section on admin page", False, str(e))
 
-    # Test: Compare brackets page loads with two selectors
+    # Test: Compare brackets overlay page loads with 4 selectors and colored dots
     try:
         with NovaAct(starting_page=f"{url}/compare") as nova:
             nova.act("Type 'smoketest_user' in the Username field")
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
-            result = nova.act("Do you see a 'Compare Brackets' heading and two dropdown selectors labeled 'Bracket A' and 'Bracket B'?")
-            log_result("Compare brackets page loads with selectors", True)
+            result = nova.act("Do you see a 'Compare Brackets' heading with four bracket selector dropdowns (Bracket 1, Bracket 2, Bracket 3, Bracket 4) each with a colored circle next to it?")
+            log_result("Compare brackets overlay page loads with selectors", True)
     except Exception as e:
-        log_result("Compare brackets page loads with selectors", False, str(e))
+        log_result("Compare brackets overlay page loads with selectors", False, str(e))
 
     # Test: User profile page loads with groups and brackets sections
     try:
