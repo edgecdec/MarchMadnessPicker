@@ -2,7 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore } from "@/types";
-import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, REGION_COLORS } from "@/lib/bracketData";
 
 interface Props {
   region: Region;
@@ -40,6 +40,7 @@ function getTeamForGame(
 export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
+  const regionColor = REGION_COLORS[region.name] || "#888";
 
   const renderRound = (round: number) => {
     const count = gamesPerRound[round];
@@ -71,6 +72,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
                 onPick={(team) => onPick(gameId, team)}
                 locked={locked}
                 distribution={distribution?.[gameId]}
+                regionColor={regionColor}
               />
             </Box>
           );
@@ -100,9 +102,9 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
         {Array.from({ length: toCount }, (_, i) => (
           <Box key={i} sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
             {/* Top half: horizontal line from top matchup, then vertical down to center */}
-            <Box sx={{ flex: 1, borderRight: "2px solid #555", borderBottom: direction === "left" ? "2px solid #555" : "none", borderTop: direction === "right" ? "2px solid #555" : "none" }} />
+            <Box sx={{ flex: 1, borderRight: `2px solid ${regionColor}`, borderBottom: direction === "left" ? `2px solid ${regionColor}` : "none", borderTop: direction === "right" ? `2px solid ${regionColor}` : "none" }} />
             {/* Bottom half: horizontal line from bottom matchup, then vertical up to center */}
-            <Box sx={{ flex: 1, borderRight: "2px solid #555", borderTop: direction === "left" ? "2px solid #555" : "none", borderBottom: direction === "right" ? "2px solid #555" : "none" }} />
+            <Box sx={{ flex: 1, borderRight: `2px solid ${regionColor}`, borderTop: direction === "left" ? `2px solid ${regionColor}` : "none", borderBottom: direction === "right" ? `2px solid ${regionColor}` : "none" }} />
           </Box>
         ))}
       </Box>
@@ -122,7 +124,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
 
   return (
     <Box>
-      <Typography variant="subtitle2" align="center" sx={{ mb: 0.5, fontWeight: 700, color: "primary.main" }}>
+      <Typography variant="subtitle2" align="center" sx={{ mb: 0.5, fontWeight: 700, color: regionColor }}>
         {region.name}
       </Typography>
       <Box

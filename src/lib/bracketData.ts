@@ -6,3 +6,11 @@ export const SEED_ORDER_PAIRS: [number, number][] = [
 ];
 
 export const TOTAL_GAMES = 63; // 32+16+8+4+2+1
+
+// Region accent colors for visual distinction
+export const REGION_COLORS: Record<string, string> = {
+  East: "#1976d2",
+  West: "#d32f2f",
+  South: "#2e7d32",
+  Midwest: "#e65100",
+};

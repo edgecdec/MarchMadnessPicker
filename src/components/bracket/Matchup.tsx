@@ -12,6 +12,7 @@ interface Props {
   locked?: boolean;
   compact?: boolean;
   distribution?: Record<string, number>;
+  regionColor?: string;
 }
 
 function TeamSlot({
@@ -25,6 +26,7 @@ function TeamSlot({
   locked,
   position,
   pct,
+  regionColor,
 }: {
   team?: Team;
   isWinner: boolean;
@@ -36,6 +38,7 @@ function TeamSlot({
   locked?: boolean;
   position: "top" | "bottom";
   pct?: number;
+  regionColor?: string;
 }) {
   const bg = isCorrect
     ? "rgba(76, 175, 80, 0.3)"
@@ -56,10 +59,10 @@ function TeamSlot({
         py: { xs: 0.75, sm: 0.25 },
         cursor: locked || !team ? "default" : "pointer",
         background: bg,
-        borderTop: position === "top" ? "1px solid #444" : "none",
-        borderBottom: "1px solid #444",
-        borderLeft: "1px solid #444",
-        borderRight: "1px solid #444",
+        borderTop: position === "top" ? `1px solid ${regionColor || "#444"}` : "none",
+        borderBottom: `1px solid ${regionColor || "#444"}`,
+        borderLeft: `1px solid ${regionColor || "#444"}`,
+        borderRight: `1px solid ${regionColor || "#444"}`,
         minWidth: 120,
         minHeight: { xs: 32, sm: "auto" },
         "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
@@ -94,7 +97,7 @@ function TeamSlot({
   );
 }
 
-export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution }: Props) {
+export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor }: Props) {
   const isLive = gameScore?.state === "in";
 
   return (
@@ -111,6 +114,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} locked={locked} position="top"
         pct={teamA && distribution?.[teamA.name] !== undefined ? distribution[teamA.name] : undefined}
+        regionColor={regionColor}
       />
       <TeamSlot
         team={teamB} isWinner={!!teamB && winner === teamB.name}
@@ -119,6 +123,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} locked={locked} position="bottom"
         pct={teamB && distribution?.[teamB.name] !== undefined ? distribution[teamB.name] : undefined}
+        regionColor={regionColor}
       />
     </Paper>
   );
