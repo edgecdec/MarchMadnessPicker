@@ -80,6 +80,12 @@ export const api = {
       request<{ id: string; username: string; message: string }>(`/api/groups/${groupId}/messages`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) }),
   },
 
+  // Simulate
+  simulate: {
+    get: (groupId: string, tournamentId: string) =>
+      request<{ group: { id: string; name: string }; scoring: ScoringSettings; bracket: any; results: Record<string, string>; entries: { username: string; bracket_name: string | null; picks: Record<string, string>; tiebreaker: number | null }[] }>(`/api/simulate?group_id=${groupId}&tournament_id=${tournamentId}`),
+  },
+
   // Admin
   admin: {
     createTournament: (name: string, year: number, lockTime?: string, bracketData?: any) =>
