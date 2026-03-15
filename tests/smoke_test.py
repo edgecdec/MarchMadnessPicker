@@ -265,11 +265,18 @@ def run_tests(url):
 
     # Test 17b: Bracket export uses dark text on white background (readability fix)
     try:
-        import urllib.request
+        import urllib.request, re
         resp = urllib.request.urlopen(url)
         html = resp.read().decode()
         has_export_style = "bracket-export" in html
-        log_result("Bracket export CSS forces dark text", has_export_style, "bracket-export class should be in page source")
+        if not has_export_style:
+            # Check linked CSS files
+            for css_href in re.findall(r'href="(/_next/static/css/[^"]+)"', html):
+                css_resp = urllib.request.urlopen(f"{url}{css_href}")
+                if "bracket-export" in css_resp.read().decode():
+                    has_export_style = True
+                    break
+        log_result("Bracket export CSS forces dark text", has_export_style, "bracket-export class should be in page source or linked CSS")
     except Exception as e:
         log_result("Bracket export CSS forces dark text", False, str(e))
 
