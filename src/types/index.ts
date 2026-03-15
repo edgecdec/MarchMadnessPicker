@@ -9,6 +9,7 @@ export interface User {
 export interface Team {
   seed: number;
   name: string;
+  logo?: string;
 }
 
 export interface Region {

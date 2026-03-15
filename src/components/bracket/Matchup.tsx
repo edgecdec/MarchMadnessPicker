@@ -1,6 +1,7 @@
 "use client";
 import { Box, Typography, Paper, Tooltip } from "@mui/material";
 import { Team, GameScore } from "@/types";
+import { getTeamLogoUrl } from "@/lib/bracketData";
 
 interface Props {
   teamA?: Team;
@@ -78,6 +79,9 @@ function TeamSlot({
           <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
             {team.seed}
           </Typography>
+          {(() => { const logo = getTeamLogoUrl(team.name); return logo ? (
+            <Box component="img" src={logo} alt="" sx={{ width: 16, height: 16, objectFit: "contain", flexShrink: 0 }} />
+          ) : null; })()}
           <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400, flexGrow: 1 }}>
             {team.name}
           </Typography>
