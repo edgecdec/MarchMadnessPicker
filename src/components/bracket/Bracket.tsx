@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
@@ -66,10 +66,28 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
+  const bracketRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
   const maxPoss = results ? maxPossibleScore(results) : 0;
+
+  const handleExport = async () => {
+    if (!bracketRef.current) return;
+    setExporting(true);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(bracketRef.current, { backgroundColor: "#fff", scale: 2, scrollX: 0, scrollY: 0, windowWidth: bracketRef.current.scrollWidth });
+      const link = document.createElement("a");
+      link.download = "bracket.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch {
+      setSnack({ msg: "Failed to export bracket", severity: "error" });
+    }
+    setExporting(false);
+  };
 
   const handlePick = useCallback(
     (gameId: string, team: Team) => {
@@ -146,6 +164,9 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
         </Box>
         {!locked && tournamentId && (
           <Box sx={{ display: "flex", gap: 1 }}>
+            <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
+              {exporting ? "Exporting..." : "📷 Export"}
+            </Button>
             <Button variant="outlined" color="error" onClick={() => setResetOpen(true)} disabled={saving || totalPicks === 0} size="small">
               Reset Picks
             </Button>
@@ -155,7 +176,12 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           </Box>
         )}
         {locked && (
-          <Typography variant="body2" color="warning.main">🔒 Picks are locked</Typography>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
+              {exporting ? "Exporting..." : "📷 Export"}
+            </Button>
+            <Typography variant="body2" color="warning.main">🔒 Picks are locked</Typography>
+          </Box>
         )}
       </Box>
 
