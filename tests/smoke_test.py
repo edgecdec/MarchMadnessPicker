@@ -298,6 +298,17 @@ def run_tests(url):
     except Exception as e:
         log_result("POST /api/admin/sync-results returns JSON", False, str(e))
 
+    # Test 21: Import Bracket Data section visible on admin page
+    try:
+        with NovaAct(starting_page=f"{url}/admin") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look for a section titled 'Import Bracket Data (JSON)' with a tournament dropdown, a JSON text area, and an 'Import Bracket Data' button. Do you see it?")
+            log_result("Import Bracket Data section on admin page", True)
+    except Exception as e:
+        log_result("Import Bracket Data section on admin page", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

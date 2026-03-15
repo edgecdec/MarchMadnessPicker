@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
-import { Container, Typography, TextField, Button, Box, Paper, CircularProgress } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Container, Typography, TextField, Button, Box, Paper, CircularProgress, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
+import { Tournament } from "@/types";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import PlanEditor from "@/components/common/PlanEditor";
@@ -15,6 +16,17 @@ export default function AdminPage() {
   const [msg, setMsg] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [selectedTournament, setSelectedTournament] = useState("");
+  const [bracketJson, setBracketJson] = useState("");
+  const [bracketMsg, setBracketMsg] = useState("");
+
+  useEffect(() => {
+    api.tournaments.list().then(({ tournaments: t }) => {
+      setTournaments(t);
+      if (t.length) setSelectedTournament(t[0].id);
+    }).catch(() => {});
+  }, []);
 
   if (loading) return null;
   if (!user) return <AuthForm />;
@@ -65,6 +77,29 @@ export default function AdminPage() {
           </Button>
           {syncMsg && <Typography variant="body2" sx={{ mt: 2, whiteSpace: "pre-wrap" }}>{syncMsg}</Typography>}
         </Paper>
+
+        {tournaments.length > 0 && (
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>Import Bracket Data (JSON)</Typography>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Tournament</InputLabel>
+              <Select value={selectedTournament} label="Tournament" onChange={e => setSelectedTournament(e.target.value)}>
+                {tournaments.map(t => <MenuItem key={t.id} value={t.id}>{t.name} ({t.year})</MenuItem>)}
+              </Select>
+            </FormControl>
+            <TextField label="Bracket JSON" multiline minRows={4} maxRows={12} fullWidth value={bracketJson} onChange={e => setBracketJson(e.target.value)}
+              helperText='Paste BracketData JSON: { "regions": [...], "first_four": [...] }' />
+            <Button variant="contained" sx={{ mt: 2 }} disabled={!bracketJson.trim() || !selectedTournament} onClick={async () => {
+              setBracketMsg("");
+              try {
+                const parsed = JSON.parse(bracketJson);
+                await api.admin.updateBracket(selectedTournament, parsed);
+                setBracketMsg("Bracket data updated successfully.");
+              } catch (e: any) { setBracketMsg(`Error: ${e.message}`); }
+            }}>Import Bracket Data</Button>
+            {bracketMsg && <Typography variant="body2" sx={{ mt: 2 }}>{bracketMsg}</Typography>}
+          </Paper>
+        )}
 
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>Create Tournament</Typography>
