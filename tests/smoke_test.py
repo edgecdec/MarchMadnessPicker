@@ -309,6 +309,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Import Bracket Data section on admin page", False, str(e))
 
+    # Test 23: Correct/incorrect pick color coding on view-others bracket
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look at the leaderboard table. Click on any username/player name link to view their bracket. If there are no links, just report that.")
+            result2 = nova.act("On this bracket view page, look at the matchups. Do you see green (✓) and/or red (✗) indicators next to team names showing correct and incorrect picks? Also look for green and red background highlights on matchup slots.")
+            log_result("Correct/incorrect color coding on view bracket", True)
+    except Exception as e:
+        log_result("Correct/incorrect color coding on view bracket", False, str(e))
+
     # Test 22: Update Results Data section visible on admin page
     try:
         with NovaAct(starting_page=f"{url}/admin") as nova:

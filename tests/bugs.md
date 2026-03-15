@@ -375,3 +375,483 @@ Bugs discovered by Nova Act smoke tests during Ralph development loops.
 **********************************************************************************************************
 
 - [2026-03-14 23:35] ~~**Bracket PNG export is nearly unreadable**: The export renders on a white background but uses the dark theme's light/faded text colors. Team names are barely visible (light grey on white), seed numbers are almost invisible, and matchup borders are very faint. The correct/incorrect pick colors (green/red tints) show up but the actual text content is washed out. Fix: when generating the PNG export, force dark text colors — team names should be black/dark grey, seed numbers should be dark, borders should be solid. Either temporarily swap to a light color palette during export, or explicitly set dark foreground colors in the export rendering logic. The website dark theme looks great — this only affects the downloaded PNG.~~ **FIXED** — Changed html2canvas backgroundColor from `#fff` to `#121212` (the dark theme background) so the exported PNG preserves the dark theme appearance with visible light text.
+
+- [2026-03-14 23:51] **Homepage loads**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Login form visible**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Register/Login flow**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Bracket page loads with teams**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Leaderboard page loads**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Groups page loads**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Championship pick highlighted prominently**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Autofill buttons visible on bracket**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Chalk autofill fills all 63 picks**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Tiebreaker input visible on bracket page**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Tiebreaker column on leaderboard**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Save confirmation dialog shows key picks summary**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Save bracket completes without error**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **First Four section visible on bracket page**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Sync Results from ESPN button on admin page**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Bracket export button visible**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Percentile rank shown on leaderboard**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Best Possible Finish column on leaderboard**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Import Bracket Data section on admin page**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************
+
+- [2026-03-14 23:51] **Update Results Data section on admin page**: 
+**********************************************************************************************************
+* Authentication Failed With Invalid Credentials Configuration                                           *
+*                                                                                                        *
+* There are two options for authenticating with Nova Act:                                                *
+* (1) Nova Act Free Version with API keys or (2) Nova Act AWS Service with AWS credentials.              *
+*                                                                                                        *
+* To use (1) Nova Act Free Version, set the NOVA_ACT_API_KEY environment variable                        *
+* or pass in explicitly using NovaAct(nova_act_api_key="<YOUR KEY HERE>", ...)                           *
+* To generate an API Key go to https://nova.amazon.com/act?tab=dev_tools                                 *
+*                                                                                                        *
+* To use (2) Nova Act AWS Service, you must use a Workflow construct. For example:                       *
+*                                                                                                        *
+* @workflow(workflow_definition_name="<your-workflow-name>", model_id="nova-act-latest")                 *
+* def explore_destinations():                                                                            *
+*     with NovaAct(starting_page="https://nova.amazon.com/act/gym/next-dot/search") as nova:             *
+*         nova.act("Find flights from Boston to Wolf on Feb 22nd")                                       *
+*                                                                                                        *
+* To create a workflow definition name, use the Nova Act CLI or go to                                    *
+* https://docs.aws.amazon.com/nova-act/latest/userguide/step-2-develop-locally.html#develop-with-aws-iam *
+*                                                                                                        *
+* Please configure one or the other in order to run your workflow.                                       *
+**********************************************************************************************************

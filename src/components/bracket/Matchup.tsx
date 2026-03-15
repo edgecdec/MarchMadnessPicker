@@ -22,6 +22,7 @@ function TeamSlot({
   isWinner,
   isCorrect,
   isWrong,
+  isActualWinner,
   isEliminated,
   score,
   isLive,
@@ -35,6 +36,7 @@ function TeamSlot({
   isWinner: boolean;
   isCorrect?: boolean;
   isWrong?: boolean;
+  isActualWinner?: boolean;
   isEliminated?: boolean;
   score?: string;
   isLive?: boolean;
@@ -48,6 +50,8 @@ function TeamSlot({
     ? "rgba(76, 175, 80, 0.3)"
     : isWrong
     ? "rgba(244, 67, 54, 0.3)"
+    : isActualWinner
+    ? "rgba(76, 175, 80, 0.12)"
     : isWinner
     ? "rgba(255, 111, 0, 0.25)"
     : "transparent";
@@ -82,9 +86,12 @@ function TeamSlot({
           {(() => { const logo = getTeamLogoUrl(team.name); return logo ? (
             <Box component="img" src={logo} alt="" sx={{ width: 16, height: 16, objectFit: "contain", flexShrink: 0 }} />
           ) : null; })()}
-          <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400, flexGrow: 1 }}>
+          <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner || isActualWinner ? 700 : 400, flexGrow: 1 }}>
             {team.name}
           </Typography>
+          {isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
+          {isWrong && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#f44336" }}>✗</Typography>}
+          {isActualWinner && !isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
           {score && (
             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.65rem", color: isLive ? "#4caf50" : "#aaa", ml: 0.5 }}>
               {score}
@@ -119,6 +126,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         team={teamA} isWinner={!!teamA && winner === teamA.name}
         isCorrect={!!result && !!teamA && winner === teamA.name && result === teamA.name}
         isWrong={!!result && !!teamA && winner === teamA.name && result !== teamA.name}
+        isActualWinner={!!result && !!teamA && result === teamA.name}
         isEliminated={!!teamA && !!eliminated?.has(teamA.name)}
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} locked={locked} position="top"
@@ -129,6 +137,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         team={teamB} isWinner={!!teamB && winner === teamB.name}
         isCorrect={!!result && !!teamB && winner === teamB.name && result === teamB.name}
         isWrong={!!result && !!teamB && winner === teamB.name && result !== teamB.name}
+        isActualWinner={!!result && !!teamB && result === teamB.name}
         isEliminated={!!teamB && !!eliminated?.has(teamB.name)}
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} locked={locked} position="bottom"
