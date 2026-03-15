@@ -11,6 +11,7 @@ import Bracket from "@/components/bracket/Bracket";
 import LiveScores from "@/components/bracket/LiveScores";
 import AuthForm from "@/components/auth/AuthForm";
 import CountdownTimer from "@/components/common/CountdownTimer";
+import PickReminderBanner from "@/components/common/PickReminderBanner";
 import { api } from "@/lib/api";
 
 export default function BracketPage() {
@@ -88,6 +89,7 @@ export default function BracketPage() {
       <Container maxWidth={false} sx={{ mt: 2, px: 2 }}>
         <Typography variant="h5" gutterBottom>{tournament.name}</Typography>
         <LiveScores />
+        <PickReminderBanner lockTime={tournament.lock_time} picks={userPicks} bracketName={activeBracket} />
         {tournament.lock_time && <CountdownTimer lockTime={tournament.lock_time} />}
 
         {/* Bracket selector */}
