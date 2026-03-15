@@ -181,6 +181,26 @@ def run_tests(url):
     except Exception as e:
         log_result("Save confirmation dialog shows key picks summary", False, str(e))
 
+    # Test 13: POST /api/picks returns valid JSON (not empty response)
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(
+            f"{url}/api/picks",
+            data=json.dumps({"tournament_id": "test"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            log_result("POST /api/picks returns valid JSON", True)
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            # 401/400/404 with JSON error body is fine — means the endpoint works
+            log_result("POST /api/picks returns valid JSON", "error" in body, f"status={he.code} body={body}")
+    except Exception as e:
+        log_result("POST /api/picks returns valid JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
