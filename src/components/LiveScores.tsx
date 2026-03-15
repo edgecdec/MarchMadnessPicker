@@ -1,0 +1,56 @@
+"use client";
+import { useEffect, useState } from "react";
+import { Box, Typography, Paper, Chip } from "@mui/material";
+
+interface LiveGame {
+  id: string;
+  name: string;
+  status: string;
+  detail: string;
+  state: string;
+  clock: string;
+  period: number;
+  home: { name: string; score: string; logo: string };
+  away: { name: string; score: string; logo: string };
+  broadcast: string;
+}
+
+export default function LiveScores() {
+  const [games, setGames] = useState<LiveGame[]>([]);
+
+  useEffect(() => {
+    const load = () => fetch("/api/scores").then((r) => r.json()).then((d) => setGames(d.games || []));
+    load();
+    const interval = setInterval(load, 30000); // refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  if (games.length === 0) return null;
+
+  return (
+    <Paper sx={{ p: 1.5, mb: 2, background: "rgba(255,255,255,0.03)" }}>
+      <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main", mb: 1, display: "block" }}>
+        🏀 Live Scores
+      </Typography>
+      <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5 }}>
+        {games.map((g) => (
+          <Paper key={g.id} sx={{ p: 1, minWidth: 160, flexShrink: 0, background: "rgba(255,255,255,0.05)" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+              <Typography variant="caption" sx={{ fontSize: "0.6rem", color: g.state === "in" ? "#4caf50" : "#999" }}>
+                {g.state === "in" ? `🔴 ${g.detail}` : g.detail}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="body2" sx={{ fontSize: "0.7rem", fontWeight: 600 }}>{g.away.name}</Typography>
+              <Typography variant="body2" sx={{ fontSize: "0.7rem", fontWeight: 700 }}>{g.away.score || "-"}</Typography>
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="body2" sx={{ fontSize: "0.7rem", fontWeight: 600 }}>{g.home.name}</Typography>
+              <Typography variant="body2" sx={{ fontSize: "0.7rem", fontWeight: 700 }}>{g.home.score || "-"}</Typography>
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+    </Paper>
+  );
+}

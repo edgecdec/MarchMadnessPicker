@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { Box, Button, Typography, Snackbar, Alert } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
-import { Team, Region } from "@/lib/bracketData";
+import { Team, Region, POINTS_PER_ROUND } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -62,6 +62,18 @@ export default function Bracket({ regions, initialPicks, results, tournamentId, 
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
 
+  // Calculate score
+  const score = results
+    ? Object.entries(results).reduce((total, [gameId, winner]) => {
+        if (picks[gameId] === winner) {
+          const round = parseInt(gameId.split("-")[1]) || 0;
+          return total + (POINTS_PER_ROUND[round] || 0);
+        }
+        return total;
+      }, 0)
+    : 0;
+  const maxPossible = results ? Object.keys(results).reduce((t, gid) => t + (POINTS_PER_ROUND[parseInt(gid.split("-")[1])] || 0), 0) : 0;
+
   const handlePick = useCallback(
     (gameId: string, team: Team) => {
       if (locked) return;
@@ -105,9 +117,16 @@ export default function Bracket({ regions, initialPicks, results, tournamentId, 
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          {totalPicks}/{totalGames} picks made
-        </Typography>
+        <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+          <Typography variant="body2" color="text.secondary">
+            {totalPicks}/{totalGames} picks made
+          </Typography>
+          {results && Object.keys(results).length > 0 && (
+            <Typography variant="body1" sx={{ fontWeight: 700, color: "primary.main" }}>
+              🏆 Score: {score} / {maxPossible} possible
+            </Typography>
+          )}
+        </Box>
         {!locked && tournamentId && (
           <Button variant="contained" onClick={handleSave} disabled={saving} size="small">
             {saving ? "Saving..." : "Save Picks"}

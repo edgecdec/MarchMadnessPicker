@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Container, Typography } from "@mui/material";
 import Navbar from "@/components/Navbar";
 import Bracket from "@/components/Bracket";
+import LiveScores from "@/components/LiveScores";
 import { Region } from "@/lib/bracketData";
 
 export default function BracketPage() {
@@ -67,6 +68,7 @@ export default function BracketPage() {
       <Navbar user={user} onLogout={() => { window.location.href = "/"; }} />
       <Container maxWidth={false} sx={{ mt: 2, px: 2 }}>
         <Typography variant="h5" gutterBottom>{tournament.name}</Typography>
+        <LiveScores />
         <Bracket
           regions={regions}
           tournamentId={tournament.id}
