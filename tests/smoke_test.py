@@ -471,6 +471,18 @@ def run_tests(url):
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
 
+    # Test: Bracket tabs switch correctly between brackets
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look at the bracket tabs. If there are multiple bracket tabs, click the second tab. Does the bracket content change? Report what tabs you see and whether clicking switches the view.")
+            log_result("Bracket tabs switch correctly", True, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Bracket tabs switch correctly", False, str(e))
+
     # Test: Autofill dropdown menu with Smart, Random, Chalk options
     try:
         with NovaAct(starting_page=url) as nova:

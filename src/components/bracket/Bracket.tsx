@@ -98,6 +98,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [autofillAnchor, setAutofillAnchor] = useState<null | HTMLElement>(null);
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
 
+  // Sync internal state when switching brackets
+  useEffect(() => {
+    setPicks(initialPicks || {});
+    savedPicksRef.current = JSON.stringify(initialPicks || {});
+  }, [initialPicks, bracketName]);
+
+  useEffect(() => {
+    setTiebreaker(initialTiebreaker != null ? String(initialTiebreaker) : "");
+  }, [initialTiebreaker, bracketName]);
+
   // Warn on unsaved changes when leaving page
   const isDirty = !locked && JSON.stringify(picks) !== savedPicksRef.current;
   useEffect(() => {
