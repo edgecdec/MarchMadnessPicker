@@ -17,7 +17,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Auto-pick reminder banner when lock time is approaching and bracket isn't complete.
 - [x] Print-friendly bracket view.
 - [x] Group creator can remove brackets from their group.
-- [ ] Group admin can lock/unlock bracket submissions independently of tournament lock time.
+- [x] Group admin can lock/unlock bracket submissions independently of tournament lock time.
 
 ## Completed
 - [x] Multiple brackets per user, custom names, enter into multiple groups
