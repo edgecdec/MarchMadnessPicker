@@ -55,3 +55,11 @@ src/
 - Do NOT modify deploy_webhook.sh or server.js webhook handler unless explicitly asked.
 
 This agent's config file is at ~/.kiro/agents/marchmadness.json. If asked to update context, edit that file directly.
+
+## Nova Act Smoke Tests
+- Tests are in tests/smoke_test.py using the Nova Act Python SDK
+- To run: `source ~/.zshrc && python3 tests/smoke_test.py`
+- Tests use NovaAct browser automation to verify pages load and features work
+- Results written to tests/results.json, failures logged to tests/bugs.md
+- When adding tests, follow the existing pattern: NovaAct context manager, nova.act() calls, log_result()
+- Do NOT write Nova Act auth errors to bugs.md — if you see "Authentication Failed", the API key is missing, not a bug

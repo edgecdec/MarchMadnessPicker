@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useRef, useMemo } from "react";
-import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, useTheme } from "@mui/material";
+import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import FirstFour from "./FirstFour";
@@ -95,7 +95,6 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [confirmOpen, setConfirmOpen] = useState(false);
   const bracketRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
-  const muiTheme = useTheme();
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
@@ -107,12 +106,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
     setExporting(true);
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(bracketRef.current, { backgroundColor: muiTheme.palette.background.default, scale: 2, scrollX: 0, scrollY: 0, windowWidth: bracketRef.current.scrollWidth });
+      // Force dark text for readable export on white background
+      bracketRef.current.classList.add("bracket-export");
+      const canvas = await html2canvas(bracketRef.current, { backgroundColor: "#ffffff", scale: 2, scrollX: 0, scrollY: 0, windowWidth: bracketRef.current.scrollWidth });
+      bracketRef.current.classList.remove("bracket-export");
       const link = document.createElement("a");
       link.download = "bracket.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch {
+      bracketRef.current?.classList.remove("bracket-export");
       setSnack({ msg: "Failed to export bracket", severity: "error" });
     }
     setExporting(false);
@@ -181,6 +184,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
   return (
     <Box>
+      <style>{`.bracket-export, .bracket-export * { color: #222 !important; }`}</style>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
         <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Typography variant="body2" color="text.secondary">

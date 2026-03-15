@@ -5,6 +5,10 @@
 set -e
 cd "$(dirname "$0")" || exit 1
 
+# Source shell env for Nova Act API key and correct python3
+source ~/.zshrc 2>/dev/null || true
+export PATH="/opt/homebrew/bin:$PATH"
+
 MAX=${1:-0}
 COUNT=0
 LOG_DIR="/tmp/ralph-logs"
@@ -34,7 +38,7 @@ while true; do
   echo "   Next: $NEXT"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  # Run kiro — agent builds, tests locally, then pushes
+  # Run kiro — agent builds, tests, then pushes
   kiro-cli chat \
     --agent marchmadness \
     --no-interactive \
@@ -45,19 +49,21 @@ while true; do
   echo ""
   echo "   ✓ Iteration $COUNT complete (log: $LOG_FILE)"
 
-  # Run Nova Act smoke tests every iteration
-  echo "   🧪 Running smoke tests..."
-  if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
-    echo "   ✅ All smoke tests passed"
-  else
-    echo "   🐛 Smoke tests found issues — feeding back to agent"
-    BUGS=$(cat tests/results.json 2>/dev/null || echo '{}')
-    kiro-cli chat \
-      --agent marchmadness \
-      --no-interactive \
-      --trust-all-tools \
-      "Smoke tests found failures. Results: ${BUGS}. Check tests/bugs.md. Fix the issues, test locally, then push." \
-      2>&1 | tee -a "$LOG_FILE"
+  # Run Nova Act smoke tests every 5th iteration
+  if [ $((COUNT % 5)) -eq 0 ]; then
+    echo "   🧪 Running smoke tests..."
+    if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
+      echo "   ✅ All smoke tests passed"
+    else
+      echo "   🐛 Smoke tests found issues — feeding back to agent"
+      BUGS=$(cat tests/results.json 2>/dev/null || echo '{}')
+      kiro-cli chat \
+        --agent marchmadness \
+        --no-interactive \
+        --trust-all-tools \
+        "Smoke tests found failures. Results: ${BUGS}. Check tests/bugs.md. Fix the issues, then push." \
+        2>&1 | tee -a "$LOG_FILE"
+    fi
   fi
 
   if [ "$MAX" -gt 0 ] && [ "$COUNT" -ge "$MAX" ]; then

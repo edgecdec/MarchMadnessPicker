@@ -254,6 +254,16 @@ def run_tests(url):
     except Exception as e:
         log_result("Bracket export button visible", False, str(e))
 
+    # Test 17b: Bracket export uses dark text on white background (readability fix)
+    try:
+        import urllib.request
+        resp = urllib.request.urlopen(url)
+        html = resp.read().decode()
+        has_export_style = "bracket-export" in html
+        log_result("Bracket export CSS forces dark text", has_export_style, "bracket-export class should be in page source")
+    except Exception as e:
+        log_result("Bracket export CSS forces dark text", False, str(e))
+
     # Test 18: Percentile rank shown on leaderboard
     try:
         with NovaAct(starting_page=url) as nova:
