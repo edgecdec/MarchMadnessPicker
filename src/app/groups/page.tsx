@@ -9,6 +9,7 @@ import { DEFAULT_SCORING } from "@/types";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringEditor from "@/components/common/ScoringEditor";
+import GroupChat from "@/components/common/GroupChat";
 
 export default function GroupsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -19,6 +20,7 @@ export default function GroupsPage() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [scoringGroup, setScoringGroup] = useState<string | null>(null);
   const [bracketsGroup, setBracketsGroup] = useState<string | null>(null);
+  const [chatGroup, setChatGroup] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [snack, setSnack] = useState("");
   const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
@@ -113,6 +115,9 @@ export default function GroupsPage() {
                       <Button size="small" variant="outlined" onClick={() => setBracketsGroup(bracketsGroup === g.id ? null : g.id)}>
                         {bracketsGroup === g.id ? "Hide" : "Brackets"}
                       </Button>
+                      <Button size="small" variant="outlined" onClick={() => setChatGroup(chatGroup === g.id ? null : g.id)}>
+                        {chatGroup === g.id ? "Hide" : "Chat"}
+                      </Button>
                       <Button size="small" variant="outlined" color="secondary" onClick={() => setScoringGroup(scoringGroup === g.id ? null : g.id)}>
                         {scoringGroup === g.id ? "Hide" : "Scoring"}
                       </Button>
@@ -181,6 +186,10 @@ export default function GroupsPage() {
                         ))
                       )}
                     </Box>
+                  )}
+
+                  {chatGroup === g.id && (
+                    <GroupChat groupId={g.id} currentUser={user.username} />
                   )}
 
                   {selectedGroup === g.id && (

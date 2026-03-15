@@ -84,6 +84,15 @@ export interface UserBracket {
   tiebreaker?: number | null;
 }
 
+export interface GroupMessage {
+  id: string;
+  group_id: string;
+  user_id: string;
+  username: string;
+  message: string;
+  created_at: string;
+}
+
 export interface LiveGame {
   id: string;
   name: string;

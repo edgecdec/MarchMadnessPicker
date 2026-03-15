@@ -1,6 +1,6 @@
 // Centralized API client — all fetch calls go through here
 
-import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings, UserBracket } from "@/types";
+import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings, UserBracket, GroupMessage } from "@/types";
 
 async function request<T>(url: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(url, opts);
@@ -72,6 +72,12 @@ export const api = {
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assign_bracket", pick_id: pickId, group_id: groupId }) }),
     unassignBracket: (pickId: string, groupId: string) =>
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unassign_bracket", pick_id: pickId, group_id: groupId }) }),
+    messages: (groupId: string, before?: string) => {
+      const params = before ? `?before=${before}` : "";
+      return request<{ messages: GroupMessage[] }>(`/api/groups/${groupId}/messages${params}`);
+    },
+    sendMessage: (groupId: string, message: string) =>
+      request<{ id: string; username: string; message: string }>(`/api/groups/${groupId}/messages`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) }),
   },
 
   // Admin

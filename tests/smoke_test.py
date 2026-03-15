@@ -392,6 +392,32 @@ def run_tests(url):
     except Exception as e:
         log_result("Theme toggle button visible in navbar", False, str(e))
 
+    # Test: Group chat section visible on groups page
+    try:
+        with NovaAct(starting_page=f"{url}/groups") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look at the group cards. Do you see a 'Chat' button on any group? Click it if you see one.")
+            result2 = nova.act("Do you see a chat area with a text input field that says 'Type a message...' and a send button?")
+            log_result("Group chat section visible on groups page", True)
+    except Exception as e:
+        log_result("Group chat section visible on groups page", False, str(e))
+
+    # Test: Group messages API returns valid JSON
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(f"{url}/api/groups/everyone/messages")
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            log_result("GET /api/groups/[id]/messages returns valid JSON", "messages" in body)
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            log_result("GET /api/groups/[id]/messages returns valid JSON", "error" in body, f"status={he.code}")
+    except Exception as e:
+        log_result("GET /api/groups/[id]/messages returns valid JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
