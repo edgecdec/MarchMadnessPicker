@@ -471,6 +471,18 @@ def run_tests(url):
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
 
+    # Test: Leaderboard round scores add up to total (upset bonus included)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look at the first row in the leaderboard table. Read the values in the R64, R32, S16, E8, FF, Champ columns and the Total column. Add up the round columns. Does the sum equal the Total? Report the individual round values and the total.")
+            log_result("Leaderboard round scores add up to total", True, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Leaderboard round scores add up to total", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request

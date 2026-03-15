@@ -6,33 +6,23 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ## Tasks
 
 ### High Priority
-- [x] Add First Four (play-in) support: The bracket has 68 teams, not 64. Four R64 slots have play-in games (2 between 16-seeds, 2 between 11-seeds). Add a `first_four` field to bracket_data with the 4 matchups. In the bracket UI, show "TeamA/TeamB" in unresolved First Four R64 slots. Add a small "First Four" section above the bracket showing the 4 play-in games. Users can pick either team from a First Four pair to advance through the bracket. When First Four resolves, the bracket slot updates to show just the winner.
-- [x] Auto-resolve game results from ESPN API: Create an admin API endpoint or cron-style mechanism that fetches NCAA tournament results from ESPN (site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100) and automatically updates the tournament results_data when games finish. Match ESPN team names to our bracket team names. This should handle First Four games too — auto-resolve the First Four slots when those games complete. Add a "Sync Results from ESPN" button on the admin page that triggers this manually.
+- [ ] Add "What-If" leaderboard simulator: Create a /simulate page where a user can select a group, then see the current leaderboard for that group. Below the leaderboard, show the remaining unpicked/unresolved games. The user can click to hypothetically pick a winner for each remaining game and see the leaderboard re-sort in real-time based on those hypothetical results. This lets users answer "if Duke beats Florida, who moves up?" Use the group's custom scoring settings. The simulator should: (1) fetch the group's members and their picks, (2) fetch current results, (3) show remaining games with clickable teams, (4) recalculate all scores client-side as the user clicks hypothetical winners, (5) highlight rank changes (arrows up/down). This is read-only — it doesn't save anything, just simulates.
+- [ ] Replace the "Compare Brackets" side-by-side view with a single-bracket overlay comparison. Show ONE bracket where each matchup displays both users' picks with colored indicators per user. Add a dropdown to select which users/brackets to compare (up to 3-4). Remove the old side-by-side /compare page and its smoke test.
+- [ ] Auto-fill incomplete brackets at lock time using "Smart" autofill: When the tournament lock time hits, any bracket that isn't fully filled out (less than 63 picks) should automatically get its remaining empty slots filled using the Smart autofill (historical seed win rates). This ensures every bracket is complete for scoring. Run this as part of the lock process or as a check when lock time passes.
+- [ ] Give each bracket its own URL: Restructure bracket URLs so each bracket is accessible at /bracket/[username]/[bracketName] or /bracket/[bracketId]. The current /bracket page should list the user's brackets and link to each one. /bracket/[username] should show a list of that user's brackets (after lock time). This makes brackets individually shareable.
 
-### Bracket Display Improvements
-
-### Picking Experience
-
-### Leaderboard & Scoring
-- [x] Add round-by-round score breakdown on leaderboard (columns for R64, R32, S16, E8, FF, Champ points)
-- [x] Show percentile rank on leaderboard ("Your bracket is in the 85th percentile")
-- [x] Add "best possible finish" to leaderboard — highest rank each player could still achieve given remaining games
-
-### Admin
-- [x] Let admin bulk-import bracket data via JSON paste on admin page
-- [x] Let admin bulk-update results via JSON paste on admin page
-
-### Social & Views
-- [x] Show which picks are correct/incorrect with color coding on the view-others-bracket page
-- [x] Add a "compare brackets" view showing two users' picks side by side
-- [x] Add user profile page showing their groups, stats, pick history
-
-### Lower Priority
-- [x] Add notification/banner when new results are entered
-- [x] Dark/light theme toggle
-- [x] Add chat/comments per group
-- [x] Animate bracket transitions when clicking picks
-- [x] Show historical seed matchup stats on hover (e.g. "12-seeds beat 5-seeds 36% of the time")
+### Features
+- [ ] "Who picked whom" page: For each game in the bracket, show a breakdown of which users in your group picked which team. Helps see consensus and contrarian picks.
+- [ ] "Bracket Busted" indicator: Show a skull/X icon next to users on the leaderboard whose championship pick has been eliminated.
+- [ ] Shareable bracket link: Generate a public read-only link to a specific bracket that works without login. For sharing on social media.
+- [ ] Bracket scoring breakdown popup: Click on any user's score on the leaderboard to see a detailed breakdown — which picks were correct, how many points each earned, bonus points from upsets.
+- [ ] "Eliminated from contention" indicator on leaderboard: Show when a user can no longer mathematically win the group even with perfect remaining picks.
+- [ ] Bracket stats dashboard: Show stats like "most popular champion pick in your group", "biggest upset picked", "most chalk bracket", "most contrarian bracket".
+- [ ] Mini-bracket widget: A compact bracket view showing just the Final Four + Championship picks. Good for group pages, leaderboards, and sharing.
+- [ ] Auto-pick reminder: If a user hasn't submitted picks and lock time is approaching (e.g. 1 hour before), show a prominent banner warning them.
+- [ ] Print-friendly bracket view: A clean, printer-optimized layout for people who want to print and fill out by hand or post on a wall.
+- [ ] Group admin can lock/unlock bracket submissions independently of tournament lock time.
+- [ ] Group creator can remove brackets from their group: Add a delete/remove button next to each bracket on the group leaderboard, visible only to the group creator. This removes the bracket-to-group assignment, not the bracket itself. Confirmation dialog before removing.
 
 ### Completed
 - [x] Support multiple brackets per user
@@ -53,3 +43,18 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Add ability for users to reset/clear all their picks
 - [x] Show "max possible remaining score" on leaderboard
 - [x] Add bracket PDF/image export
+- [x] Add First Four (play-in) support
+- [x] Auto-resolve game results from ESPN API
+- [x] Add round-by-round score breakdown on leaderboard
+- [x] Show percentile rank on leaderboard
+- [x] Add "best possible finish" to leaderboard
+- [x] Let admin bulk-import bracket data via JSON paste
+- [x] Let admin bulk-update results via JSON paste
+- [x] Show correct/incorrect color coding on view-others-bracket page
+- [x] Add compare brackets view (being replaced with overlay version)
+- [x] Add user profile page with groups, stats, pick history
+- [x] Add notification/banner when new results are entered
+- [x] Dark/light theme toggle
+- [x] Add chat/comments per group
+- [x] Animate bracket transitions when clicking picks
+- [x] Show historical seed matchup stats on hover

@@ -97,13 +97,34 @@ export function scorePicksByRound(
   picks: Record<string, string>,
   results: Record<string, string>,
   settings?: ScoringSettings,
+  regions?: Region[],
 ): number[] {
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
+  const bonus = settings?.upsetBonusPerRound ?? [0, 0, 0, 0, 0, 0];
   const scores = [0, 0, 0, 0, 0, 0];
+
+  const seedMap: Record<string, number> = {};
+  if (regions) {
+    for (const r of regions) {
+      for (const t of r.teams) {
+        seedMap[t.name] = t.seed;
+      }
+    }
+  }
+
   for (const [gameId, winner] of Object.entries(results)) {
     if (picks[gameId] !== winner) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
-    if (round >= 0 && round < 6) scores[round] += pts[round] || 0;
+    if (round >= 0 && round < 6) {
+      scores[round] += pts[round] || 0;
+      if (bonus[round] > 0 && Object.keys(seedMap).length > 0) {
+        const loser = getLoser(gameId, winner, picks, results, regions);
+        if (loser && seedMap[winner] && seedMap[loser]) {
+          const diff = seedMap[winner] - seedMap[loser];
+          if (diff > 0) scores[round] += bonus[round] * diff;
+        }
+      }
+    }
   }
   return scores;
 }

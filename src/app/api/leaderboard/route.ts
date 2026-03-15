@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         maxRemaining,
         maxPossible: score + maxRemaining,
         tiebreaker: p.tiebreaker ?? null,
-        roundScores: scorePicksByRound(picks, results, settings),
+        roundScores: scorePicksByRound(picks, results, settings, bracket.regions),
       };
     })
     .sort((a, b) => b.score - a.score);

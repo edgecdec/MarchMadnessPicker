@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
         submitted_at: p.submitted_at,
         tiebreaker: p.tiebreaker,
         score: scorePicks(pd, results, settings, bracket.regions),
-        roundScores: scorePicksByRound(pd, results, settings),
+        roundScores: scorePicksByRound(pd, results, settings, bracket.regions),
       };
     });
   }
