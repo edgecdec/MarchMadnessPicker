@@ -4,7 +4,6 @@ import { getUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
   const user = await getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const { username } = await params;
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
@@ -15,10 +14,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
   const tournament = db.prepare("SELECT lock_time FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
 
-  if (username !== user.username) {
-    if (!tournament.lock_time || new Date(tournament.lock_time) > new Date()) {
-      return NextResponse.json({ error: "Picks are hidden until lock time" }, { status: 403 });
-    }
+  const isOwner = user && username === user.username;
+  const pastLock = tournament.lock_time && new Date(tournament.lock_time) <= new Date();
+  if (!isOwner && !pastLock) {
+    return NextResponse.json({ error: "Picks are hidden until lock time" }, { status: 403 });
   }
 
   const target = db.prepare("SELECT id FROM users WHERE username = ?").get(username) as any;

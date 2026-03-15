@@ -5,9 +5,9 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 ## Tasks
 - [x] Rework /simulate page: use full Bracket component instead of game list. Clicks set hypothetical results. Live leaderboard sidebar re-sorts as user clicks. Group selector at top.
 - [x] Replace /compare with overlay comparison: ONE bracket showing multiple users' picks with colored indicators per user. Dropdown to select users (up to 4). Remove old side-by-side page.
-- [ ] Auto-fill incomplete brackets at lock time using Smart autofill for empty slots.
-- [ ] Give each bracket its own URL: /bracket/[username]/[bracketName]. List page at /bracket/[username].
-- [ ] "Who picked whom": per-game breakdown of group members' picks.
+- [x] Auto-fill incomplete brackets at lock time using Smart autofill for empty slots.
+- [x] Give each bracket its own URL: /bracket/[username]/[bracketName]. List page at /bracket/[username].
+- [x] "Who picked whom": per-game breakdown of group members' picks.
 - [x] "Bracket Busted" indicator: skull icon on leaderboard when user's champion is eliminated.
 - [ ] Shareable public bracket link that works without login.
 - [ ] Scoring breakdown popup: click a leaderboard score to see per-pick detail with bonus points.

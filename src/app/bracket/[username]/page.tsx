@@ -7,13 +7,12 @@ import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import Bracket from "@/components/bracket/Bracket";
-import AuthForm from "@/components/auth/AuthForm";
 import Link from "next/link";
 
 export default function ViewBracketPage() {
   const { username } = useParams<{ username: string }>();
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
   const [brackets, setBrackets] = useState<{ id: string; bracket_name: string }[]>([]);
@@ -31,10 +30,8 @@ export default function ViewBracketPage() {
       .catch((e) => { setError(e.message); setLoading(false); });
   }, [tournament, username, user, router]);
 
-  if (authLoading || tournLoading) return null;
-  if (!user) return <AuthForm />;
+  if (tournLoading) return null;
 
-  // If only one bracket, show it directly
   const showList = brackets.length > 1;
 
   return (

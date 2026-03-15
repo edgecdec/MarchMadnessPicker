@@ -2,17 +2,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Container, Typography } from "@mui/material";
-import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import Bracket from "@/components/bracket/Bracket";
-import AuthForm from "@/components/auth/AuthForm";
 
 export default function ViewSingleBracketPage() {
   const { username, bracketName } = useParams<{ username: string; bracketName: string }>();
   const decodedName = decodeURIComponent(bracketName);
-  const { user, loading: authLoading } = useAuth();
   const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
   const [error, setError] = useState("");
@@ -25,8 +22,7 @@ export default function ViewSingleBracketPage() {
       .catch((e) => { setError(e.message); setLoading(false); });
   }, [tournament, username, decodedName]);
 
-  if (authLoading || tournLoading) return null;
-  if (!user) return <AuthForm />;
+  if (tournLoading) return null;
 
   return (
     <>
