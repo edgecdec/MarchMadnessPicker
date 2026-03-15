@@ -42,6 +42,8 @@ export const api = {
     },
     distribution: (tournamentId: string) =>
       request<{ distribution: Record<string, Record<string, number>> }>(`/api/picks/distribution?tournament_id=${tournamentId}`),
+    whoPicked: (groupId: string, tournamentId: string) =>
+      request<{ games: Record<string, Record<string, { count: number; users: { username: string; bracket_name: string | null }[] }>> }>(`/api/picks/whopicked?group_id=${groupId}&tournament_id=${tournamentId}`),
   },
 
   // Leaderboard

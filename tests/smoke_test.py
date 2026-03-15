@@ -611,6 +611,42 @@ def run_tests(url):
     except Exception as e:
         log_result("Simulate link visible in navbar", False, str(e))
 
+    # Test: Who Picked Whom page loads with group selector
+    try:
+        with NovaAct(starting_page=f"{url}/whopicked") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Do you see a 'Who Picked Whom' heading with a 'Select Group' dropdown?")
+            log_result("Who Picked Whom page loads with group selector", True)
+    except Exception as e:
+        log_result("Who Picked Whom page loads with group selector", False, str(e))
+
+    # Test: Who Picked Whom API returns valid JSON
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(f"{url}/api/picks/whopicked?group_id=everyone&tournament_id=test")
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            log_result("GET /api/picks/whopicked returns valid JSON", "games" in body, str(list(body.keys())))
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            log_result("GET /api/picks/whopicked returns valid JSON", "error" in body, f"status={he.code}")
+    except Exception as e:
+        log_result("GET /api/picks/whopicked returns valid JSON", False, str(e))
+
+    # Test: Who Picked link visible in navbar
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look at the navigation bar. Do you see a 'Who Picked' link/button?")
+            log_result("Who Picked link visible in navbar", True)
+    except Exception as e:
+        log_result("Who Picked link visible in navbar", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request

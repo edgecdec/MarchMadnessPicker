@@ -28,6 +28,7 @@ export default function Navbar() {
             <Button color="inherit" href="/groups">Groups</Button>
             <Button color="inherit" href="/leaderboard">Leaderboard</Button>
             <Button color="inherit" href="/compare">Compare</Button>
+            <Button color="inherit" href="/whopicked">Who Picked</Button>
             <Button color="inherit" href="/simulate">Simulate</Button>
             {user.is_admin && <Button color="warning" href="/admin">Admin</Button>}
             <Button color="inherit" href={`/profile/${user.username}`} size="small">{user.username}</Button>
