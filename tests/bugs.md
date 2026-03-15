@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Bracket tabs don't switch**: On /bracket, clicking different bracket tabs always displays the first bracket instead of switching. The tab click handler isn't updating which bracket's picks are passed to the Bracket component.
-
 - **Leaderboard missing upset bonus in round breakdown**: Total score includes upset bonuses correctly but the round-by-round columns don't. The per-round scores add up to less than the total. Fix: include upset bonus points in each round's column total.
 
 - **Viewing own bracket at /bracket/[username] says "picks are locked"**: Should redirect to /bracket (editable) when the logged-in user views their own username.
