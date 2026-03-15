@@ -33,16 +33,12 @@ src/
    - Components organized by feature folder
 5. Add or update a Nova Act test in tests/smoke_test.py for the feature you just implemented
 6. Run `npx next build` to verify it compiles. If build fails, fix and retry. Do NOT proceed with broken code.
-7. Start the app locally and test it:
-   - Run in one command: `cd ~/TestProjects/MarchMadness && PORT=3003 NODE_ENV=production timeout 30 node server.js &` then in a SEPARATE shell command: `sleep 5 && curl -s -o /dev/null -w "%{http_code}" http://localhost:3003`
-   - IMPORTANT: Always use separate shell commands for starting the server and testing it. Never combine them.
-   - Test the API route you changed with curl in another separate command
-   - When done testing, kill the server: `lsof -ti:3003 | xargs kill -9 2>/dev/null`
-   - If any test fails, kill the server, fix the issue, rebuild, and test again
-8. Commit and push: `git add -A && git commit -m "descriptive message" && git push`
-9. Wait 45 seconds for deploy, then verify: `curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` — must return 200
-10. If the site is NOT returning 200, check: `ssh -i ~/.ssh/vps1.priv root@5.78.132.57 "tail -30 /var/log/webhook_deploy_marchmadness.log"` and fix immediately
-11. Mark the task [x] in PLAN.md and commit that too
+7. Commit and push: `git add -A && git commit -m "descriptive message" && git push`
+8. Wait 45 seconds for deploy: `sleep 45`
+9. Verify the site is up: `curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` — must return 200
+10. Test the API route you changed on the live site with curl, e.g.: `curl -s https://marchmadness.edgecdec.com/api/picks` — verify it returns valid JSON, not HTML or empty response
+11. If the site is NOT returning 200 or API returns bad data, check: `ssh -i ~/.ssh/vps1.priv root@5.78.132.57 "tail -30 /var/log/webhook_deploy_marchmadness.log"` and fix immediately
+12. Mark the task [x] in PLAN.md and commit that too
 
 ## Rules
 - ONE task per loop. Do not combine tasks.
@@ -51,8 +47,8 @@ src/
 - Keep changes minimal — don't refactor unrelated code.
 - If a task is unclear, implement the simplest reasonable interpretation.
 - NEVER push code that doesn't build locally.
-- NEVER push code that doesn't work locally. Always test locally first.
-- ALWAYS test API routes with curl locally before pushing. Verify they return valid JSON.
+- NEVER start a local server. Do NOT run `node server.js` locally. Test on the live site after pushing.
+- ALWAYS test API routes with curl on the live site after deploy. Verify they return valid JSON.
 - ALWAYS verify the live site is up after pushing. If it's down, fix it before finishing.
 - ALWAYS add or update a test in tests/smoke_test.py for the feature you implemented.
 - Check tests/bugs.md for any known bugs. Fix bugs BEFORE picking new tasks.
