@@ -109,6 +109,12 @@ export const api = {
       request<{ ok: boolean; updated: number; matched: string[]; unmatched: string[]; totalResults: number }>("/api/admin/sync-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }),
   },
 
+  // Stats
+  stats: {
+    get: (tournamentId: string) =>
+      request<{ stats: any }>(`/api/stats?tournament_id=${tournamentId}`),
+  },
+
   // Profile
   profile: {
     get: (username: string) =>
