@@ -51,8 +51,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     })
     .sort((a, b) => b.score - a.score);
 
+  const topScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+  const leaderboardWithElim = leaderboard.map((e) => ({
+    ...e,
+    eliminated: (e.score + e.maxRemaining) < topScore,
+  }));
+
   return NextResponse.json({
     group: { ...group, scoring_settings: scoring },
-    leaderboard,
+    leaderboard: leaderboardWithElim,
   });
 }

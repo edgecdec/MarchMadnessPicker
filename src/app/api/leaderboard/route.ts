@@ -48,10 +48,13 @@ export async function GET(req: NextRequest) {
     })
     .sort((a, b) => b.score - a.score);
 
+  const topScore = entries.length > 0 ? entries[0].score : 0;
+
   // Best possible finish: count players whose current score already exceeds this player's max possible
   const leaderboard = entries.map((e) => ({
     ...e,
     bestPossibleFinish: entries.filter((o) => o.score > e.maxPossible).length + 1,
+    eliminated: e.maxPossible < topScore,
   }));
 
   return NextResponse.json({ leaderboard, scoring_settings: settings });

@@ -56,6 +56,7 @@ export interface LeaderboardEntry {
   bestPossibleFinish?: number;
   championPick?: string | null;
   busted?: boolean;
+  eliminated?: boolean;
 }
 
 export interface ScoringSettings {
