@@ -12,7 +12,7 @@ import AuthForm from "@/components/auth/AuthForm";
 export default function ViewBracketPage() {
   const { username } = useParams<{ username: string }>();
   const { user, loading: authLoading } = useAuth();
-  const { tournament, regions, results, loading: tournLoading } = useTournament();
+  const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
   const [brackets, setBrackets] = useState<{ id: string; bracket_name: string }[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -57,7 +57,7 @@ export default function ViewBracketPage() {
           </Box>
         )}
         {!loading && !error && viewPicks && regions && (
-          <Bracket regions={regions} initialPicks={viewPicks} results={results} locked />
+          <Bracket regions={regions} firstFour={firstFour} initialPicks={viewPicks} results={results} locked />
         )}
       </Container>
     </>

@@ -1,6 +1,7 @@
-import { Region, Team } from "@/types";
+import { Region, Team, FirstFourGame } from "@/types";
 import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
 import { getWinProbability } from "@/lib/seedStats";
+import { ffGameId } from "@/components/bracket/FirstFour";
 
 type Mode = "chalk" | "random" | "smart";
 
@@ -12,8 +13,18 @@ function pickWinner(a: Team, b: Team, mode: Mode): Team {
   return Math.random() < probA ? a : b;
 }
 
-export function autofillBracket(regions: Region[], mode: Mode): Record<string, string> {
+export function autofillBracket(regions: Region[], mode: Mode, firstFour?: FirstFourGame[]): Record<string, string> {
   const picks: Record<string, string> = {};
+
+  // Fill First Four play-in games
+  if (firstFour) {
+    for (const ff of firstFour) {
+      const gid = ffGameId(ff);
+      const a: Team = { seed: ff.seed, name: ff.teamA };
+      const b: Team = { seed: ff.seed, name: ff.teamB };
+      picks[gid] = (mode === "random" ? (Math.random() < 0.5 ? a : b) : a).name;
+    }
+  }
 
   // Fill each region (rounds 0-3)
   for (const region of regions) {

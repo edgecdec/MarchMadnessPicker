@@ -3,13 +3,15 @@ import { useState, useCallback, useRef, useMemo } from "react";
 import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
-import { Team, Region, GameScore } from "@/types";
+import FirstFour from "./FirstFour";
+import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { TOTAL_GAMES } from "@/lib/bracketData";
 import { autofillBracket } from "@/lib/autofill";
 
 interface Props {
   regions: Region[];
+  firstFour?: FirstFourGame[];
   initialPicks?: Record<string, string>;
   results?: Record<string, string>;
   gameScores?: Record<string, GameScore>;
@@ -44,6 +46,25 @@ function getNextGameId(gameId: string): string | null {
 function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: string): Record<string, string> {
   const updated = { ...picks };
   const parts = gameId.split("-");
+
+  // First Four picks: cascade into the R64 slot and beyond
+  if (parts[0] === "ff" && parts[1] === "play") {
+    const ffRegion = parts[2];
+    const ffSlot = parseInt(parts[4]);
+    // Clear R64 slot and all downstream in that region
+    for (let r = 0; r <= 3; r++) {
+      const gamesInRound = 8 / Math.pow(2, r);
+      for (let i = 0; i < gamesInRound; i++) {
+        const gid = `${ffRegion}-${r}-${i}`;
+        if (updated[gid] === oldWinner) delete updated[gid];
+      }
+    }
+    for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
+      if (updated[gid] === oldWinner) delete updated[gid];
+    }
+    return updated;
+  }
+
   const region = parts[0];
   const round = parseInt(parts[1]);
   const idx = parseInt(parts[2]);
@@ -65,7 +86,7 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   return updated;
 }
 
-export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, onSaved }: Props) {
+export default function Bracket({ regions, firstFour, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, onSaved }: Props) {
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
   const [tiebreaker, setTiebreaker] = useState<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
   const [saving, setSaving] = useState(false);
@@ -172,13 +193,13 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
         </Box>
         {!locked && tournamentId && (
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk"))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk", firstFour))} disabled={saving}>
               🏅 Chalk
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart"))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart", firstFour))} disabled={saving}>
               🧠 Smart
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random"))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random", firstFour))} disabled={saving}>
               🎲 Random
             </Button>
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
@@ -219,22 +240,27 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
         />
       </Box>
 
+      {/* First Four play-in games */}
+      {firstFour && firstFour.length > 0 && (
+        <FirstFour games={firstFour} picks={picks} results={results} onPick={handlePick} locked={locked} />
+      )}
+
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
       <Box ref={bracketRef}>
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-          <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} />
+          <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
           <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} />
-          <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} />
+          <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
         </Box>
       </Box>
 
       {/* Bottom half: South (left-to-right) | spacer | Midwest (right-to-left) */}
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-          <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} />
+          <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
           <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
-          <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} />
+          <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
         </Box>
       </Box>
       </Box>

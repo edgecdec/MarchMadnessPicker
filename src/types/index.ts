@@ -26,8 +26,17 @@ export interface Tournament {
   results_data: string | Record<string, string>;
 }
 
+export interface FirstFourGame {
+  region: string;       // region name, e.g. "East"
+  seed: number;         // the seed being played in (11 or 16)
+  slot: number;         // R64 matchup index this feeds into
+  teamA: string;
+  teamB: string;
+}
+
 export interface BracketData {
   regions: Region[];
+  first_four?: FirstFourGame[];
 }
 
 export interface GameScore {

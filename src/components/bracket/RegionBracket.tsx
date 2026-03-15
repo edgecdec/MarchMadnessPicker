@@ -1,8 +1,9 @@
 "use client";
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
-import { Team, Region, GameScore } from "@/types";
+import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { SEED_ORDER_PAIRS, REGION_COLORS } from "@/lib/bracketData";
+import { ffGameId } from "./FirstFour";
 
 interface Props {
   region: Region;
@@ -14,20 +15,35 @@ interface Props {
   direction: "left" | "right";
   distribution?: Record<string, Record<string, number>>;
   eliminated?: Set<string>;
+  firstFour?: FirstFourGame[];
 }
 
 function getTeamForGame(
   region: Region,
   round: number,
   gameIndex: number,
-  picks: Record<string, string>
+  picks: Record<string, string>,
+  firstFour?: FirstFourGame[],
+  results?: Record<string, string>,
 ): { teamA?: Team; teamB?: Team } {
   if (round === 0) {
     const pair = SEED_ORDER_PAIRS[gameIndex];
-    return {
-      teamA: region.teams.find((t) => t.seed === pair[0]),
-      teamB: region.teams.find((t) => t.seed === pair[1]),
-    };
+    let teamA = region.teams.find((t) => t.seed === pair[0]);
+    let teamB = region.teams.find((t) => t.seed === pair[1]);
+
+    // Check if either slot is a First Four play-in
+    if (firstFour) {
+      for (const ff of firstFour) {
+        if (ff.region !== region.name || ff.slot !== gameIndex) continue;
+        const gid = ffGameId(ff);
+        const resolved = results?.[gid] || picks[gid];
+        const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}` };
+        if (ff.seed === pair[0]) teamA = placeholder;
+        else teamB = placeholder;
+      }
+    }
+
+    return { teamA, teamB };
   }
   // Teams come from winners of previous round
   const prevA = picks[`${region.name}-${round - 1}-${gameIndex * 2}`];
@@ -38,7 +54,7 @@ function getTeamForGame(
   };
 }
 
-export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution, eliminated }: Props) {
+export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution, eliminated, firstFour }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
   const regionColor = REGION_COLORS[region.name] || "#888";
@@ -61,7 +77,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
       >
         {Array.from({ length: count }, (_, i) => {
           const gameId = `${region.name}-${round}-${i}`;
-          const { teamA, teamB } = getTeamForGame(region, round, i, picks);
+          const { teamA, teamB } = getTeamForGame(region, round, i, picks, firstFour, results);
           return (
             <Box key={gameId} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
               <Matchup

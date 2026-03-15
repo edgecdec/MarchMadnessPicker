@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { Tournament, Region } from "@/types";
+import { Tournament, Region, FirstFourGame } from "@/types";
 import { api } from "@/lib/api";
 
 interface BracketInfo {
@@ -12,6 +12,7 @@ interface BracketInfo {
 interface TournamentState {
   tournament: Tournament | null;
   regions: Region[] | null;
+  firstFour: FirstFourGame[];
   results: Record<string, string>;
   userPicks: Record<string, string>;
   userBrackets: BracketInfo[];
@@ -22,7 +23,7 @@ interface TournamentState {
 
 export function useTournament() {
   const [state, setState] = useState<TournamentState>({
-    tournament: null, regions: null, results: {}, userPicks: {}, userBrackets: [], activeBracket: null, userTiebreaker: null, loading: true,
+    tournament: null, regions: null, firstFour: [], results: {}, userPicks: {}, userBrackets: [], activeBracket: null, userTiebreaker: null, loading: true,
   });
 
   const loadBracket = useCallback((tournamentId: string, bracketName?: string) => {
@@ -49,6 +50,7 @@ export function useTournament() {
         setState({
           tournament: t,
           regions: bracket?.regions || null,
+          firstFour: bracket?.first_four || [],
           results: (res && Object.keys(res).length > 0) ? res : {},
           userPicks: userPicks || {},
           userBrackets: userBrackets || [],

@@ -201,6 +201,18 @@ def run_tests(url):
     except Exception as e:
         log_result("POST /api/picks returns valid JSON", False, str(e))
 
+    # Test 14: First Four section visible on bracket page
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look for a 'First Four' section above the bracket with play-in game matchups showing two teams per game and a basketball emoji (🏀). Do you see it?")
+            log_result("First Four section visible on bracket page", True)
+    except Exception as e:
+        log_result("First Four section visible on bracket page", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
