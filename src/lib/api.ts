@@ -74,6 +74,8 @@ export const api = {
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_scoring", group_id: groupId, scoring_settings: settings }) }),
     updateMaxBrackets: (groupId: string, maxBrackets: number | null) =>
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_max_brackets", group_id: groupId, max_brackets: maxBrackets }) }),
+    toggleSubmissionsLock: (groupId: string) =>
+      request<{ ok: boolean; submissions_locked: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "toggle_submissions_lock", group_id: groupId }) }),
     leaderboard: (groupId: string, tournamentId: string) =>
       request<{ group: Group; leaderboard: (LeaderboardEntry & { has_picks: boolean })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
     assignBracket: (pickId: string, groupId: string) =>

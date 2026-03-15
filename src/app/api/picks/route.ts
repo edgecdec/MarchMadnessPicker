@@ -88,6 +88,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Picks are locked" }, { status: 403 });
     }
 
+    // Check if any assigned group has submissions locked
+    const existingPick = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
+      .get(user.id, tournament_id, bracket_name) as any;
+    if (existingPick) {
+      const lockedGroup = db.prepare(`
+        SELECT g.name FROM bracket_group_assignments bga
+        JOIN groups g ON g.id = bga.group_id
+        WHERE bga.pick_id = ? AND g.submissions_locked = 1 LIMIT 1
+      `).get(existingPick.id) as any;
+      if (lockedGroup) {
+        return NextResponse.json({ error: `Submissions locked by group "${lockedGroup.name}"` }, { status: 403 });
+      }
+    }
+
     const pickId = uuid();
     const tiebreakerVal = tiebreaker != null ? Number(tiebreaker) : null;
     db.prepare(`

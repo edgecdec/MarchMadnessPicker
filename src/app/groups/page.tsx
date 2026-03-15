@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -144,6 +146,9 @@ export default function GroupsPage() {
                           Max {g.max_brackets} bracket{g.max_brackets !== 1 ? "s" : ""} per member
                         </Typography>
                       )}
+                      {g.submissions_locked && (
+                        <Chip icon={<LockIcon />} label="Submissions locked by group admin" color="warning" size="small" sx={{ mb: 1 }} />
+                      )}
                       {canEdit && (
                         <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1 }}>
                           <TextField
@@ -167,6 +172,18 @@ export default function GroupsPage() {
                               }
                             }}
                           />
+                          <Button
+                            size="small"
+                            variant={g.submissions_locked ? "contained" : "outlined"}
+                            color={g.submissions_locked ? "warning" : "inherit"}
+                            startIcon={g.submissions_locked ? <LockIcon /> : <LockOpenIcon />}
+                            onClick={async () => {
+                              await api.groups.toggleSubmissionsLock(g.id);
+                              loadGroups();
+                            }}
+                          >
+                            {g.submissions_locked ? "Unlock Submissions" : "Lock Submissions"}
+                          </Button>
                         </Box>
                       )}
                       {userBrackets.length === 0 ? (

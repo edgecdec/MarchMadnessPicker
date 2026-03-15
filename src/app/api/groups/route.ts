@@ -99,6 +99,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "toggle_submissions_lock") {
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(data.group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    const isEveryone = group.id === "everyone";
+    if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can change this setting" }, { status: 403 });
+    if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change this setting" }, { status: 403 });
+    const newVal = group.submissions_locked ? 0 : 1;
+    db.prepare("UPDATE groups SET submissions_locked = ? WHERE id = ?").run(newVal, data.group_id);
+    return NextResponse.json({ ok: true, submissions_locked: !!newVal });
+  }
+
   if (action === "assign_bracket") {
     const { pick_id, group_id } = data;
     if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });

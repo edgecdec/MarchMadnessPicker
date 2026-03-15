@@ -78,6 +78,7 @@ export interface Group {
   created_at: string;
   scoring_settings: string | ScoringSettings;
   max_brackets: number | null;
+  submissions_locked: boolean;
 }
 
 export interface UserBracket {
