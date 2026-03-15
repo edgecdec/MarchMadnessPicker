@@ -167,7 +167,7 @@ def run_tests(url):
     except Exception as e:
         log_result("Tiebreaker column on leaderboard", False, str(e))
 
-    # Test 12: Save bracket picks successfully (with confirmation dialog)
+    # Test 12: Save bracket picks successfully (with confirmation dialog showing Final Four teams)
     try:
         with NovaAct(starting_page=url) as nova:
             nova.act("Type 'smoketest_user' in the Username field")
@@ -176,8 +176,10 @@ def run_tests(url):
             nova.act("Click on 'Bracket' in the navigation bar")
             nova.act("Click the 'Chalk' button")
             nova.act("Click the 'Save Picks' button")
-            result = nova.act("Do you see a confirmation dialog titled 'Confirm Save Picks' with a summary showing Final Four teams, a Champion, and a 'Save Picks' button inside the dialog?")
-            log_result("Save confirmation dialog shows key picks summary", True)
+            result = nova.act("Look at the confirmation dialog. Under 'Final Four', are all four regions showing actual team names (not '—' dashes)? Also check the pick counter shows '63/63'. Report what you see for each region and the counter.")
+            response = (getattr(result, 'response', '') or '').lower()
+            has_dashes = response.count('—') >= 3 or response.count('dash') >= 3
+            log_result("Save confirmation dialog shows key picks summary", not has_dashes, getattr(result, 'response', ''))
     except Exception as e:
         log_result("Save confirmation dialog shows key picks summary", False, str(e))
 

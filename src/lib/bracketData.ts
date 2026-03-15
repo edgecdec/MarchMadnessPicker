@@ -5,7 +5,7 @@ export const SEED_ORDER_PAIRS: [number, number][] = [
   [1, 16], [8, 9], [5, 12], [4, 13], [6, 11], [3, 14], [7, 10], [2, 15],
 ];
 
-export const TOTAL_GAMES = 67; // 32+16+8+4+2+1 + 4 First Four
+export const TOTAL_GAMES = 63; // 32+16+8+4+2+1
 
 // Region accent colors for visual distinction
 export const REGION_COLORS: Record<string, string> = {

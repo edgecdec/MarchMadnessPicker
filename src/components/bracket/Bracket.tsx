@@ -175,7 +175,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
     setSaving(false);
   };
 
-  const totalPicks = Object.keys(picks).length;
+  const totalPicks = Object.keys(picks).filter(k => !k.startsWith("ff-play-")).length;
   const totalGames = TOTAL_GAMES;
 
   return (
@@ -272,7 +272,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Typography variant="subtitle2">🏆 Final Four</Typography>
             {regions.map((r) => {
-              const winner = picks[`${r.name.toLowerCase()}-3-0`];
+              const winner = picks[`${r.name}-3-0`];
               return (
                 <Typography key={r.name} variant="body2" sx={{ pl: 2 }}>
                   {r.name}: {winner || "—"}
