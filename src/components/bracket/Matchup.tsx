@@ -50,7 +50,7 @@ function TeamSlot({
         alignItems: "center",
         gap: 0.5,
         px: 0.75,
-        py: 0.25,
+        py: { xs: 0.75, sm: 0.25 },
         cursor: locked || !team ? "default" : "pointer",
         background: bg,
         borderTop: position === "top" ? "1px solid #444" : "none",
@@ -58,6 +58,7 @@ function TeamSlot({
         borderLeft: "1px solid #444",
         borderRight: "1px solid #444",
         minWidth: 120,
+        minHeight: { xs: 32, sm: "auto" },
         "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
         transition: "background 0.15s",
       }}

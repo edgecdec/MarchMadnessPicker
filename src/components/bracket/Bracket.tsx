@@ -133,17 +133,21 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       </Box>
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
-      <Box sx={{ display: "flex", alignItems: "stretch", overflowX: "auto", mb: 2 }}>
-        <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
-        <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} />
-        <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
+          <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
+          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} />
+          <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+        </Box>
       </Box>
 
       {/* Bottom half: South (left-to-right) | spacer | Midwest (right-to-left) */}
-      <Box sx={{ display: "flex", alignItems: "stretch", overflowX: "auto" }}>
-        <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
-        <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
-        <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
+          <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
+          <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
+          <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+        </Box>
       </Box>
 
       <Snackbar open={!!snack} autoHideDuration={3000} onClose={() => setSnack(null)}>
