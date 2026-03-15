@@ -27,6 +27,8 @@ export const api = {
     getPicks: (tournamentId: string) => request<{ tournaments: Tournament[]; userPicks: Record<string, string> | null }>(`/api/picks?tournament_id=${tournamentId}`),
     savePicks: (tournamentId: string, picks: Record<string, string>) =>
       request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks }) }),
+    viewUser: (username: string, tournamentId: string) =>
+      request<{ username: string; picks: Record<string, string> | null }>(`/api/picks/${username}?tournament_id=${tournamentId}`),
   },
 
   // Leaderboard

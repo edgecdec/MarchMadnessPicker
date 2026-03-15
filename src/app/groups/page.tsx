@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert } from "@mui/material";
+import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -113,7 +113,7 @@ export default function GroupsPage() {
                           {leaderboard.map((entry, i) => (
                             <TableRow key={entry.username}>
                               <TableCell>{i + 1}</TableCell>
-                              <TableCell>{entry.username}</TableCell>
+                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
                               <TableCell align="right">{entry.has_picks ? "✅" : "⏳ No picks"}</TableCell>
                             </TableRow>

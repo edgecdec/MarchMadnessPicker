@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -43,7 +43,7 @@ export default function LeaderboardPage() {
                 {leaderboard.map((entry, i) => (
                   <TableRow key={entry.username}>
                     <TableCell>{i + 1}</TableCell>
-                    <TableCell>{entry.username}</TableCell>
+                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
                     <TableCell align="right">{entry.score}</TableCell>
                   </TableRow>
                 ))}
