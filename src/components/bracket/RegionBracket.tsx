@@ -48,11 +48,23 @@ function getTeamForGame(
   // Teams come from winners of previous round
   const prevA = picks[`${region.name}-${round - 1}-${gameIndex * 2}`];
   const prevB = picks[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
-  const findTeam = (name: string): Team | undefined =>
-    region.teams.find((t) => t.name === name) ||
-    (firstFour && firstFour.find((ff) => ff.region === region.name && (ff.teamA === name || ff.teamB === name))
-      ? { seed: firstFour.find((ff) => ff.region === region.name && (ff.teamA === name || ff.teamB === name))!.seed, name }
-      : undefined);
+  const findTeam = (name: string): Team | undefined => {
+    const direct = region.teams.find((t) => t.name === name);
+    if (direct) return direct;
+    // Handle First Four combined names (e.g. "NC State/Texas")
+    if (name.includes("/") && firstFour) {
+      const ff = firstFour.find((ff) => ff.region === region.name && `${ff.teamA}/${ff.teamB}` === name);
+      if (ff) {
+        const resolved = results?.[ffGameId(ff)];
+        return { seed: ff.seed, name: resolved || name };
+      }
+    }
+    if (firstFour) {
+      const ff = firstFour.find((ff) => ff.region === region.name && (ff.teamA === name || ff.teamB === name));
+      if (ff) return { seed: ff.seed, name };
+    }
+    return undefined;
+  };
   return {
     teamA: prevA ? findTeam(prevA) : undefined,
     teamB: prevB ? findTeam(prevB) : undefined,

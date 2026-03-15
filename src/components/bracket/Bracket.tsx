@@ -48,6 +48,9 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   const updated = { ...picks };
   const parts = gameId.split("-");
 
+  // Match helper: handles combined FF names (e.g. "NC State/Texas" matches "NC State" or "Texas")
+  const matches = (pick: string) => pick === oldWinner || (oldWinner.includes("/") && oldWinner.split("/").includes(pick)) || (pick.includes("/") && pick.split("/").includes(oldWinner));
+
   // First Four picks: cascade into the R64 slot and beyond
   if (parts[0] === "ff" && parts[1] === "play") {
     const ffRegion = parts[2];
@@ -57,11 +60,11 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
       const gamesInRound = 8 / Math.pow(2, r);
       for (let i = 0; i < gamesInRound; i++) {
         const gid = `${ffRegion}-${r}-${i}`;
-        if (updated[gid] === oldWinner) delete updated[gid];
+        if (updated[gid] && matches(updated[gid])) delete updated[gid];
       }
     }
     for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
-      if (updated[gid] === oldWinner) delete updated[gid];
+      if (updated[gid] && matches(updated[gid])) delete updated[gid];
     }
     return updated;
   }
@@ -75,13 +78,13 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
     const gamesInRound = 8 / Math.pow(2, r);
     for (let i = 0; i < gamesInRound; i++) {
       const gid = `${region}-${r}-${i}`;
-      if (updated[gid] === oldWinner) delete updated[gid];
+      if (updated[gid] && matches(updated[gid])) delete updated[gid];
     }
   }
 
   // Clear Final Four and Championship if affected
   for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
-    if (updated[gid] === oldWinner) delete updated[gid];
+    if (updated[gid] && matches(updated[gid])) delete updated[gid];
   }
 
   return updated;

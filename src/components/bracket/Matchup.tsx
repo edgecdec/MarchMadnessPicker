@@ -71,14 +71,14 @@ function TeamSlot({
 
   return (
     <Box
-      onClick={() => !locked && team && !isFirstFourPlaceholder && onClick()}
+      onClick={() => !locked && team && onClick()}
       sx={{
         display: "flex",
         alignItems: "center",
         gap: 0.5,
         px: 0.75,
         py: { xs: 0.75, sm: 0.25 },
-        cursor: locked || !team || isFirstFourPlaceholder ? "default" : "pointer",
+        cursor: locked || !team ? "default" : "pointer",
         background: bg,
         borderTop: position === "top" ? `1px solid ${regionColor || "#444"}` : "none",
         borderBottom: `1px solid ${regionColor || "#444"}`,
@@ -113,8 +113,7 @@ function TeamSlot({
                 return (
                   <Box
                     key={name}
-                    onClick={(e) => { e.stopPropagation(); if (!locked && onPickTeam) onPickTeam({ seed: team.seed, name }); }}
-                    sx={{ display: "flex", alignItems: "center", gap: 0.25, cursor: locked ? "default" : "pointer", "&:hover": !locked ? { textDecoration: "underline" } : {}, overflow: "hidden" }}
+                    sx={{ display: "flex", alignItems: "center", gap: 0.25, overflow: "hidden" }}
                   >
                     {logo && <Box component="img" src={logo} alt="" sx={{ width: 14, height: 14, objectFit: "contain", flexShrink: 0 }} />}
                     <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem" }}>{name}</Typography>
@@ -159,6 +158,15 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
   const isLive = gameScore?.state === "in";
   const seedTip = getSeedMatchupTip(teamA, teamB);
 
+  // Match helper for FF combined names: "NC State/Texas" matches "Texas"
+  const nameMatch = (a?: string, b?: string) => {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    if (a.includes("/")) return a.split("/").includes(b);
+    if (b.includes("/")) return b.split("/").includes(a);
+    return false;
+  };
+
   const content = (
     <Paper elevation={0} sx={{ background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25 }}>
       {gameScore?.detail && (
@@ -167,10 +175,10 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         </Typography>
       )}
       <TeamSlot
-        team={teamA} isWinner={!!teamA && winner === teamA.name}
-        isCorrect={!!result && !!teamA && winner === teamA.name && result === teamA.name}
-        isWrong={!!result && !!teamA && winner === teamA.name && result !== teamA.name}
-        isActualWinner={!!result && !!teamA && result === teamA.name}
+        team={teamA} isWinner={!!teamA && nameMatch(winner, teamA.name)}
+        isCorrect={!!result && !!teamA && nameMatch(winner, teamA.name) && nameMatch(result, teamA.name)}
+        isWrong={!!result && !!teamA && nameMatch(winner, teamA.name) && !nameMatch(result, teamA.name)}
+        isActualWinner={!!result && !!teamA && nameMatch(result, teamA.name)}
         isEliminated={!!teamA && !!eliminated?.has(teamA.name)}
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} onPickTeam={onPick} locked={locked} position="top"
@@ -178,10 +186,10 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         regionColor={regionColor}
       />
       <TeamSlot
-        team={teamB} isWinner={!!teamB && winner === teamB.name}
-        isCorrect={!!result && !!teamB && winner === teamB.name && result === teamB.name}
-        isWrong={!!result && !!teamB && winner === teamB.name && result !== teamB.name}
-        isActualWinner={!!result && !!teamB && result === teamB.name}
+        team={teamB} isWinner={!!teamB && nameMatch(winner, teamB.name)}
+        isCorrect={!!result && !!teamB && nameMatch(winner, teamB.name) && nameMatch(result, teamB.name)}
+        isWrong={!!result && !!teamB && nameMatch(winner, teamB.name) && !nameMatch(result, teamB.name)}
+        isActualWinner={!!result && !!teamB && nameMatch(result, teamB.name)}
         isEliminated={!!teamB && !!eliminated?.has(teamB.name)}
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} onPickTeam={onPick} locked={locked} position="bottom"

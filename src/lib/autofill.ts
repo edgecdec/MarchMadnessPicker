@@ -32,8 +32,16 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
     for (let i = 0; i < 8; i++) {
       if (picks[`${region.name}-0-${i}`]) continue;
       const [seedA, seedB] = SEED_ORDER_PAIRS[i];
-      const teamA = region.teams.find((t) => t.seed === seedA)!;
-      const teamB = region.teams.find((t) => t.seed === seedB)!;
+      let teamA = region.teams.find((t) => t.seed === seedA)!;
+      let teamB = region.teams.find((t) => t.seed === seedB)!;
+      // For First Four slots, use combined name placeholder
+      if (firstFour) {
+        for (const ff of firstFour) {
+          if (ff.region !== region.name) continue;
+          if (ff.seed === seedA) teamA = { seed: ff.seed, name: `${ff.teamA}/${ff.teamB}` };
+          if (ff.seed === seedB) teamB = { seed: ff.seed, name: `${ff.teamA}/${ff.teamB}` };
+        }
+      }
       picks[`${region.name}-0-${i}`] = pickWinner(teamA, teamB, mode).name;
     }
     // Rounds 1-3
@@ -44,8 +52,16 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
         const nameA = picks[`${region.name}-${round - 1}-${i * 2}`];
         const nameB = picks[`${region.name}-${round - 1}-${i * 2 + 1}`];
         if (!nameA || !nameB) continue;
-        const teamA = region.teams.find((t) => t.name === nameA)!;
-        const teamB = region.teams.find((t) => t.name === nameB)!;
+        // For FF combined names, use the seed from the FF game
+        const findTeam = (name: string): Team | undefined => {
+          if (name.includes("/") && firstFour) {
+            const ff = firstFour.find((f) => f.region === region.name && `${f.teamA}/${f.teamB}` === name);
+            if (ff) return { seed: ff.seed, name };
+          }
+          return region.teams.find((t) => t.name === name);
+        };
+        const teamA = findTeam(nameA);
+        const teamB = findTeam(nameB);
         if (!teamA || !teamB) continue;
         picks[`${region.name}-${round}-${i}`] = pickWinner(teamA, teamB, mode).name;
       }
@@ -54,7 +70,13 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
 
   // Final Four
   const allTeams = regions.flatMap((r) => r.teams);
-  const find = (name: string) => allTeams.find((t) => t.name === name);
+  const find = (name: string): Team | undefined => {
+    if (name.includes("/") && firstFour) {
+      const ff = firstFour.find((f) => `${f.teamA}/${f.teamB}` === name);
+      if (ff) return { seed: ff.seed, name };
+    }
+    return allTeams.find((t) => t.name === name);
+  };
 
   // ff-4-0: East(0) winner vs West(1) winner
   if (!picks["ff-4-0"]) {

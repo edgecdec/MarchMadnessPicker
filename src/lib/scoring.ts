@@ -2,6 +2,21 @@ import { ScoringSettings, DEFAULT_SCORING, Region } from "@/types";
 
 const DEFAULT_POINTS = [1, 2, 4, 8, 16, 32];
 
+// Check if a pick matches a result, accounting for First Four combined names
+// A pick of "TeamA/TeamB" matches a result of either "TeamA" or "TeamB"
+function pickMatches(pick: string, result: string): boolean {
+  if (pick === result) return true;
+  if (pick.includes("/")) return pick.split("/").includes(result);
+  return false;
+}
+
+// Resolve a pick: if it's a combined FF name and the result is known, return the actual team name
+function resolvePick(pick: string, gameId: string, results: Record<string, string>): string {
+  const result = results[gameId];
+  if (result && pick.includes("/") && pick.split("/").includes(result)) return result;
+  return pick;
+}
+
 export function scorePicks(
   picks: Record<string, string>,
   results: Record<string, string>,
@@ -23,7 +38,7 @@ export function scorePicks(
 
   let score = 0;
   for (const [gameId, winner] of Object.entries(results)) {
-    if (picks[gameId] !== winner) continue;
+    if (!pickMatches(picks[gameId], winner)) continue;
 
     const round = parseInt(gameId.split("-")[1]) || 0;
     score += pts[round] || 0;
@@ -113,7 +128,7 @@ export function scorePicksByRound(
   }
 
   for (const [gameId, winner] of Object.entries(results)) {
-    if (picks[gameId] !== winner) continue;
+    if (!pickMatches(picks[gameId], winner)) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
     if (round >= 0 && round < 6) {
       scores[round] += pts[round] || 0;
@@ -151,7 +166,8 @@ export function maxPossibleRemaining(
     if (results[gameId]) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
     // R64 teams are always still alive if game undecided; later rounds require a prior win
-    if (round === 0 || winners.has(pickedTeam)) {
+    const alive = round === 0 || winners.has(pickedTeam) || (pickedTeam.includes("/") && pickedTeam.split("/").some(t => winners.has(t)));
+    if (alive) {
       remaining += pts[round] || 0;
     }
   }
@@ -200,7 +216,7 @@ export function scorePicksDetailed(
   for (const [gameId, pick] of Object.entries(picks)) {
     const round = parseInt(gameId.split("-")[1]) || 0;
     const result = results[gameId] || null;
-    const correct = result !== null && pick === result;
+    const correct = result !== null && pickMatches(pick, result);
     let base = 0, upsetB = 0;
     if (correct) {
       base = pts[round] || 0;
