@@ -6,6 +6,7 @@ import Navbar from "@/components/common/Navbar";
 import Bracket from "@/components/bracket/Bracket";
 import LiveScores from "@/components/bracket/LiveScores";
 import AuthForm from "@/components/auth/AuthForm";
+import CountdownTimer from "@/components/common/CountdownTimer";
 
 export default function BracketPage() {
   const { user, loading: authLoading } = useAuth();
@@ -37,6 +38,7 @@ export default function BracketPage() {
       <Container maxWidth={false} sx={{ mt: 2, px: 2 }}>
         <Typography variant="h5" gutterBottom>{tournament.name}</Typography>
         <LiveScores />
+        {tournament.lock_time && <CountdownTimer lockTime={tournament.lock_time} />}
         <Bracket
           regions={regions}
           tournamentId={tournament.id}
