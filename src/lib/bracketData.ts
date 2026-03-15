@@ -53,6 +53,11 @@ export function getTeamLogoUrl(teamName: string): string | undefined {
   return id ? `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png` : undefined;
 }
 
+// Generate a unique game ID for a First Four play-in game
+export function ffGameId(game: { region: string; seed: number; slot: number }): string {
+  return `ff-play-${game.region}-${game.seed}-${game.slot}`;
+}
+
 // Historical NCAA tournament win rates by higher seed in matchup (1985–2024)
 // Key: "higherSeed-lowerSeed", Value: win % for the higher (lower-numbered) seed
 export const SEED_WIN_RATES: Record<string, number> = {

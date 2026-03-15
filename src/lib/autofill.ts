@@ -1,7 +1,6 @@
 import { Region, Team, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, ffGameId } from "@/lib/bracketData";
 import { getWinProbability } from "@/lib/seedStats";
-import { ffGameId } from "@/components/bracket/FirstFour";
 
 type Mode = "chalk" | "random" | "smart";
 

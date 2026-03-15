@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
+import { autoFillIncompleteBrackets } from "@/lib/autoFillAtLock";
 
 export async function POST(req: NextRequest) {
   const user = await getUser();
@@ -30,6 +31,11 @@ export async function POST(req: NextRequest) {
       JSON.stringify(data.results_data), data.tournament_id
     );
     return NextResponse.json({ ok: true });
+  }
+
+  if (action === "autofill_lock") {
+    const count = autoFillIncompleteBrackets(data.tournament_id);
+    return NextResponse.json({ ok: true, filled: count });
   }
 
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });

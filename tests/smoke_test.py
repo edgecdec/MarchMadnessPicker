@@ -625,6 +625,26 @@ def run_tests(url):
     except Exception as e:
         log_result("GET /api/groups/[id]/messages returns valid JSON", False, str(e))
 
+    # Test: Auto-fill at lock time admin endpoint returns valid JSON
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(
+            f"{url}/api/admin",
+            data=json.dumps({"action": "autofill_lock", "tournament_id": "test"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            log_result("POST /api/admin autofill_lock returns valid JSON", "filled" in body or "ok" in body, str(body))
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            # 403 means endpoint works but requires admin auth
+            log_result("POST /api/admin autofill_lock returns valid JSON", "error" in body, f"status={he.code} body={body}")
+    except Exception as e:
+        log_result("POST /api/admin autofill_lock returns valid JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

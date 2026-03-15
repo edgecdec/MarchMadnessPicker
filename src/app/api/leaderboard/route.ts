@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { scorePicks, maxPossibleRemaining, scorePicksByRound } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
+import { autoFillIncompleteBrackets } from "@/lib/autoFillAtLock";
 
 export async function GET(req: NextRequest) {
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
@@ -10,6 +11,9 @@ export async function GET(req: NextRequest) {
   const db = getDb();
   const tournament = db.prepare("SELECT results_data, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
+
+  // Auto-fill incomplete brackets if lock time has passed
+  autoFillIncompleteBrackets(tournamentId);
 
   const everyoneGroup = db.prepare("SELECT scoring_settings FROM groups WHERE id = 'everyone'").get() as any;
   const settings = everyoneGroup ? { ...DEFAULT_SCORING, ...JSON.parse(everyoneGroup.scoring_settings || "{}") } : DEFAULT_SCORING;

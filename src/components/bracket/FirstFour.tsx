@@ -1,7 +1,9 @@
 "use client";
 import { Box, Typography, Paper } from "@mui/material";
 import { FirstFourGame, Team } from "@/types";
-import { getTeamLogoUrl, REGION_COLORS } from "@/lib/bracketData";
+import { getTeamLogoUrl, REGION_COLORS, ffGameId } from "@/lib/bracketData";
+
+export { ffGameId };
 
 interface Props {
   games: FirstFourGame[];
@@ -10,12 +12,6 @@ interface Props {
   onPick: (gameId: string, team: Team) => void;
   locked?: boolean;
 }
-
-function ffGameId(game: FirstFourGame): string {
-  return `ff-play-${game.region}-${game.seed}-${game.slot}`;
-}
-
-export { ffGameId };
 
 export default function FirstFour({ games, picks, results, onPick, locked }: Props) {
   if (!games.length) return null;
