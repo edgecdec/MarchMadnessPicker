@@ -15,7 +15,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Bracket stats dashboard: most popular champion, biggest upset picked, most chalk/contrarian bracket.
 - [x] Mini-bracket widget: compact Final Four + Championship view for cards/sidebars.
 - [x] Auto-pick reminder banner when lock time is approaching and bracket isn't complete.
-- [ ] Print-friendly bracket view.
+- [x] Print-friendly bracket view.
 - [ ] Group creator can remove brackets from their group.
 - [ ] Group admin can lock/unlock bracket submissions independently of tournament lock time.
 
