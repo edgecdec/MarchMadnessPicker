@@ -7,7 +7,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 
 ### High Priority
 - [x] Add First Four (play-in) support: The bracket has 68 teams, not 64. Four R64 slots have play-in games (2 between 16-seeds, 2 between 11-seeds). Add a `first_four` field to bracket_data with the 4 matchups. In the bracket UI, show "TeamA/TeamB" in unresolved First Four R64 slots. Add a small "First Four" section above the bracket showing the 4 play-in games. Users can pick either team from a First Four pair to advance through the bracket. When First Four resolves, the bracket slot updates to show just the winner.
-- [ ] Auto-resolve game results from ESPN API: Create an admin API endpoint or cron-style mechanism that fetches NCAA tournament results from ESPN (site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100) and automatically updates the tournament results_data when games finish. Match ESPN team names to our bracket team names. This should handle First Four games too — auto-resolve the First Four slots when those games complete. Add a "Sync Results from ESPN" button on the admin page that triggers this manually.
+- [x] Auto-resolve game results from ESPN API: Create an admin API endpoint or cron-style mechanism that fetches NCAA tournament results from ESPN (site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100) and automatically updates the tournament results_data when games finish. Match ESPN team names to our bracket team names. This should handle First Four games too — auto-resolve the First Four slots when those games complete. Add a "Sync Results from ESPN" button on the admin page that triggers this manually.
 
 ### Bracket Display Improvements
 
