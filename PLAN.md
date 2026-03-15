@@ -16,7 +16,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Mini-bracket widget: compact Final Four + Championship view for cards/sidebars.
 - [x] Auto-pick reminder banner when lock time is approaching and bracket isn't complete.
 - [x] Print-friendly bracket view.
-- [ ] Group creator can remove brackets from their group.
+- [x] Group creator can remove brackets from their group.
 - [ ] Group admin can lock/unlock bracket submissions independently of tournament lock time.
 
 ## Completed
