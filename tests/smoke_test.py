@@ -254,7 +254,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Bracket export button visible", False, str(e))
 
-    # Test 18: POST /api/admin/sync-results returns valid JSON (admin-only)
+    # Test 18: Percentile rank shown on leaderboard
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look for text that says 'Your bracket is in the Xth percentile' (where X is a number). Do you see a percentile message?")
+            log_result("Percentile rank shown on leaderboard", True)
+    except Exception as e:
+        log_result("Percentile rank shown on leaderboard", False, str(e))
+
+    # Test 19: POST /api/admin/sync-results returns valid JSON (admin-only)
     try:
         import urllib.request
         req_obj = urllib.request.Request(

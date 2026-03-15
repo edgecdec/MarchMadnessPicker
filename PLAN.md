@@ -14,7 +14,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ### Picking Experience
 
 ### Leaderboard & Scoring
-- [ ] Add round-by-round score breakdown on leaderboard (columns for R64, R32, S16, E8, FF, Champ points)
+- [x] Add round-by-round score breakdown on leaderboard (columns for R64, R32, S16, E8, FF, Champ points)
 - [ ] Show percentile rank on leaderboard ("Your bracket is in the 85th percentile")
 - [ ] Add "best possible finish" to leaderboard — highest rank each player could still achieve given remaining games
 
