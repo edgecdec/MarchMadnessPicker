@@ -98,6 +98,8 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [exporting, setExporting] = useState(false);
   const [autofillAnchor, setAutofillAnchor] = useState<null | HTMLElement>(null);
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
+  const savedTiebreakerRef = useRef<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
 
   // Sync internal state when switching brackets
   useEffect(() => {
@@ -107,16 +109,48 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
   useEffect(() => {
     setTiebreaker(initialTiebreaker != null ? String(initialTiebreaker) : "");
+    savedTiebreakerRef.current = initialTiebreaker != null ? String(initialTiebreaker) : "";
   }, [initialTiebreaker, bracketName]);
 
   // Warn on unsaved changes when leaving page
-  const isDirty = !locked && JSON.stringify(picks) !== savedPicksRef.current;
+  const isDirty = !locked && (JSON.stringify(picks) !== savedPicksRef.current || tiebreaker !== savedTiebreakerRef.current);
   useEffect(() => {
     if (!isDirty) return;
     const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
+
+  const onSavedRef = useRef(onSaved);
+  onSavedRef.current = onSaved;
+
+  // Autosave with 2-second debounce
+  useEffect(() => {
+    if (locked || !tournamentId) return;
+    const picksJson = JSON.stringify(picks);
+    if (picksJson === savedPicksRef.current && tiebreaker === savedTiebreakerRef.current) return;
+    // Don't autosave empty brackets (no picks made yet)
+    if (Object.keys(picks).length === 0 && !tiebreaker) return;
+    setAutoSaveStatus("unsaved");
+    const timer = setTimeout(async () => {
+      setAutoSaveStatus("saving");
+      try {
+        const res = await fetch("/api/picks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null }),
+        });
+        if (!res.ok) throw new Error();
+        savedPicksRef.current = picksJson;
+        savedTiebreakerRef.current = tiebreaker;
+        setAutoSaveStatus("saved");
+        onSavedRef.current?.();
+      } catch {
+        setAutoSaveStatus("unsaved");
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [picks, tiebreaker, locked, tournamentId, bracketName]);
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
@@ -174,6 +208,8 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       savedPicksRef.current = JSON.stringify(picks);
+      savedTiebreakerRef.current = tiebreaker;
+      setAutoSaveStatus("saved");
       setSnack({ msg: "Picks saved!", severity: "success" });
       onSaved?.();
     } catch (e: any) {
@@ -196,6 +232,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       if (!res.ok) throw new Error(data.error);
       setPicks({});
       savedPicksRef.current = JSON.stringify({});
+      setAutoSaveStatus("idle");
       setSnack({ msg: "Picks cleared!", severity: "success" });
     } catch (e: any) {
       setSnack({ msg: e.message || "Failed to clear picks", severity: "error" });
@@ -257,7 +294,9 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
             <Button variant="contained" onClick={() => setConfirmOpen(true)} disabled={saving} size="small">
               {saving ? "Saving..." : "Save Picks"}
             </Button>
-            {isDirty && <Typography variant="body2" color="warning.main">⚠ Unsaved changes</Typography>}
+            {autoSaveStatus === "saved" && <Typography variant="body2" color="success.main">✓ Saved</Typography>}
+            {autoSaveStatus === "saving" && <Typography variant="body2" color="text.secondary">Saving...</Typography>}
+            {autoSaveStatus === "unsaved" && <Typography variant="body2" color="warning.main">⚠ Unsaved</Typography>}
           </Box>
         )}
         {locked && (
