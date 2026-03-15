@@ -24,7 +24,7 @@ log "Installing dependencies..."
 npm ci >> "$LOG_FILE" 2>&1 || { log "npm ci failed, trying npm install..."; rm -rf node_modules; npm install >> "$LOG_FILE" 2>&1; } || fail "npm install failed"
 
 log "Wiping Next.js cache..."
-rm -rf .next >> "$LOG_FILE" 2>&1
+rm -rf .next node_modules/.cache >> "$LOG_FILE" 2>&1
 
 log "Building..."
 NODE_ENV=production npx next build >> "$LOG_FILE" 2>&1 || fail "build failed — NOT restarting pm2"
