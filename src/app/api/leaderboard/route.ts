@@ -23,19 +23,28 @@ export async function GET(req: NextRequest) {
     WHERE p.tournament_id = ?
   `).all(tournamentId) as any[];
 
-  const leaderboard = allPicks
+  const entries = allPicks
     .map((p) => {
       const picks = JSON.parse(p.picks_data);
+      const score = scorePicks(picks, results, settings, bracket.regions);
+      const maxRemaining = maxPossibleRemaining(picks, results, settings);
       return {
         username: p.username,
         bracket_name: p.bracket_name,
-        score: scorePicks(picks, results, settings, bracket.regions),
-        maxRemaining: maxPossibleRemaining(picks, results, settings),
+        score,
+        maxRemaining,
+        maxPossible: score + maxRemaining,
         tiebreaker: p.tiebreaker ?? null,
         roundScores: scorePicksByRound(picks, results, settings),
       };
     })
     .sort((a, b) => b.score - a.score);
+
+  // Best possible finish: count players whose current score already exceeds this player's max possible
+  const leaderboard = entries.map((e) => ({
+    ...e,
+    bestPossibleFinish: entries.filter((o) => o.score > e.maxPossible).length + 1,
+  }));
 
   return NextResponse.json({ leaderboard, scoring_settings: settings });
 }

@@ -266,6 +266,18 @@ def run_tests(url):
     except Exception as e:
         log_result("Percentile rank shown on leaderboard", False, str(e))
 
+    # Test 20: Best Possible Finish column on leaderboard
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look at the leaderboard table headers. Do you see a 'Best Finish' column? Also check if the rows show values like '#1', '#2', etc. in that column.")
+            log_result("Best Possible Finish column on leaderboard", True)
+    except Exception as e:
+        log_result("Best Possible Finish column on leaderboard", False, str(e))
+
     # Test 19: POST /api/admin/sync-results returns valid JSON (admin-only)
     try:
         import urllib.request

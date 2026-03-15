@@ -56,6 +56,7 @@ export default function LeaderboardPage() {
                   ))}
                   <TableCell align="right">Total</TableCell>
                   <TableCell align="right">Max Possible</TableCell>
+                  <TableCell align="right">Best Finish</TableCell>
                   <TableCell align="right">Tiebreaker</TableCell>
                 </TableRow>
               </TableHead>
@@ -70,6 +71,7 @@ export default function LeaderboardPage() {
                     ))}
                     <TableCell align="right" sx={{ fontWeight: "bold" }}>{entry.score}</TableCell>
                     <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
+                    <TableCell align="right">{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
                     <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>
                   </TableRow>
                 ))}

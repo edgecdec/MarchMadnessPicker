@@ -53,6 +53,7 @@ export interface LeaderboardEntry {
   maxRemaining?: number;
   tiebreaker?: number | null;
   roundScores?: number[];
+  bestPossibleFinish?: number;
 }
 
 export interface ScoringSettings {
