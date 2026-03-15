@@ -333,6 +333,17 @@ def run_tests(url):
     except Exception as e:
         log_result("Update Results Data section on admin page", False, str(e))
 
+    # Test: Compare brackets page loads with two selectors
+    try:
+        with NovaAct(starting_page=f"{url}/compare") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Do you see a 'Compare Brackets' heading and two dropdown selectors labeled 'Bracket A' and 'Bracket B'?")
+            log_result("Compare brackets page loads with selectors", True)
+    except Exception as e:
+        log_result("Compare brackets page loads with selectors", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
