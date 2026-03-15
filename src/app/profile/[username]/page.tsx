@@ -12,7 +12,7 @@ const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
 interface ProfileData {
   username: string;
   created_at: string;
-  groups: { id: string; name: string; invite_code: string; member_count: number }[];
+  groups: { id: string; name: string; invite_code: string; member_count: number; brackets?: string[] }[];
   brackets: { id: string; bracket_name: string; submitted_at: string; tiebreaker: number | null; score: number; roundScores: number[] }[];
 }
 
@@ -53,7 +53,14 @@ export default function ProfilePage() {
             ) : (
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
                 {profile.groups.map((g) => (
-                  <Chip key={g.id} label={`${g.name} (${g.member_count})`} variant="outlined" />
+                  <Chip
+                    key={g.id}
+                    label={`${g.name} (${g.member_count})${g.brackets?.length ? ` — ${g.brackets.join(", ")}` : ""}`}
+                    variant="outlined"
+                    component="a"
+                    href={`/groups?g=${g.id}`}
+                    clickable
+                  />
                 ))}
               </Box>
             )}

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
   const target = db.prepare("SELECT id, username, created_at FROM users WHERE username = ?").get(username) as any;
   if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  // Groups the user belongs to
+  // Groups the user belongs to, with their brackets in each group
   const groups = db.prepare(`
     SELECT g.id, g.name, g.invite_code,
       (SELECT COUNT(*) FROM group_members gm2 WHERE gm2.group_id = g.id) as member_count
@@ -48,6 +48,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
         roundScores: scorePicksByRound(pd, results, settings, bracket.regions),
       };
     });
+
+    // Add bracket names to each group
+    for (const g of groups) {
+      const assigned = db.prepare(`
+        SELECT p.bracket_name FROM bracket_group_assignments bga
+        JOIN picks p ON p.id = bga.pick_id
+        WHERE bga.group_id = ? AND p.user_id = ?
+      `).all(g.id, target.id) as any[];
+      g.brackets = assigned.map((a: any) => a.bracket_name);
+    }
   }
 
   return NextResponse.json({

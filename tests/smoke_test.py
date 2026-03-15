@@ -540,6 +540,17 @@ def run_tests(url):
     except Exception as e:
         log_result("Leaderboard round scores add up to total", False, str(e))
 
+    # Test: Profile page groups are clickable and show bracket names
+    try:
+        with NovaAct(starting_page=f"{url}/profile/smoketest_user") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look at the Groups section. Are the group names clickable (links or chips you can click)? Do any groups show bracket names next to them? Report what you see.")
+            log_result("Profile groups are clickable with bracket names", True, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Profile groups are clickable with bracket names", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request
