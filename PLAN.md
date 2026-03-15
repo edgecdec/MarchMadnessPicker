@@ -25,7 +25,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ### Social & Views
 - [x] Show which picks are correct/incorrect with color coding on the view-others-bracket page
 - [x] Add a "compare brackets" view showing two users' picks side by side
-- [ ] Add user profile page showing their groups, stats, pick history
+- [x] Add user profile page showing their groups, stats, pick history
 
 ### Lower Priority
 - [ ] Add notification/banner when new results are entered
