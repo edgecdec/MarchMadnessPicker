@@ -14,6 +14,7 @@ interface Props {
   gameScores?: Record<string, GameScore>;
   tournamentId?: string;
   locked?: boolean;
+  distribution?: Record<string, Record<string, number>>;
 }
 
 // Given a game id, return the downstream game id that this winner feeds into
@@ -60,7 +61,7 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   return updated;
 }
 
-export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked }: Props) {
+export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution }: Props) {
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
@@ -135,18 +136,18 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-          <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
-          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} />
-          <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+          <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} />
+          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} />
+          <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} />
         </Box>
       </Box>
 
       {/* Bottom half: South (left-to-right) | spacer | Midwest (right-to-left) */}
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-          <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" />
+          <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} />
           <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
-          <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" />
+          <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} />
         </Box>
       </Box>
 

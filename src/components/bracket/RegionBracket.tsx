@@ -12,6 +12,7 @@ interface Props {
   onPick: (gameId: string, team: Team) => void;
   locked?: boolean;
   direction: "left" | "right";
+  distribution?: Record<string, Record<string, number>>;
 }
 
 function getTeamForGame(
@@ -36,7 +37,7 @@ function getTeamForGame(
   };
 }
 
-export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction }: Props) {
+export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
 
@@ -69,6 +70,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
                 gameScore={gameScores?.[gameId]}
                 onPick={(team) => onPick(gameId, team)}
                 locked={locked}
+                distribution={distribution?.[gameId]}
               />
             </Box>
           );

@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Container, Typography } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -7,10 +8,18 @@ import Bracket from "@/components/bracket/Bracket";
 import LiveScores from "@/components/bracket/LiveScores";
 import AuthForm from "@/components/auth/AuthForm";
 import CountdownTimer from "@/components/common/CountdownTimer";
+import { api } from "@/lib/api";
 
 export default function BracketPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, regions, results, userPicks, loading: tournLoading } = useTournament();
+  const [distribution, setDistribution] = useState<Record<string, Record<string, number>>>({});
+
+  useEffect(() => {
+    if (tournament?.id && tournament.lock_time && new Date(tournament.lock_time) < new Date()) {
+      api.tournaments.distribution(tournament.id).then(({ distribution }) => setDistribution(distribution)).catch(() => {});
+    }
+  }, [tournament]);
 
   if (authLoading || tournLoading) return null;
   if (!user) return <AuthForm />;
@@ -45,6 +54,7 @@ export default function BracketPage() {
           initialPicks={userPicks}
           results={results}
           locked={tournament.lock_time ? new Date(tournament.lock_time) < new Date() : false}
+          distribution={distribution}
         />
       </Container>
     </>
