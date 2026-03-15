@@ -14,7 +14,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ### Bracket Display Improvements
 - [x] Add connector lines between matchups to visually show which games feed into which (SVG or CSS borders connecting rounds)
 - [x] Color-code each region with a distinct accent color (e.g. East=blue, West=red, South=green, Midwest=orange) in the region header and matchup borders
-- [ ] Grey out / dim eliminated teams across all rounds after results are entered (team lost = faded everywhere they appear in later rounds)
+- [x] Grey out / dim eliminated teams across all rounds after results are entered (team lost = faded everywhere they appear in later rounds)
 - [ ] Add team logos next to team names in matchups. Store logo URLs in bracket_data for each team. ESPN logos available at espncdn.com/i/teamlogos/ncaa/500/{teamId}.png
 - [ ] Highlight the championship pick prominently in the center of the bracket with larger text and the team logo
 
