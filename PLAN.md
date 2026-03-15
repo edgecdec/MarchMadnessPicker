@@ -11,7 +11,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] "Bracket Busted" indicator: skull icon on leaderboard when user's champion is eliminated.
 - [x] Shareable public bracket link that works without login.
 - [x] Scoring breakdown popup: click a leaderboard score to see per-pick detail with bonus points.
-- [ ] "Eliminated from contention" indicator on leaderboard.
+- [x] "Eliminated from contention" indicator on leaderboard.
 - [ ] Bracket stats dashboard: most popular champion, biggest upset picked, most chalk/contrarian bracket.
 - [ ] Mini-bracket widget: compact Final Four + Championship view for cards/sidebars.
 - [ ] Auto-pick reminder banner when lock time is approaching and bracket isn't complete.
