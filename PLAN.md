@@ -32,7 +32,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Dark/light theme toggle
 - [x] Add chat/comments per group
 - [x] Animate bracket transitions when clicking picks
-- [ ] Show historical seed matchup stats on hover (e.g. "12-seeds beat 5-seeds 36% of the time")
+- [x] Show historical seed matchup stats on hover (e.g. "12-seeds beat 5-seeds 36% of the time")
 
 ### Completed
 - [x] Support multiple brackets per user
