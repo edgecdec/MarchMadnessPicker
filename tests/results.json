@@ -1,23 +1,138 @@
 {
-  "timestamp": "2026-03-15T01:48:43.883745",
+  "timestamp": "2026-03-15T02:46:36.295187",
   "url": "https://marchmadness.edgecdec.com",
-  "passed": 5,
-  "total": 6,
+  "passed": 26,
+  "total": 34,
   "results": [
+    {
+      "name": "Homepage loads",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Login form visible",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Register/Login flow",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Bracket page loads with teams",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Leaderboard page loads",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Groups page loads",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Championship pick highlighted prominently",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Autofill buttons visible on bracket",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Chalk autofill fills all 63 picks",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tiebreaker input visible on bracket page",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tiebreaker column on leaderboard",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Save confirmation dialog shows key picks summary",
+      "passed": true,
+      "details": ""
+    },
     {
       "name": "POST /api/picks returns valid JSON",
       "passed": true,
       "details": "status=401 body={'error': 'Not authenticated'}"
     },
     {
-      "name": "Bracket export CSS forces dark text",
+      "name": "Save bracket completes without error",
       "passed": false,
-      "details": "bracket-export class should be in page source"
+      "details": "'ActResult' object has no attribute 'response'"
+    },
+    {
+      "name": "First Four section visible on bracket page",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The 'First Four' section is not available on this page.\n    metadata = ActMetadata(\n        session_id = 019cf0d4-e624-7f93-88ba-6be0d808ab9f\n        act_id = 019cf0d5-ac7d-7cb9-adaf-f1258a873442\n        num_steps_executed = 8\n        start_time = 2026-03-15 02:31:01.164286 PDT\n        end_time = 2026-03-15 02:31:54.616242 PDT\n        step_server_times_s = ['2.803', '3.306', '2.841', '2.984', '3.089', '3.432', '3.041', '2.962']\n        time_worked = 53.5s\n        prompt = 'Look for a 'First Four' section above the bracket with play-in game matchups showing two teams per game and a basketball emoji (\ud83c\udfc0). Do you see it?'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Sync Results from ESPN button on admin page",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The section titled 'Sync Results from ESPN' with a button that says 'Sync Results from ESPN' is not available on the page.\n    metadata = ActMetadata(\n        session_id = 019cf0d6-838e-77b5-86bf-c21f46e2f720\n        act_id = 019cf0d7-1804-715b-9653-5ce1d61e628c\n        num_steps_executed = 3\n        start_time = 2026-03-15 02:32:34.222522 PDT\n        end_time = 2026-03-15 02:32:50.590752 PDT\n        step_server_times_s = ['2.414', '2.577', '3.031']\n        time_worked = 16.4s\n        prompt = 'Look for a section titled 'Sync Results from ESPN' with a button that says 'Sync Results from ESPN'. Do you see it?'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Bracket export button visible",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Bracket export CSS forces dark text",
+      "passed": true,
+      "details": "bracket-export class should be in page source or linked CSS"
+    },
+    {
+      "name": "Percentile rank shown on leaderboard",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Best Possible Finish column on leaderboard",
+      "passed": true,
+      "details": ""
     },
     {
       "name": "POST /api/admin/sync-results returns JSON",
       "passed": true,
       "details": "status=403 body={'error': 'Admin only'}"
+    },
+    {
+      "name": "Import Bracket Data section on admin page",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The 'Import Bracket Data (JSON)' section is not available on this page.\n    metadata = ActMetadata(\n        session_id = 019cf0d9-f10a-774a-a056-dd1a2c453e86\n        act_id = 019cf0da-84ac-7285-b1ab-de225e8e91ef\n        num_steps_executed = 6\n        start_time = 2026-03-15 02:36:18.642772 PDT\n        end_time = 2026-03-15 02:36:56.822113 PDT\n        step_server_times_s = ['2.484', '2.891', '2.583', '2.995', '3.037', '2.684']\n        time_worked = 38.2s\n        prompt = 'Look for a section titled 'Import Bracket Data (JSON)' with a tournament dropdown, a JSON text area, and an 'Import Bracket Data' button. Do you see it?'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Correct/incorrect color coding on view bracket",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The picks are hidden until lock time, so the information is not available.\n    metadata = ActMetadata(\n        session_id = 019cf0db-2053-756e-9839-b73c19f18220\n        act_id = 019cf0dc-10b1-78ee-9b76-b5972c49a0ea\n        num_steps_executed = 3\n        start_time = 2026-03-15 02:38:00.027923 PDT\n        end_time = 2026-03-15 02:38:19.897185 PDT\n        step_server_times_s = ['2.336', '2.168', '2.788']\n        time_worked = 19.9s\n        prompt = 'On this bracket view page, look at the matchups. Do you see green (\u2713) and/or red (\u2717) indicators next to team names showing correct and incorrect picks? Also look for green and red background highlights on matchup slots.'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Update Results Data section on admin page",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The 'Update Results Data (JSON)' section is not available on this page.\n    metadata = ActMetadata(\n        session_id = 019cf0dc-642a-7de3-9258-b84939340ef9\n        act_id = 019cf0dc-f697-7fce-ae0a-c4319ed2c0ad\n        num_steps_executed = 2\n        start_time = 2026-03-15 02:38:58.882101 PDT\n        end_time = 2026-03-15 02:39:09.664147 PDT\n        step_server_times_s = ['2.545', '2.500']\n        time_worked = 10.8s\n        prompt = 'Look for a section titled 'Update Results Data (JSON)' with a tournament dropdown, a JSON text area, and an 'Update Results' button. Do you see it?'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Compare brackets page loads with selectors",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "User profile page loads with groups and brackets",
+      "passed": true,
+      "details": ""
     },
     {
       "name": "GET /api/profile/[username] returns valid JSON",
@@ -28,6 +143,31 @@
       "name": "GET /api/tournaments/updates returns valid JSON",
       "passed": true,
       "details": "{'results_updated_at': None}"
+    },
+    {
+      "name": "Theme toggle button visible in navbar",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Group chat section visible on groups page",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Bracket pick animations on click",
+      "passed": false,
+      "details": "\n\nActAgentFailed(\n    message = The selected team slot does not appear to highlight or animate smoothly.\n    metadata = ActMetadata(\n        session_id = 019cf0e0-2e0e-7a02-b2af-96fb4e509f17\n        act_id = 019cf0e1-1f41-7a5c-8197-dc45ef0e2343\n        num_steps_executed = 7\n        start_time = 2026-03-15 02:43:31.429922 PDT\n        end_time = 2026-03-15 02:44:15.626882 PDT\n        step_server_times_s = ['2.469', '2.654', '2.927', '2.600', '2.672', '2.940', '2.691']\n        time_worked = 44.2s\n        prompt = 'After clicking, did the selected team slot appear to highlight or animate smoothly? Look for a subtle scale-up effect on the selected team and any fade-in of team names in the next round matchup.'\n    )\n)\n\nPlease consider providing feedback: https://amazonexteu.qualtrics.com/jfe/form/SV_bd8dHa7Em6kNkMe"
+    },
+    {
+      "name": "Seed matchup stats tooltip on hover",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Pick counter shows 63/63 after chalk autofill",
+      "passed": false,
+      "details": ""
     },
     {
       "name": "GET /api/groups/[id]/messages returns valid JSON",

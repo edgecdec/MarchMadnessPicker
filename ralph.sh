@@ -5,9 +5,8 @@
 set -e
 cd "$(dirname "$0")" || exit 1
 
-# Source shell env for Nova Act API key and correct python3
-source ~/.zshrc 2>/dev/null || true
-export PATH="/opt/homebrew/bin:$PATH"
+# Load env (Nova Act API key, correct PATH)
+source ~/.config/marchmadness.env
 
 MAX=${1:-0}
 COUNT=0
