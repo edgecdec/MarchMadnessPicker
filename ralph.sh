@@ -45,21 +45,19 @@ while true; do
   echo ""
   echo "   ✓ Iteration $COUNT complete (log: $LOG_FILE)"
 
-  # Run Nova Act smoke tests every 5th iteration
-  if [ $((COUNT % 5)) -eq 0 ]; then
-    echo "   🧪 Running smoke tests (every 5th iteration)..."
-    if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
-      echo "   ✅ All smoke tests passed"
-    else
-      echo "   🐛 Smoke tests found issues — feeding back to agent"
-      BUGS=$(cat tests/results.json 2>/dev/null || echo '{}')
-      kiro-cli chat \
-        --agent marchmadness \
-        --no-interactive \
-        --trust-all-tools \
-        "Smoke tests found failures. Results: ${BUGS}. Check tests/bugs.md. Fix the issues, test locally, then push." \
-        2>&1 | tee -a "$LOG_FILE"
-    fi
+  # Run Nova Act smoke tests every iteration
+  echo "   🧪 Running smoke tests..."
+  if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
+    echo "   ✅ All smoke tests passed"
+  else
+    echo "   🐛 Smoke tests found issues — feeding back to agent"
+    BUGS=$(cat tests/results.json 2>/dev/null || echo '{}')
+    kiro-cli chat \
+      --agent marchmadness \
+      --no-interactive \
+      --trust-all-tools \
+      "Smoke tests found failures. Results: ${BUGS}. Check tests/bugs.md. Fix the issues, test locally, then push." \
+      2>&1 | tee -a "$LOG_FILE"
   fi
 
   if [ "$MAX" -gt 0 ] && [ "$COUNT" -ge "$MAX" ]; then
