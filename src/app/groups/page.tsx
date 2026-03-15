@@ -67,6 +67,7 @@ export default function GroupsPage() {
             {groups.map((g) => {
               const settings = typeof g.scoring_settings === "string" ? JSON.parse(g.scoring_settings) : g.scoring_settings;
               const isCreator = g.created_by === user.id;
+              const canEdit = g.id === "everyone" ? user.is_admin : isCreator;
               return (
                 <Paper key={g.id} sx={{ p: 2 }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
@@ -93,7 +94,7 @@ export default function GroupsPage() {
                     <ScoringEditor
                       groupId={g.id}
                       initial={{ ...DEFAULT_SCORING, ...settings }}
-                      isCreator={isCreator}
+                      canEdit={canEdit}
                     />
                   )}
 

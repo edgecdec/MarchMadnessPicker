@@ -8,10 +8,10 @@ import { api } from "@/lib/api";
 interface Props {
   groupId: string;
   initial: ScoringSettings;
-  isCreator: boolean;
+  canEdit: boolean;
 }
 
-export default function ScoringEditor({ groupId, initial, isCreator }: Props) {
+export default function ScoringEditor({ groupId, initial, canEdit }: Props) {
   const [settings, setSettings] = useState<ScoringSettings>({
     pointsPerRound: [...(initial.pointsPerRound || DEFAULT_SCORING.pointsPerRound)],
     upsetBonusPerRound: [...(initial.upsetBonusPerRound || DEFAULT_SCORING.upsetBonusPerRound)],
@@ -48,13 +48,13 @@ export default function ScoringEditor({ groupId, initial, isCreator }: Props) {
             <TextField
               size="small" type="number" value={settings.pointsPerRound[i]}
               onChange={(e) => update("pointsPerRound", i, e.target.value)}
-              disabled={!isCreator}
+              disabled={!canEdit}
               inputProps={{ min: 0, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
             />
             <TextField
               size="small" type="number" value={settings.upsetBonusPerRound[i]}
               onChange={(e) => update("upsetBonusPerRound", i, e.target.value)}
-              disabled={!isCreator}
+              disabled={!canEdit}
               inputProps={{ min: 0, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
             />
           </Box>
@@ -63,7 +63,7 @@ export default function ScoringEditor({ groupId, initial, isCreator }: Props) {
       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
         Upset bonus = multiplier × seed difference (e.g. 9 beats 1 with bonus 2 = 2 × 8 = 16 extra pts)
       </Typography>
-      {isCreator && (
+      {canEdit && (
         <Button size="small" variant="outlined" onClick={save} sx={{ mt: 1 }}>Save Scoring</Button>
       )}
       <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack("")}>

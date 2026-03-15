@@ -71,7 +71,9 @@ export async function POST(req: NextRequest) {
   if (action === "update_scoring") {
     const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(data.group_id) as any;
     if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
-    if (group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change scoring" }, { status: 403 });
+    const isEveryone = group.id === "everyone";
+    if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can change global scoring" }, { status: 403 });
+    if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change scoring" }, { status: 403 });
     db.prepare("UPDATE groups SET scoring_settings = ? WHERE id = ?").run(JSON.stringify(data.scoring_settings), data.group_id);
     return NextResponse.json({ ok: true });
   }

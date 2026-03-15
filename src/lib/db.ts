@@ -69,4 +69,26 @@ function initDb(db: Database.Database) {
 
   // Migrations for existing DBs
   try { db.exec("ALTER TABLE groups ADD COLUMN scoring_settings TEXT NOT NULL DEFAULT '{}'"); } catch {}
+
+  // Ensure "Everyone" group exists
+  ensureEveryoneGroup(db);
+}
+
+export function ensureEveryoneGroup(db: Database.Database): string {
+  let group = db.prepare("SELECT id FROM groups WHERE invite_code = 'everyone'").get() as any;
+  if (!group) {
+    const id = "everyone";
+    // Use the admin user as creator, or first user
+    const admin = db.prepare("SELECT id FROM users WHERE is_admin = 1 LIMIT 1").get() as any;
+    const creator = admin?.id || "system";
+    db.prepare("INSERT OR IGNORE INTO groups (id, name, invite_code, created_by, scoring_settings) VALUES (?, ?, ?, ?, ?)")
+      .run(id, "Everyone", "everyone", creator, JSON.stringify({ pointsPerRound: [1,2,4,8,16,32], upsetBonusPerRound: [0,0,0,0,0,0] }));
+    group = { id };
+  }
+  return group.id;
+}
+
+export function joinEveryoneGroup(db: Database.Database, userId: string) {
+  const groupId = ensureEveryoneGroup(db);
+  db.prepare("INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)").run(groupId, userId);
 }
