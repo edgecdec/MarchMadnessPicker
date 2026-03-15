@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
+import { getDb, autoAssignBracketToEveryone } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
@@ -50,6 +50,11 @@ export async function POST(req: NextRequest) {
   // Delete bracket
   if (action === "delete_bracket") {
     if (!bracket_name) return NextResponse.json({ error: "bracket_name required" }, { status: 400 });
+    const pick = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
+      .get(user.id, tournament_id, bracket_name) as any;
+    if (pick) {
+      db.prepare("DELETE FROM bracket_group_assignments WHERE pick_id = ?").run(pick.id);
+    }
     db.prepare("DELETE FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
       .run(user.id, tournament_id, bracket_name);
     return NextResponse.json({ ok: true });
@@ -77,10 +82,16 @@ export async function POST(req: NextRequest) {
   }
 
   const { v4: uuid } = require("uuid");
+  const pickId = uuid();
   db.prepare(`
     INSERT INTO picks (id, user_id, tournament_id, bracket_name, picks_data) VALUES (?, ?, ?, ?, ?)
     ON CONFLICT(user_id, tournament_id, bracket_name) DO UPDATE SET picks_data = ?, submitted_at = datetime('now')
-  `).run(uuid(), user.id, tournament_id, bracket_name, JSON.stringify(picks_data), JSON.stringify(picks_data));
+  `).run(pickId, user.id, tournament_id, bracket_name, JSON.stringify(picks_data), JSON.stringify(picks_data));
+
+  // Auto-assign to Everyone group
+  const savedPick = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
+    .get(user.id, tournament_id, bracket_name) as any;
+  if (savedPick) autoAssignBracketToEveryone(db, savedPick.id);
 
   return NextResponse.json({ ok: true });
 }

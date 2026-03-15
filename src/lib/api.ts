@@ -56,7 +56,7 @@ export const api = {
 
   // Groups
   groups: {
-    list: () => request<{ groups: (Group & { member_count: number; creator_name: string })[] }>("/api/groups"),
+    list: () => request<{ groups: (Group & { member_count: number; creator_name: string })[]; assignments: { pick_id: string; group_id: string }[] }>("/api/groups"),
     getByInvite: (code: string) => request<{ group: Group & { member_count: number; is_member: boolean; creator_name: string } }>(`/api/groups?invite_code=${code}`),
     create: (name: string) =>
       request<{ id: string; invite_code: string }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", name }) }),
@@ -66,6 +66,10 @@ export const api = {
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_scoring", group_id: groupId, scoring_settings: settings }) }),
     leaderboard: (groupId: string, tournamentId: string) =>
       request<{ group: Group; leaderboard: (LeaderboardEntry & { has_picks: boolean })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
+    assignBracket: (pickId: string, groupId: string) =>
+      request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assign_bracket", pick_id: pickId, group_id: groupId }) }),
+    unassignBracket: (pickId: string, groupId: string) =>
+      request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unassign_bracket", pick_id: pickId, group_id: groupId }) }),
   },
 
   // Admin

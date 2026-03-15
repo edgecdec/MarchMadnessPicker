@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link } from "@mui/material";
+import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -14,14 +14,24 @@ export default function GroupsPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament } = useTournament();
   const [groups, setGroups] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<{ pick_id: string; group_id: string }[]>([]);
   const [newName, setNewName] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [scoringGroup, setScoringGroup] = useState<string | null>(null);
+  const [bracketsGroup, setBracketsGroup] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [snack, setSnack] = useState("");
+  const { userBrackets } = useTournament();
+
+  const loadGroups = () => {
+    api.groups.list().then((d) => {
+      setGroups(d.groups);
+      setAssignments(d.assignments);
+    });
+  };
 
   useEffect(() => {
-    if (user) api.groups.list().then((d) => setGroups(d.groups));
+    if (user) loadGroups();
   }, [user]);
 
   useEffect(() => {
@@ -37,12 +47,24 @@ export default function GroupsPage() {
     if (!newName.trim()) return;
     await api.groups.create(newName.trim());
     setNewName("");
-    api.groups.list().then((d) => setGroups(d.groups));
+    loadGroups();
   };
 
   const copyLink = (inviteCode: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/join/${inviteCode}`);
     setSnack("Invite link copied!");
+  };
+
+  const isAssigned = (pickId: string, groupId: string) =>
+    assignments.some((a) => a.pick_id === pickId && a.group_id === groupId);
+
+  const toggleAssignment = async (pickId: string, groupId: string) => {
+    if (isAssigned(pickId, groupId)) {
+      await api.groups.unassignBracket(pickId, groupId);
+    } else {
+      await api.groups.assignBracket(pickId, groupId);
+    }
+    loadGroups();
   };
 
   return (
@@ -81,6 +103,9 @@ export default function GroupsPage() {
                       <Button size="small" variant="outlined" onClick={() => setSelectedGroup(selectedGroup === g.id ? null : g.id)}>
                         {selectedGroup === g.id ? "Hide" : "Leaderboard"}
                       </Button>
+                      <Button size="small" variant="outlined" onClick={() => setBracketsGroup(bracketsGroup === g.id ? null : g.id)}>
+                        {bracketsGroup === g.id ? "Hide" : "Brackets"}
+                      </Button>
                       <Button size="small" variant="outlined" color="secondary" onClick={() => setScoringGroup(scoringGroup === g.id ? null : g.id)}>
                         {scoringGroup === g.id ? "Hide" : "Scoring"}
                       </Button>
@@ -96,6 +121,29 @@ export default function GroupsPage() {
                       initial={{ ...DEFAULT_SCORING, ...settings }}
                       canEdit={canEdit}
                     />
+                  )}
+
+                  {bracketsGroup === g.id && (
+                    <Box sx={{ mt: 1, p: 1, bgcolor: "action.hover", borderRadius: 1 }}>
+                      <Typography variant="subtitle2" gutterBottom>Enter brackets in this group:</Typography>
+                      {userBrackets.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">No brackets yet. Create one on the Bracket page.</Typography>
+                      ) : (
+                        userBrackets.map((b) => (
+                          <FormControlLabel
+                            key={b.id}
+                            control={
+                              <Checkbox
+                                checked={isAssigned(b.id, g.id)}
+                                onChange={() => toggleAssignment(b.id, g.id)}
+                                size="small"
+                              />
+                            }
+                            label={b.bracket_name}
+                          />
+                        ))
+                      )}
+                    </Box>
                   )}
 
                   {selectedGroup === g.id && (

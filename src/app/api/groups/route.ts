@@ -34,8 +34,17 @@ export async function GET(req: NextRequest) {
     ORDER BY g.created_at DESC
   `).all(user.id) as any[];
 
+  // Get user's bracket assignments
+  const assignments = db.prepare(`
+    SELECT bga.pick_id, bga.group_id
+    FROM bracket_group_assignments bga
+    JOIN picks p ON p.id = bga.pick_id
+    WHERE p.user_id = ?
+  `).all(user.id) as any[];
+
   return NextResponse.json({
     groups: groups.map((g) => ({ ...g, scoring_settings: JSON.parse(g.scoring_settings || "{}") })),
+    assignments,
   });
 }
 
@@ -75,6 +84,29 @@ export async function POST(req: NextRequest) {
     if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can change global scoring" }, { status: 403 });
     if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change scoring" }, { status: 403 });
     db.prepare("UPDATE groups SET scoring_settings = ? WHERE id = ?").run(JSON.stringify(data.scoring_settings), data.group_id);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "assign_bracket") {
+    const { pick_id, group_id } = data;
+    if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });
+    // Verify user owns the bracket
+    const pick = db.prepare("SELECT id FROM picks WHERE id = ? AND user_id = ?").get(pick_id, user.id) as any;
+    if (!pick) return NextResponse.json({ error: "Bracket not found" }, { status: 404 });
+    // Verify user is a member of the group
+    const member = db.prepare("SELECT 1 FROM group_members WHERE group_id = ? AND user_id = ?").get(group_id, user.id);
+    if (!member) return NextResponse.json({ error: "Not a member of this group" }, { status: 403 });
+    db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, ?)").run(pick_id, group_id);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "unassign_bracket") {
+    const { pick_id, group_id } = data;
+    if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });
+    // Verify user owns the bracket
+    const pick = db.prepare("SELECT id FROM picks WHERE id = ? AND user_id = ?").get(pick_id, user.id) as any;
+    if (!pick) return NextResponse.json({ error: "Bracket not found" }, { status: 404 });
+    db.prepare("DELETE FROM bracket_group_assignments WHERE pick_id = ? AND group_id = ?").run(pick_id, group_id);
     return NextResponse.json({ ok: true });
   }
 

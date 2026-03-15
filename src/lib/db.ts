@@ -66,6 +66,15 @@ function initDb(db: Database.Database) {
       FOREIGN KEY (group_id) REFERENCES groups(id),
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS bracket_group_assignments (
+      pick_id TEXT NOT NULL,
+      group_id TEXT NOT NULL,
+      assigned_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (pick_id, group_id),
+      FOREIGN KEY (pick_id) REFERENCES picks(id),
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    );
   `);
 
   // Migrations for existing DBs
@@ -98,6 +107,16 @@ function initDb(db: Database.Database) {
 
   // Ensure "Everyone" group exists
   ensureEveryoneGroup(db);
+
+  // Migrate: auto-assign all existing picks to "Everyone" group if not already assigned
+  try {
+    const unassigned = db.prepare(`
+      SELECT p.id FROM picks p
+      WHERE NOT EXISTS (SELECT 1 FROM bracket_group_assignments bga WHERE bga.pick_id = p.id AND bga.group_id = 'everyone')
+    `).all() as any[];
+    const ins = db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, 'everyone')");
+    for (const row of unassigned) ins.run(row.id);
+  } catch {}
 }
 
 export function ensureEveryoneGroup(db: Database.Database): string {
@@ -117,4 +136,8 @@ export function ensureEveryoneGroup(db: Database.Database): string {
 export function joinEveryoneGroup(db: Database.Database, userId: string) {
   const groupId = ensureEveryoneGroup(db);
   db.prepare("INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)").run(groupId, userId);
+}
+
+export function autoAssignBracketToEveryone(db: Database.Database, pickId: string) {
+  db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, 'everyone')").run(pickId);
 }
