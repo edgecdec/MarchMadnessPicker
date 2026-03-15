@@ -292,11 +292,11 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
       {/* First Four play-in games */}
       {firstFour && firstFour.length > 0 && (
-        <FirstFour games={firstFour} picks={picks} results={results} onPick={handlePick} locked={locked} />
+        <Box className="no-print"><FirstFour games={firstFour} picks={picks} results={results} onPick={handlePick} locked={locked} /></Box>
       )}
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
-      <Box ref={bracketRef}>
+      <Box ref={bracketRef} className="bracket-print-container">
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />

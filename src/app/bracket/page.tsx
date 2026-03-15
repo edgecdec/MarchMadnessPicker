@@ -89,6 +89,7 @@ export default function BracketPage() {
       <Container maxWidth={false} sx={{ mt: 2, px: 2 }}>
         <Typography variant="h5" gutterBottom>{tournament.name}</Typography>
         <LiveScores />
+        <Box className="no-print">
         <PickReminderBanner lockTime={tournament.lock_time} picks={userPicks} bracketName={activeBracket} />
         {tournament.lock_time && <CountdownTimer lockTime={tournament.lock_time} />}
 
@@ -120,6 +121,7 @@ export default function BracketPage() {
               )}
             </>
           )}
+        </Box>
         </Box>
 
         {userBrackets.length === 0 && !locked && (

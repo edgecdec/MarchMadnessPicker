@@ -8,7 +8,7 @@ export default function LiveScores() {
   if (games.length === 0) return null;
 
   return (
-    <Paper sx={{ p: 1.5, mb: 2, background: "rgba(255,255,255,0.03)" }}>
+    <Paper className="no-print" sx={{ p: 1.5, mb: 2, background: "rgba(255,255,255,0.03)" }}>
       <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main", mb: 1, display: "block" }}>
         🏀 Live Scores
       </Typography>
