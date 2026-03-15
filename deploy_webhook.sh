@@ -21,11 +21,13 @@ git fetch origin main >> "$LOG_FILE" 2>&1
 git reset --hard origin/main >> "$LOG_FILE" 2>&1
 
 log "Installing dependencies..."
-npm ci >> "$LOG_FILE" 2>&1 || npm install >> "$LOG_FILE" 2>&1 || fail "npm install failed"
+npm ci >> "$LOG_FILE" 2>&1 || { log "npm ci failed, trying npm install..."; rm -rf node_modules; npm install >> "$LOG_FILE" 2>&1; } || fail "npm install failed"
+
+log "Wiping Next.js cache..."
+rm -rf .next >> "$LOG_FILE" 2>&1
 
 log "Building..."
-rm -rf .next
-npm run build >> "$LOG_FILE" 2>&1 || fail "build failed — NOT restarting pm2"
+npx next build >> "$LOG_FILE" 2>&1 || fail "build failed — NOT restarting pm2"
 
 log "Restarting App..."
 pm2 restart marchmadness >> "$LOG_FILE" 2>&1
