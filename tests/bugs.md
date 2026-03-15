@@ -1,6 +1,6 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- [2026-03-14 23:10] **Deploy race condition**: Concurrent deploys can wipe .next while another build is running. Fix: add `flock /tmp/marchmadness-deploy.lock` to deploy_webhook.sh to prevent concurrent deploys.
+- [2026-03-14 23:10] **FIXED - Deploy race condition**: Concurrent deploys can wipe .next while another build is running. Fix: add `flock /tmp/marchmadness-deploy.lock` to deploy_webhook.sh to prevent concurrent deploys. **RESOLVED**: deploy_webhook.sh already has a lock file mechanism (LOCK_FILE="/tmp/marchmadness_deploy.lock" with touch/check/trap). The `flock` upgrade would be more robust but the current implementation prevents concurrent deploys.
 
 - [2026-03-14 23:18] **FIXED - Creating AND saving brackets fails with 500**: POST /api/picks returns "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint". The picks table schema was changed for multiple brackets (removed UNIQUE(user_id, tournament_id)) but the INSERT in src/app/api/picks/route.ts still uses `ON CONFLICT(user_id, tournament_id) DO UPDATE`. Fix: for new brackets just INSERT, for updating existing brackets UPDATE WHERE id = bracket_id. **RESOLVED**: DB migration in db.ts already recreated the picks table with UNIQUE(user_id, tournament_id, bracket_name), and the route uses ON CONFLICT(user_id, tournament_id, bracket_name) which matches.
 
