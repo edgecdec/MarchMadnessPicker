@@ -52,3 +52,14 @@ export function getTeamLogoUrl(teamName: string): string | undefined {
   const id = ESPN_TEAM_IDS[teamName];
   return id ? `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png` : undefined;
 }
+
+// Historical NCAA tournament win rates by higher seed in matchup (1985–2024)
+// Key: "higherSeed-lowerSeed", Value: win % for the higher (lower-numbered) seed
+export const SEED_WIN_RATES: Record<string, number> = {
+  "1-16": 99, "8-9": 51, "5-12": 64, "4-13": 79,
+  "6-11": 63, "3-14": 85, "7-10": 61, "2-15": 94,
+  "1-8": 79, "1-9": 86, "4-5": 55, "4-12": 70,
+  "3-6": 58, "3-11": 70, "2-7": 64, "2-10": 74,
+  "1-4": 68, "1-5": 76, "2-3": 55, "2-6": 64,
+  "1-2": 52, "1-3": 60,
+};

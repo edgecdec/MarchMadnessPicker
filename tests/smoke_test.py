@@ -417,6 +417,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Bracket pick animations on click", False, str(e))
 
+    # Test: Seed matchup stats tooltip on hover
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Hover your mouse over a first-round matchup (e.g. a 1-seed vs 16-seed game) and wait a moment for a tooltip to appear")
+            result = nova.act("Do you see a tooltip that says something like 'X-seeds beat Y-seeds Z% of the time'? Report what the tooltip says.")
+            log_result("Seed matchup stats tooltip on hover", True)
+    except Exception as e:
+        log_result("Seed matchup stats tooltip on hover", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request

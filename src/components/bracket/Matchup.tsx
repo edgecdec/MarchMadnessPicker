@@ -1,7 +1,17 @@
 "use client";
 import { Box, Typography, Paper, Tooltip } from "@mui/material";
 import { Team, GameScore } from "@/types";
-import { getTeamLogoUrl } from "@/lib/bracketData";
+import { getTeamLogoUrl, SEED_WIN_RATES } from "@/lib/bracketData";
+
+function getSeedMatchupTip(teamA?: Team, teamB?: Team): string | null {
+  if (!teamA || !teamB) return null;
+  const hi = Math.min(teamA.seed, teamB.seed);
+  const lo = Math.max(teamA.seed, teamB.seed);
+  if (hi === lo) return null;
+  const pct = SEED_WIN_RATES[`${hi}-${lo}`];
+  if (!pct) return null;
+  return `${hi}-seeds beat ${lo}-seeds ${pct}% of the time`;
+}
 
 interface Props {
   teamA?: Team;
@@ -124,8 +134,9 @@ function TeamSlot({
 
 export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor, eliminated }: Props) {
   const isLive = gameScore?.state === "in";
+  const seedTip = getSeedMatchupTip(teamA, teamB);
 
-  return (
+  const content = (
     <Paper elevation={0} sx={{ background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25 }}>
       {gameScore?.detail && (
         <Typography variant="caption" sx={{ fontSize: "0.55rem", color: isLive ? "#4caf50" : "#666", display: "block", textAlign: "center" }}>
@@ -156,4 +167,10 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
       />
     </Paper>
   );
+
+  return seedTip ? (
+    <Tooltip title={seedTip} arrow placement="top">
+      {content}
+    </Tooltip>
+  ) : content;
 }
