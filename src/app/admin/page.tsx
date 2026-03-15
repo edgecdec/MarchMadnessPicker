@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
+import PlanEditor from "@/components/common/PlanEditor";
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -31,7 +32,12 @@ export default function AdminPage() {
       <Navbar />
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>Admin Panel</Typography>
-        <Paper sx={{ p: 3, mb: 3 }}>
+
+        <Box sx={{ mb: 3 }}>
+          <PlanEditor />
+        </Box>
+
+        <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>Create Tournament</Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 400 }}>
             <TextField label="Name" value={name} onChange={e => setName(e.target.value)} />

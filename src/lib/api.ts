@@ -63,5 +63,8 @@ export const api = {
       request<{ ok: boolean }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_bracket", tournament_id: tournamentId, bracket_data: bracketData }) }),
     updateResults: (tournamentId: string, resultsData: Record<string, string>) =>
       request<{ ok: boolean }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_results", tournament_id: tournamentId, results_data: resultsData }) }),
+    getPlan: () => request<{ tasks: { text: string; done: boolean }[] }>("/api/admin/plan"),
+    savePlan: (tasks: { text: string; done: boolean }[]) =>
+      request<{ ok: boolean }>("/api/admin/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tasks }) }),
   },
 };
