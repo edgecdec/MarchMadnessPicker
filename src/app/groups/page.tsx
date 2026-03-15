@@ -21,6 +21,7 @@ export default function GroupsPage() {
   const [bracketsGroup, setBracketsGroup] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [snack, setSnack] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
   const { userBrackets } = useTournament();
 
   const loadGroups = () => {
@@ -52,6 +53,7 @@ export default function GroupsPage() {
 
   const copyLink = (inviteCode: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/join/${inviteCode}`);
+    setSnackSeverity("success");
     setSnack("Invite link copied!");
   };
 
@@ -59,12 +61,17 @@ export default function GroupsPage() {
     assignments.some((a) => a.pick_id === pickId && a.group_id === groupId);
 
   const toggleAssignment = async (pickId: string, groupId: string) => {
-    if (isAssigned(pickId, groupId)) {
-      await api.groups.unassignBracket(pickId, groupId);
-    } else {
-      await api.groups.assignBracket(pickId, groupId);
+    try {
+      if (isAssigned(pickId, groupId)) {
+        await api.groups.unassignBracket(pickId, groupId);
+      } else {
+        await api.groups.assignBracket(pickId, groupId);
+      }
+      loadGroups();
+    } catch (e: any) {
+      setSnackSeverity("error");
+      setSnack(e.message || "Failed to update bracket assignment");
     }
-    loadGroups();
   };
 
   return (
@@ -126,6 +133,36 @@ export default function GroupsPage() {
                   {bracketsGroup === g.id && (
                     <Box sx={{ mt: 1, p: 1, bgcolor: "action.hover", borderRadius: 1 }}>
                       <Typography variant="subtitle2" gutterBottom>Enter brackets in this group:</Typography>
+                      {g.max_brackets != null && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+                          Max {g.max_brackets} bracket{g.max_brackets !== 1 ? "s" : ""} per member
+                        </Typography>
+                      )}
+                      {canEdit && (
+                        <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1 }}>
+                          <TextField
+                            size="small"
+                            label="Max brackets per member"
+                            type="number"
+                            slotProps={{ htmlInput: { min: 1 } }}
+                            defaultValue={g.max_brackets ?? ""}
+                            placeholder="Unlimited"
+                            sx={{ width: 200 }}
+                            onBlur={async (e) => {
+                              const val = e.target.value ? Number(e.target.value) : null;
+                              await api.groups.updateMaxBrackets(g.id, val);
+                              loadGroups();
+                            }}
+                            onKeyDown={async (e) => {
+                              if (e.key === "Enter") {
+                                const val = (e.target as HTMLInputElement).value ? Number((e.target as HTMLInputElement).value) : null;
+                                await api.groups.updateMaxBrackets(g.id, val);
+                                loadGroups();
+                              }
+                            }}
+                          />
+                        </Box>
+                      )}
                       {userBrackets.length === 0 ? (
                         <Typography variant="body2" color="text.secondary">No brackets yet. Create one on the Bracket page.</Typography>
                       ) : (
@@ -181,7 +218,7 @@ export default function GroupsPage() {
         )}
 
         <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack("")}>
-          <Alert severity="success" onClose={() => setSnack("")}>{snack}</Alert>
+          <Alert severity={snackSeverity} onClose={() => setSnack("")}>{snack}</Alert>
         </Snackbar>
       </Container>
     </>

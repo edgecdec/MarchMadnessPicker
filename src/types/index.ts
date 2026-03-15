@@ -60,6 +60,7 @@ export interface Group {
   created_by: string;
   created_at: string;
   scoring_settings: string | ScoringSettings;
+  max_brackets: number | null;
 }
 
 export interface UserBracket {

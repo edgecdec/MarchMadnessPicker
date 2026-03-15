@@ -54,6 +54,7 @@ function initDb(db: Database.Database) {
       invite_code TEXT UNIQUE NOT NULL,
       created_by TEXT NOT NULL,
       scoring_settings TEXT NOT NULL DEFAULT '{}',
+      max_brackets INTEGER DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (created_by) REFERENCES users(id)
     );
@@ -79,6 +80,7 @@ function initDb(db: Database.Database) {
 
   // Migrations for existing DBs
   try { db.exec("ALTER TABLE groups ADD COLUMN scoring_settings TEXT NOT NULL DEFAULT '{}'"); } catch {}
+  try { db.exec("ALTER TABLE groups ADD COLUMN max_brackets INTEGER DEFAULT NULL"); } catch {}
   try { db.exec("ALTER TABLE picks ADD COLUMN bracket_name TEXT NOT NULL DEFAULT 'My Bracket'"); } catch {}
 
   // Migrate unique constraint: recreate picks table if old constraint exists

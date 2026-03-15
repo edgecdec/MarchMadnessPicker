@@ -60,8 +60,9 @@ export async function POST(req: NextRequest) {
     const id = uuid();
     const inviteCode = generateInviteCode();
     const settings = data.scoring_settings || DEFAULT_SCORING;
-    db.prepare("INSERT INTO groups (id, name, invite_code, created_by, scoring_settings) VALUES (?, ?, ?, ?, ?)").run(
-      id, data.name.trim(), inviteCode, user.id, JSON.stringify(settings)
+    const maxBrackets = data.max_brackets != null ? Number(data.max_brackets) : null;
+    db.prepare("INSERT INTO groups (id, name, invite_code, created_by, scoring_settings, max_brackets) VALUES (?, ?, ?, ?, ?, ?)").run(
+      id, data.name.trim(), inviteCode, user.id, JSON.stringify(settings), maxBrackets
     );
     db.prepare("INSERT INTO group_members (group_id, user_id) VALUES (?, ?)").run(id, user.id);
     return NextResponse.json({ id, invite_code: inviteCode });
@@ -87,6 +88,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "update_max_brackets") {
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(data.group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    const isEveryone = group.id === "everyone";
+    if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can change this setting" }, { status: 403 });
+    if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change this setting" }, { status: 403 });
+    const val = data.max_brackets != null && data.max_brackets !== "" ? Number(data.max_brackets) : null;
+    db.prepare("UPDATE groups SET max_brackets = ? WHERE id = ?").run(val, data.group_id);
+    return NextResponse.json({ ok: true });
+  }
+
   if (action === "assign_bracket") {
     const { pick_id, group_id } = data;
     if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });
@@ -96,6 +108,16 @@ export async function POST(req: NextRequest) {
     // Verify user is a member of the group
     const member = db.prepare("SELECT 1 FROM group_members WHERE group_id = ? AND user_id = ?").get(group_id, user.id);
     if (!member) return NextResponse.json({ error: "Not a member of this group" }, { status: 403 });
+    // Enforce max_brackets limit
+    const group = db.prepare("SELECT max_brackets FROM groups WHERE id = ?").get(group_id) as any;
+    if (group?.max_brackets != null) {
+      const count = (db.prepare(
+        "SELECT COUNT(*) as c FROM bracket_group_assignments bga JOIN picks p ON p.id = bga.pick_id WHERE bga.group_id = ? AND p.user_id = ?"
+      ).get(group_id, user.id) as any).c;
+      if (count >= group.max_brackets) {
+        return NextResponse.json({ error: `This group allows a maximum of ${group.max_brackets} bracket(s) per member` }, { status: 400 });
+      }
+    }
     db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, ?)").run(pick_id, group_id);
     return NextResponse.json({ ok: true });
   }
