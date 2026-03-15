@@ -12,7 +12,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [ ] Users can give their brackets custom names: add a name field to picks/brackets, show it in the UI, allow renaming.
 
 ### Medium Priority
-- [ ] Add bracket PDF/image export so users can share their picks
+- [x] Add bracket PDF/image export so users can share their picks
 - [ ] Add round-by-round score breakdown on leaderboard (not just total)
 - [ ] Let admin bulk-import bracket data via JSON paste on admin page
 - [ ] Let admin bulk-update results via JSON paste on admin page
