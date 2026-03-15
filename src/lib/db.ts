@@ -46,5 +46,23 @@ function initDb(db: Database.Database) {
       FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
       UNIQUE(user_id, tournament_id)
     );
+
+    CREATE TABLE IF NOT EXISTS groups (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      invite_code TEXT UNIQUE NOT NULL,
+      created_by TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS group_members (
+      group_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      joined_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (group_id, user_id),
+      FOREIGN KEY (group_id) REFERENCES groups(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
 }

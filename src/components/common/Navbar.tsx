@@ -19,6 +19,7 @@ export default function Navbar() {
         </Typography>
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <Button color="inherit" href="/bracket">Bracket</Button>
+          <Button color="inherit" href="/groups">Groups</Button>
           <Button color="inherit" href="/leaderboard">Leaderboard</Button>
           {user.is_admin && <Button color="warning" href="/admin">Admin</Button>}
           <Typography variant="body2" sx={{ mx: 1 }}>{user.username}</Typography>

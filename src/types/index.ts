@@ -41,6 +41,14 @@ export interface LeaderboardEntry {
   score: number;
 }
 
+export interface Group {
+  id: string;
+  name: string;
+  invite_code: string;
+  created_by: string;
+  created_at: string;
+}
+
 export interface LiveGame {
   id: string;
   name: string;

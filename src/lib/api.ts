@@ -1,6 +1,6 @@
 // Centralized API client — all fetch calls go through here
 
-import { User, Tournament, LeaderboardEntry, LiveGame } from "@/types";
+import { User, Tournament, LeaderboardEntry, LiveGame, Group } from "@/types";
 
 async function request<T>(url: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(url, opts);
@@ -37,6 +37,18 @@ export const api = {
   // Live Scores
   scores: {
     live: (date?: string) => request<{ games: LiveGame[] }>(date ? `/api/scores?date=${date}` : "/api/scores"),
+  },
+
+  // Groups
+  groups: {
+    list: () => request<{ groups: (Group & { member_count: number; creator_name: string })[] }>("/api/groups"),
+    getByInvite: (code: string) => request<{ group: Group & { member_count: number; is_member: boolean; creator_name: string } }>(`/api/groups?invite_code=${code}`),
+    create: (name: string) =>
+      request<{ id: string; invite_code: string }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", name }) }),
+    join: (inviteCode: string) =>
+      request<{ group_id: string }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "join", invite_code: inviteCode }) }),
+    leaderboard: (groupId: string, tournamentId: string) =>
+      request<{ group: Group; leaderboard: (LeaderboardEntry & { has_picks: boolean })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
   },
 
   // Admin

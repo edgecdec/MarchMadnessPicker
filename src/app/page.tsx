@@ -20,6 +20,7 @@ export default function Home() {
         </Typography>
         <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button variant="contained" href="/bracket">View Bracket & Make Picks</Button>
+          <Button variant="outlined" href="/groups">Groups</Button>
           <Button variant="outlined" href="/leaderboard">Leaderboard</Button>
           {user.is_admin && <Button variant="outlined" color="warning" href="/admin">Admin</Button>}
         </Box>
