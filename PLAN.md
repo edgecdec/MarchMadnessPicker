@@ -6,7 +6,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ## Tasks
 
 ### High Priority
-- [ ] Make bracket UI mobile responsive (horizontal scroll on small screens, larger touch targets)
+- [x] Make bracket UI mobile responsive (horizontal scroll on small screens, larger touch targets)
 - [ ] Add countdown timer showing time until picks lock
 - [ ] Show pick distribution stats (e.g. "75% of players picked Duke to win this game")
 - [ ] Add ability for users to reset/clear all their picks
