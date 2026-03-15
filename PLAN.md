@@ -6,10 +6,10 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ## Tasks
 
 ### High Priority
-- [ ] Support multiple brackets per user: update DB schema so picks table allows multiple entries per user per tournament, each with a unique bracket name. Add UI to create/name/switch between brackets.
+- [x] Support multiple brackets per user: update DB schema so picks table allows multiple entries per user per tournament, each with a unique bracket name. Add UI to create/name/switch between brackets.
 - [ ] Allow users to enter the same bracket into multiple groups: add a bracket-to-group assignment system so one bracket can be submitted to several groups.
 - [ ] Group admin can set max number of brackets allowed per group: add max_brackets field to groups table and enforce it when users submit brackets to a group.
-- [ ] Users can give their brackets custom names: add a name field to picks/brackets, show it in the UI, allow renaming.
+- [x] Users can give their brackets custom names: add a name field to picks/brackets, show it in the UI, allow renaming.
 
 ### Bracket Display Improvements
 - [ ] Add connector lines between matchups to visually show which games feed into which (SVG or CSS borders connecting rounds)
