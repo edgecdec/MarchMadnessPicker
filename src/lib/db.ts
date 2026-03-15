@@ -89,6 +89,7 @@ function initDb(db: Database.Database) {
   try {
     const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='picks'").get() as any;
     if (tableInfo?.sql && tableInfo.sql.includes("UNIQUE(user_id, tournament_id)") && !tableInfo.sql.includes("UNIQUE(user_id, tournament_id, bracket_name)")) {
+      db.pragma("foreign_keys = OFF");
       db.exec(`
         CREATE TABLE IF NOT EXISTS picks_new (
           id TEXT PRIMARY KEY,
@@ -107,6 +108,7 @@ function initDb(db: Database.Database) {
         DROP TABLE picks;
         ALTER TABLE picks_new RENAME TO picks;
       `);
+      db.pragma("foreign_keys = ON");
     }
   } catch {}
 
