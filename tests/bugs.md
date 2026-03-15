@@ -2,13 +2,13 @@
 
 - [2026-03-14 23:10] **Deploy race condition**: Concurrent deploys can wipe .next while another build is running. Fix: add `flock /tmp/marchmadness-deploy.lock` to deploy_webhook.sh to prevent concurrent deploys.
 
-- [2026-03-14 23:18] **Creating AND saving brackets fails with 500**: POST /api/picks returns "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint". The picks table schema was changed for multiple brackets (removed UNIQUE(user_id, tournament_id)) but the INSERT in src/app/api/picks/route.ts still uses `ON CONFLICT(user_id, tournament_id) DO UPDATE`. Fix: for new brackets just INSERT, for updating existing brackets UPDATE WHERE id = bracket_id.
+- [2026-03-14 23:18] **FIXED - Creating AND saving brackets fails with 500**: POST /api/picks returns "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint". The picks table schema was changed for multiple brackets (removed UNIQUE(user_id, tournament_id)) but the INSERT in src/app/api/picks/route.ts still uses `ON CONFLICT(user_id, tournament_id) DO UPDATE`. Fix: for new brackets just INSERT, for updating existing brackets UPDATE WHERE id = bracket_id. **RESOLVED**: DB migration in db.ts already recreated the picks table with UNIQUE(user_id, tournament_id, bracket_name), and the route uses ON CONFLICT(user_id, tournament_id, bracket_name) which matches.
 
 - [2026-03-14 23:22] **Pick counter shows wrong total**: Shows "63/67 picks made" — the denominator should always be 63 (TOTAL_GAMES constant). The numerator `Object.keys(picks).length` is counting stale/invalid keys. Fix: use TOTAL_GAMES for denominator, filter picks to only count valid game IDs for numerator.
 
 - [2026-03-14 23:25] **Confirm dialog shows "—" for all Final Four picks**: The save confirmation shows champion correctly but all four Final Four slots show "—". The dialog is looking up wrong game IDs for Elite 8 winners. Check the game ID format it expects vs what the bracket actually stores.
 
-- [2026-03-14 23:35] **Bracket PNG export unreadable**: Export has white background but uses dark theme text colors (light grey text on white). Team names and seeds are nearly invisible. Fix: force dark text colors (black/dark grey) when rendering the export, regardless of app theme.
+- [2026-03-14 23:35] **FIXED - Bracket PNG export unreadable**: Export has white background but uses dark theme text colors (light grey text on white). Team names and seeds are nearly invisible. Fix: force dark text colors (black/dark grey) when rendering the export, regardless of app theme. **RESOLVED**: Added `.bracket-export` CSS class that forces `color: #222` on all elements. Export now adds/removes this class during html2canvas render with white background.
 
 - [2026-03-14 23:23] **2025 bracket missing First Four data**: Update the 2025 tournament bracket_data on the server to include First Four matchups. The 2025 First Four: American vs Mt. St. Mary's (16-seed East, American won), Alabama St. vs SIUE (16-seed South, Alabama St. won), San Diego St. vs North Carolina (11-seed South, San Diego St. won), VCU vs Drake (11-seed, VCU won).
 
