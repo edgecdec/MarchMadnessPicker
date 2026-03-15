@@ -93,6 +93,21 @@ function getLoser(
   return null;
 }
 
+export function scorePicksByRound(
+  picks: Record<string, string>,
+  results: Record<string, string>,
+  settings?: ScoringSettings,
+): number[] {
+  const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
+  const scores = [0, 0, 0, 0, 0, 0];
+  for (const [gameId, winner] of Object.entries(results)) {
+    if (picks[gameId] !== winner) continue;
+    const round = parseInt(gameId.split("-")[1]) || 0;
+    if (round >= 0 && round < 6) scores[round] += pts[round] || 0;
+  }
+  return scores;
+}
+
 export function maxPossibleScore(results: Record<string, string>, settings?: ScoringSettings): number {
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
   // Base points only (upset bonus is variable, can't predict max)

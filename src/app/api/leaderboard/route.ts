@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { scorePicks, maxPossibleRemaining } from "@/lib/scoring";
+import { scorePicks, maxPossibleRemaining, scorePicksByRound } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 
 export async function GET(req: NextRequest) {
@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
         score: scorePicks(picks, results, settings, bracket.regions),
         maxRemaining: maxPossibleRemaining(picks, results, settings),
         tiebreaker: p.tiebreaker ?? null,
+        roundScores: scorePicksByRound(picks, results, settings),
       };
     })
     .sort((a, b) => b.score - a.score);

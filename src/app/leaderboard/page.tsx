@@ -8,6 +8,8 @@ import { LeaderboardEntry } from "@/types";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 
+const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
+
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, loading: tournLoading } = useTournament();
@@ -25,19 +27,22 @@ export default function LeaderboardPage() {
   return (
     <>
       <Navbar />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>Leaderboard</Typography>
         {leaderboard.length === 0 ? (
           <Typography color="text.secondary">No picks submitted yet.</Typography>
         ) : (
           <TableContainer component={Paper}>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Rank</TableCell>
                   <TableCell>Player</TableCell>
                   <TableCell>Bracket</TableCell>
-                  <TableCell align="right">Score</TableCell>
+                  {ROUND_LABELS.map((l) => (
+                    <TableCell key={l} align="right">{l}</TableCell>
+                  ))}
+                  <TableCell align="right">Total</TableCell>
                   <TableCell align="right">Max Possible</TableCell>
                   <TableCell align="right">Tiebreaker</TableCell>
                 </TableRow>
@@ -48,7 +53,10 @@ export default function LeaderboardPage() {
                     <TableCell>{i + 1}</TableCell>
                     <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
                     <TableCell>{entry.bracket_name || "—"}</TableCell>
-                    <TableCell align="right">{entry.score}</TableCell>
+                    {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
+                      <TableCell key={r} align="right">{s}</TableCell>
+                    ))}
+                    <TableCell align="right" sx={{ fontWeight: "bold" }}>{entry.score}</TableCell>
                     <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
                     <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>
                   </TableRow>

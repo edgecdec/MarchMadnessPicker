@@ -43,6 +43,7 @@ export interface LeaderboardEntry {
   score: number;
   maxRemaining?: number;
   tiebreaker?: number | null;
+  roundScores?: number[];
 }
 
 export interface ScoringSettings {

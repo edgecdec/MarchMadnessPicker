@@ -2,4 +2,4 @@
 
 Bugs discovered by Nova Act smoke tests during Ralph development loops.
 
-- [2026-03-14 22:36] ~~**Save bracket fails**: "JSON.parse: unexpected end of data at line 1 column 1 of the JSON data" when trying to save bracket picks.~~ **FIXED 2026-03-14**: Root cause was the deploy script stopping pm2 before building, causing 502s from nginx. Fixed deploy script to build while app runs and only restart after successful build. Added lock file to prevent concurrent deploys.
+- [2026-03-14 22:55] **Save bracket fails**: "JSON.parse: unexpected end of data at line 1 column 1 of the JSON data" when clicking Save Picks on the bracket page. The POST /api/picks endpoint is returning an empty or non-JSON response. This was NOT fixed by the deploy script changes — the API route itself is broken. Test with: `curl -s -X POST http://localhost:3003/api/picks -H "Content-Type: application/json" -d '{"tournament_id":"test","picks_data":{"East-0-0":"Duke"}}'` and verify it returns valid JSON.
