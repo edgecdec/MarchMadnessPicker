@@ -35,6 +35,7 @@ src/app/ (pages + API routes)
 
 ## Rules
 - ONE item per loop.
-- Do NOT modify: deploy_webhook.sh, server.js, ralph.sh, PROMPT.md, specs/
+- Do NOT modify: deploy_webhook.sh, server.js, ralph.sh
+- You MAY update PROMPT.md and specs/ files — but ONLY to add brief learnings or corrections. Keep changes minimal (1-2 lines). Never rewrite these files. Never remove existing rules. Only append.
 - Do NOT read files you don't need. Minimize context usage.
 - Do NOT run node server.js locally.
