@@ -28,7 +28,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Add user profile page showing their groups, stats, pick history
 
 ### Lower Priority
-- [ ] Add notification/banner when new results are entered
+- [x] Add notification/banner when new results are entered
 - [ ] Dark/light theme toggle
 - [ ] Add chat/comments per group
 - [ ] Animate bracket transitions when clicking picks
