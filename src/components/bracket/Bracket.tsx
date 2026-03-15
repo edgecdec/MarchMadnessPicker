@@ -186,6 +186,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       </Box>
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
+      <Box ref={bracketRef}>
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} />
@@ -201,6 +202,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
           <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} />
         </Box>
+      </Box>
       </Box>
 
       <Dialog open={resetOpen} onClose={() => setResetOpen(false)}>
