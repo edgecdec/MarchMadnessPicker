@@ -31,13 +31,19 @@ src/
    - API calls go through src/lib/api.ts
    - Pages use useAuth() hook, show AuthForm for unauthenticated users
    - Components organized by feature folder
-5. Add or update a Nova Act test in tests/smoke_test.py for the feature you just implemented. The test should verify the feature works via browser automation. Follow the existing test pattern (NovaAct context manager, nova.act() calls, log_result()).
-6. Run `npx next build` to verify it compiles
-7. If build succeeds: `git add -A && git commit -m "descriptive message" && git push`
-8. Wait 30 seconds for deploy, then run `curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` to verify the site returns 200
-9. If the site is NOT returning 200, investigate and fix immediately — check `ssh -i ~/.ssh/vps1.priv root@5.78.132.57 "tail -30 /var/log/webhook_deploy_marchmadness.log"` for errors
-10. Mark the task [x] in PLAN.md and commit that too
-11. If build fails: fix the error and retry. Do NOT push broken code.
+5. Add or update a Nova Act test in tests/smoke_test.py for the feature you just implemented
+6. Run `npx next build` to verify it compiles. If build fails, fix and retry. Do NOT proceed with broken code.
+7. Start the app locally and test it:
+   - Run: `PORT=3003 NODE_ENV=production node server.js &`
+   - Wait 5 seconds for startup
+   - Test key endpoints with curl: `curl -s -o /dev/null -w "%{http_code}" http://localhost:3003` (should be 200)
+   - Test the API route you changed: e.g. `curl -s http://localhost:3003/api/picks` — verify it returns valid JSON, not HTML or empty
+   - If any test fails, stop the server (`kill %1`), fix the issue, rebuild, and test again
+   - Once everything passes, stop the local server: `kill %1`
+8. Commit and push: `git add -A && git commit -m "descriptive message" && git push`
+9. Wait 45 seconds for deploy, then verify: `curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` — must return 200
+10. If the site is NOT returning 200, check: `ssh -i ~/.ssh/vps1.priv root@5.78.132.57 "tail -30 /var/log/webhook_deploy_marchmadness.log"` and fix immediately
+11. Mark the task [x] in PLAN.md and commit that too
 
 ## Rules
 - ONE task per loop. Do not combine tasks.
@@ -45,7 +51,12 @@ src/
 - Follow existing code patterns exactly.
 - Keep changes minimal — don't refactor unrelated code.
 - If a task is unclear, implement the simplest reasonable interpretation.
-- NEVER push code that doesn't build. Always run `npx next build` first.
-- ALWAYS verify the site is up after pushing. If it's down, fix it before finishing.
-- Check tests/bugs.md for any known bugs. If there are unfixed bugs, fix them BEFORE picking a new task from PLAN.md.
-- ALWAYS add or update a test in tests/smoke_test.py for the feature you implemented. Every feature needs a corresponding test.
+- NEVER push code that doesn't build locally.
+- NEVER push code that doesn't work locally. Always test locally first.
+- ALWAYS test API routes with curl locally before pushing. Verify they return valid JSON.
+- ALWAYS verify the live site is up after pushing. If it's down, fix it before finishing.
+- ALWAYS add or update a test in tests/smoke_test.py for the feature you implemented.
+- Check tests/bugs.md for any known bugs. Fix bugs BEFORE picking new tasks.
+- Do NOT modify deploy_webhook.sh or server.js webhook handler unless explicitly asked.
+
+This agent's config file is at ~/.kiro/agents/marchmadness.json. If asked to update context, edit that file directly.
