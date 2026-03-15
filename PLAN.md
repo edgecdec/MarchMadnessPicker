@@ -23,7 +23,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Let admin bulk-update results via JSON paste on admin page
 
 ### Social & Views
-- [ ] Show which picks are correct/incorrect with color coding on the view-others-bracket page
+- [x] Show which picks are correct/incorrect with color coding on the view-others-bracket page
 - [ ] Add a "compare brackets" view showing two users' picks side by side
 - [ ] Add user profile page showing their groups, stats, pick history
 
