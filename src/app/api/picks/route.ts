@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const db = getDb();
   const tournaments = db.prepare("SELECT id, name, year, lock_time FROM tournaments ORDER BY year DESC").all();
-  return NextResponse.json({ tournaments });
+
+  const user = await getUser();
+  let userPicks: any = null;
+  const tournamentId = req.nextUrl.searchParams.get("tournament_id");
+  if (user && tournamentId) {
+    const row = db.prepare("SELECT picks_data FROM picks WHERE user_id = ? AND tournament_id = ?").get(user.id, tournamentId) as any;
+    if (row) userPicks = JSON.parse(row.picks_data);
+  }
+
+  return NextResponse.json({ tournaments, userPicks });
 }
 
 export async function POST(req: NextRequest) {
