@@ -471,6 +471,21 @@ def run_tests(url):
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
 
+    # Test: Viewing own bracket redirects to /bracket (not locked view)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act(f"Navigate to {url}/bracket/smoketest_user")
+            result = nova.act("Check the current page URL and look for a 'Picks are locked' message. Do you see 'Picks are locked' anywhere on the page? Also, do you see editable bracket controls like 'Save Picks' or autofill buttons?")
+            response = (getattr(result, 'response', '') or '').lower()
+            has_locked_msg = 'picks are locked' in response
+            has_edit_controls = 'save' in response or 'autofill' in response or 'chalk' in response
+            log_result("Own bracket redirects to editable view", not has_locked_msg or has_edit_controls, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Own bracket redirects to editable view", False, str(e))
+
     # Test: Leaderboard round scores add up to total (upset bonus included)
     try:
         with NovaAct(starting_page=url) as nova:

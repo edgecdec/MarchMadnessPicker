@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Container, Typography, Tabs, Tab, Box } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -11,6 +11,7 @@ import AuthForm from "@/components/auth/AuthForm";
 
 export default function ViewBracketPage() {
   const { username } = useParams<{ username: string }>();
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
@@ -20,11 +21,15 @@ export default function ViewBracketPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (user && username && user.username.toLowerCase() === username.toLowerCase()) {
+      router.replace("/bracket");
+      return;
+    }
     if (!tournament || !username) return;
     api.tournaments.viewUser(username, tournament.id)
       .then((d) => { setViewPicks(d.picks); setBrackets(d.brackets || []); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
-  }, [tournament, username]);
+  }, [tournament, username, user, router]);
 
   const handleTabChange = (_: any, idx: number) => {
     if (!tournament || !username) return;
