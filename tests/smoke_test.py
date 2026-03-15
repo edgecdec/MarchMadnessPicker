@@ -563,16 +563,28 @@ def run_tests(url):
     except Exception as e:
         log_result("Profile groups are clickable with bracket names", False, str(e))
 
-    # Test: Simulate page loads with group selector
+    # Test: Simulate page loads with bracket view and group selector
     try:
         with NovaAct(starting_page=f"{url}/simulate") as nova:
             nova.act("Type 'smoketest_user' in the Username field")
             nova.act("Type 'test1234' in the Password field")
             nova.act("Click the Login button")
-            result = nova.act("Do you see a 'What-If Simulator' heading and a 'Select Group' dropdown?")
-            log_result("Simulate page loads with group selector", True)
+            result = nova.act("Do you see a 'What-If Simulator' heading, a 'Select Group' dropdown, and a legend showing 'Actual result' (green) and 'Hypothetical' (orange)?")
+            log_result("Simulate page loads with bracket view and group selector", True)
     except Exception as e:
-        log_result("Simulate page loads with group selector", False, str(e))
+        log_result("Simulate page loads with bracket view and group selector", False, str(e))
+
+    # Test: Simulate page shows bracket layout after selecting a group
+    try:
+        with NovaAct(starting_page=f"{url}/simulate") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click the 'Select Group' dropdown and select the first group option")
+            result = nova.act("Do you see a full tournament bracket with region names (East, West, South, Midwest), team matchups, and a Final Four section in the center? Also look for a leaderboard panel or leaderboard icon button.")
+            log_result("Simulate bracket view renders after group selection", True)
+    except Exception as e:
+        log_result("Simulate bracket view renders after group selection", False, str(e))
 
     # Test: Simulate API returns valid JSON (requires auth)
     try:
