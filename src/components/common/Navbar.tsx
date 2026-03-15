@@ -1,15 +1,14 @@
 "use client";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { useAuth } from "@/hooks/useAuth";
 
-interface Props {
-  user: { username: string; is_admin: boolean };
-  onLogout: () => void;
-}
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  if (!user) return null;
 
-export default function Navbar({ user, onLogout }: Props) {
   const handleLogout = async () => {
-    await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) });
-    onLogout();
+    await logout();
+    window.location.href = "/";
   };
 
   return (

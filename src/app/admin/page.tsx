@@ -1,37 +1,34 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Container, Typography, TextField, Button, Box, Paper } from "@mui/material";
-import Navbar from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+import { api } from "@/lib/api";
+import Navbar from "@/components/common/Navbar";
+import AuthForm from "@/components/auth/AuthForm";
 
 export default function AdminPage() {
-  const [user, setUser] = useState<any>(null);
+  const { user, loading } = useAuth();
   const [name, setName] = useState("NCAA Tournament");
   const [year, setYear] = useState("2026");
   const [lockTime, setLockTime] = useState("");
   const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    fetch("/api/auth").then(r => r.json()).then(d => {
-      if (!d.user?.is_admin) window.location.href = "/";
-      else setUser(d.user);
-    });
-  }, []);
+  if (loading) return null;
+  if (!user) return <AuthForm />;
+  if (!user.is_admin) { window.location.href = "/"; return null; }
 
   const createTournament = async () => {
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "create_tournament", name, year: parseInt(year), lock_time: lockTime || null }),
-    });
-    const data = await res.json();
-    setMsg(res.ok ? `Tournament created: ${data.id}` : data.error);
+    try {
+      const data = await api.admin.createTournament(name, parseInt(year), lockTime || undefined);
+      setMsg(`Tournament created: ${data.id}`);
+    } catch (e: any) {
+      setMsg(e.message);
+    }
   };
-
-  if (!user) return null;
 
   return (
     <>
-      <Navbar user={user} onLogout={() => { window.location.href = "/"; }} />
+      <Navbar />
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>Admin Panel</Typography>
         <Paper sx={{ p: 3, mb: 3 }}>

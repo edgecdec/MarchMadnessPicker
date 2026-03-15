@@ -3,8 +3,9 @@ import { useState, useCallback } from "react";
 import { Box, Button, Typography, Snackbar, Alert } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
-import { Team, Region, POINTS_PER_ROUND } from "@/lib/bracketData";
-import { GameScore } from "./Matchup";
+import { Team, Region, GameScore } from "@/types";
+import { scorePicks, maxPossibleScore } from "@/lib/scoring";
+import { TOTAL_GAMES } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -65,16 +66,8 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
 
   // Calculate score
-  const score = results
-    ? Object.entries(results).reduce((total, [gameId, winner]) => {
-        if (picks[gameId] === winner) {
-          const round = parseInt(gameId.split("-")[1]) || 0;
-          return total + (POINTS_PER_ROUND[round] || 0);
-        }
-        return total;
-      }, 0)
-    : 0;
-  const maxPossible = results ? Object.keys(results).reduce((t, gid) => t + (POINTS_PER_ROUND[parseInt(gid.split("-")[1])] || 0), 0) : 0;
+  const score = results ? scorePicks(picks, results) : 0;
+  const maxPoss = results ? maxPossibleScore(results) : 0;
 
   const handlePick = useCallback(
     (gameId: string, team: Team) => {
@@ -114,7 +107,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
   };
 
   const totalPicks = Object.keys(picks).length;
-  const totalGames = 63; // 32+16+8+4+2+1
+  const totalGames = TOTAL_GAMES;
 
   return (
     <Box>
@@ -125,7 +118,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           </Typography>
           {results && Object.keys(results).length > 0 && (
             <Typography variant="body1" sx={{ fontWeight: 700, color: "primary.main" }}>
-              🏆 Score: {score} / {maxPossible} possible
+              🏆 Score: {score} / {maxPoss} possible
             </Typography>
           )}
         </Box>

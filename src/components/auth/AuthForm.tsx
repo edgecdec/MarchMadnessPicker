@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import { Box, TextField, Button, Typography, Paper, Tabs, Tab } from "@mui/material";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function AuthForm({ onAuth }: { onAuth: (user: any) => void }) {
+export default function AuthForm() {
+  const { login, register } = useAuth();
   const [tab, setTab] = useState(0);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -10,15 +12,12 @@ export default function AuthForm({ onAuth }: { onAuth: (user: any) => void }) {
 
   const submit = async () => {
     setError("");
-    const action = tab === 0 ? "login" : "register";
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, username, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) return setError(data.error);
-    onAuth(data);
+    try {
+      if (tab === 0) await login(username, password);
+      else await register(username, password);
+    } catch (e: any) {
+      setError(e.message);
+    }
   };
 
   return (

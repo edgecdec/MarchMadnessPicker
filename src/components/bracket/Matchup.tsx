@@ -1,13 +1,6 @@
 "use client";
 import { Box, Typography, Paper } from "@mui/material";
-import { Team } from "@/lib/bracketData";
-
-export interface GameScore {
-  teamA?: string; // score string e.g. "74"
-  teamB?: string;
-  state?: string; // "pre" | "in" | "post"
-  detail?: string; // "Final" or "2nd 12:34"
-}
+import { Team, GameScore } from "@/types";
 
 interface Props {
   teamA?: Team;

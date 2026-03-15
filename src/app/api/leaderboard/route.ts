@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-
-const POINTS_PER_ROUND = [1, 2, 4, 8, 16, 32];
-
-function scorePicks(picks: Record<string, string>, results: Record<string, string>): number {
-  let score = 0;
-  for (const [game, winner] of Object.entries(results)) {
-    if (picks[game] === winner) {
-      const round = parseInt(game.split("-")[0]) || 0;
-      score += POINTS_PER_ROUND[round] || 0;
-    }
-  }
-  return score;
-}
+import { scorePicks } from "@/lib/scoring";
 
 export async function GET(req: NextRequest) {
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
@@ -28,10 +16,7 @@ export async function GET(req: NextRequest) {
   `).all(tournamentId) as any[];
 
   const leaderboard = allPicks
-    .map((p) => ({
-      username: p.username,
-      score: scorePicks(JSON.parse(p.picks_data), results),
-    }))
+    .map((p) => ({ username: p.username, score: scorePicks(JSON.parse(p.picks_data), results) }))
     .sort((a, b) => b.score - a.score);
 
   return NextResponse.json({ leaderboard });

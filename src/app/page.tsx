@@ -1,24 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
-import AuthForm from "@/components/AuthForm";
-import Navbar from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+import AuthForm from "@/components/auth/AuthForm";
+import Navbar from "@/components/common/Navbar";
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/auth").then(r => r.json()).then(d => { setUser(d.user); setLoading(false); });
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) return null;
-
-  if (!user) return <AuthForm onAuth={setUser} />;
+  if (!user) return <AuthForm />;
 
   return (
     <>
-      <Navbar user={user} onLogout={() => setUser(null)} />
+      <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Typography variant="h3" gutterBottom>🏀 March Madness Picker</Typography>
         <Typography variant="h6" color="text.secondary" gutterBottom>

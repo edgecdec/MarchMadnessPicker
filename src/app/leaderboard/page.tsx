@@ -1,29 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
-import Navbar from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+import { useTournament } from "@/hooks/useTournament";
+import { api } from "@/lib/api";
+import { LeaderboardEntry } from "@/types";
+import Navbar from "@/components/common/Navbar";
+import AuthForm from "@/components/auth/AuthForm";
 
 export default function LeaderboardPage() {
-  const [user, setUser] = useState<any>(null);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [tournaments, setTournaments] = useState<any[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const { tournament, loading: tournLoading } = useTournament();
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
-    fetch("/api/auth").then(r => r.json()).then(d => { if (!d.user) window.location.href = "/"; else setUser(d.user); });
-    fetch("/api/picks").then(r => r.json()).then(d => setTournaments(d.tournaments || []));
-  }, []);
-
-  useEffect(() => {
-    if (tournaments.length > 0) {
-      fetch(`/api/leaderboard?tournament_id=${tournaments[0].id}`).then(r => r.json()).then(d => setLeaderboard(d.leaderboard || []));
+    if (tournament) {
+      api.leaderboard.get(tournament.id).then((d) => setLeaderboard(d.leaderboard));
     }
-  }, [tournaments]);
+  }, [tournament]);
 
-  if (!user) return null;
+  if (authLoading || tournLoading) return null;
+  if (!user) return <AuthForm />;
 
   return (
     <>
-      <Navbar user={user} onLogout={() => { window.location.href = "/"; }} />
+      <Navbar />
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>Leaderboard</Typography>
         {leaderboard.length === 0 ? (

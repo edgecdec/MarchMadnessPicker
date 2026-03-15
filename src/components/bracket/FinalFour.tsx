@@ -1,7 +1,7 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import Matchup, { GameScore } from "./Matchup";
-import { Team, Region } from "@/lib/bracketData";
+import Matchup from "./Matchup";
+import { Team, Region, GameScore } from "@/types";
 
 interface Props {
   regions: Region[];

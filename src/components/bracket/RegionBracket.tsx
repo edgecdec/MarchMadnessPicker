@@ -1,11 +1,8 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import Matchup, { GameScore } from "./Matchup";
-import { Team, Region } from "@/lib/bracketData";
-
-const SEED_ORDER_PAIRS = [
-  [1, 16], [8, 9], [5, 12], [4, 13], [6, 11], [3, 14], [7, 10], [2, 15],
-];
+import Matchup from "./Matchup";
+import { Team, Region, GameScore } from "@/types";
+import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
 
 interface Props {
   region: Region;
