@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   const bracket = JSON.parse(tournament.bracket_data || "{}");
 
   const allPicks = db.prepare(`
-    SELECT p.picks_data, p.bracket_name, u.username
+    SELECT p.picks_data, p.bracket_name, p.tiebreaker, u.username
     FROM picks p JOIN users u ON p.user_id = u.id
     WHERE p.tournament_id = ?
   `).all(tournamentId) as any[];
@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
         bracket_name: p.bracket_name,
         score: scorePicks(picks, results, settings, bracket.regions),
         maxRemaining: maxPossibleRemaining(picks, results, settings),
+        tiebreaker: p.tiebreaker ?? null,
       };
     })
     .sort((a, b) => b.score - a.score);

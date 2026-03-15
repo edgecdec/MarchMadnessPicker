@@ -42,6 +42,7 @@ export interface LeaderboardEntry {
   bracket_name?: string;
   score: number;
   maxRemaining?: number;
+  tiebreaker?: number | null;
 }
 
 export interface ScoringSettings {
@@ -69,6 +70,7 @@ export interface UserBracket {
   bracket_name: string;
   picks_data: Record<string, string>;
   submitted_at: string;
+  tiebreaker?: number | null;
 }
 
 export interface LiveGame {

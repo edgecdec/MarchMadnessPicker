@@ -15,7 +15,7 @@ import { api } from "@/lib/api";
 
 export default function BracketPage() {
   const { user, loading: authLoading } = useAuth();
-  const { tournament, regions, results, userPicks, userBrackets, activeBracket, loading: tournLoading, switchBracket, refreshBrackets } = useTournament();
+  const { tournament, regions, results, userPicks, userBrackets, activeBracket, userTiebreaker, loading: tournLoading, switchBracket, refreshBrackets } = useTournament();
   const [distribution, setDistribution] = useState<Record<string, Record<string, number>>>({});
   const [newOpen, setNewOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -136,6 +136,7 @@ export default function BracketPage() {
             locked={locked}
             distribution={distribution}
             bracketName={activeBracket || undefined}
+            initialTiebreaker={userTiebreaker}
             onSaved={refreshBrackets}
           />
         )}

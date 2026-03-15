@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const scoring = { ...DEFAULT_SCORING, ...settings };
 
   const members = db.prepare(`
-    SELECT u.username, p.picks_data, p.bracket_name
+    SELECT u.username, p.picks_data, p.bracket_name, p.tiebreaker
     FROM group_members gm
     JOIN users u ON gm.user_id = u.id
     LEFT JOIN picks p ON p.user_id = u.id AND p.tournament_id = ?
@@ -42,6 +42,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         score: m.picks_data ? scorePicks(picks, results, scoring, bracket.regions) : 0,
         maxRemaining: m.picks_data ? maxPossibleRemaining(picks, results, scoring) : 0,
         has_picks: !!m.picks_data,
+        tiebreaker: m.tiebreaker ?? null,
       };
     })
     .sort((a, b) => b.score - a.score);

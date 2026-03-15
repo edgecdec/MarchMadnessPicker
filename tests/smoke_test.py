@@ -143,6 +143,30 @@ def run_tests(url):
     except Exception as e:
         log_result("Chalk autofill fills all 63 picks", False, str(e))
 
+    # Test 10: Tiebreaker input visible on bracket page
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look for a tiebreaker section that says 'Predict the total combined score of the Championship Game' with a number input field. Do you see it?")
+            log_result("Tiebreaker input visible on bracket page", True)
+    except Exception as e:
+        log_result("Tiebreaker input visible on bracket page", False, str(e))
+
+    # Test 11: Tiebreaker column visible on leaderboard
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look at the leaderboard table headers. Do you see a 'Tiebreaker' column?")
+            log_result("Tiebreaker column on leaderboard", True)
+    except Exception as e:
+        log_result("Tiebreaker column on leaderboard", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

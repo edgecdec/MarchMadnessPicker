@@ -12,24 +12,28 @@ export async function GET(req: NextRequest) {
   const user = await getUser();
   let userPicks: any = null;
   let userBrackets: any[] = [];
+  let userTiebreaker: number | null = null;
 
   if (user && tournamentId) {
     // List all brackets for this user/tournament
     userBrackets = db.prepare(
-      "SELECT id, bracket_name, submitted_at FROM picks WHERE user_id = ? AND tournament_id = ? ORDER BY submitted_at ASC"
+      "SELECT id, bracket_name, submitted_at, tiebreaker FROM picks WHERE user_id = ? AND tournament_id = ? ORDER BY submitted_at ASC"
     ).all(user.id, tournamentId) as any[];
 
     // Load specific bracket or first one
     const name = bracketName || (userBrackets[0]?.bracket_name ?? null);
     if (name) {
       const row = db.prepare(
-        "SELECT picks_data FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?"
+        "SELECT picks_data, tiebreaker FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?"
       ).get(user.id, tournamentId, name) as any;
-      if (row) userPicks = JSON.parse(row.picks_data);
+      if (row) {
+        userPicks = JSON.parse(row.picks_data);
+        userTiebreaker = row.tiebreaker ?? null;
+      }
     }
   }
 
-  return NextResponse.json({ tournaments, userPicks, userBrackets });
+  return NextResponse.json({ tournaments, userPicks, userBrackets, userTiebreaker });
 }
 
 export async function POST(req: NextRequest) {
@@ -38,6 +42,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const { tournament_id, picks_data, bracket_name = "My Bracket", action } = body;
+  const tiebreaker = body.tiebreaker !== undefined ? body.tiebreaker : undefined;
 
   if (!tournament_id) {
     return NextResponse.json({ error: "tournament_id required" }, { status: 400 });
@@ -83,10 +88,11 @@ export async function POST(req: NextRequest) {
 
   const { v4: uuid } = require("uuid");
   const pickId = uuid();
+  const tiebreakerVal = tiebreaker != null ? Number(tiebreaker) : null;
   db.prepare(`
-    INSERT INTO picks (id, user_id, tournament_id, bracket_name, picks_data) VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(user_id, tournament_id, bracket_name) DO UPDATE SET picks_data = ?, submitted_at = datetime('now')
-  `).run(pickId, user.id, tournament_id, bracket_name, JSON.stringify(picks_data), JSON.stringify(picks_data));
+    INSERT INTO picks (id, user_id, tournament_id, bracket_name, picks_data, tiebreaker) VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(user_id, tournament_id, bracket_name) DO UPDATE SET picks_data = ?, tiebreaker = ?, submitted_at = datetime('now')
+  `).run(pickId, user.id, tournament_id, bracket_name, JSON.stringify(picks_data), tiebreakerVal, JSON.stringify(picks_data), tiebreakerVal);
 
   // Auto-assign to Everyone group
   const savedPick = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")

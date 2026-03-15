@@ -16,21 +16,23 @@ interface TournamentState {
   userPicks: Record<string, string>;
   userBrackets: BracketInfo[];
   activeBracket: string | null;
+  userTiebreaker: number | null;
   loading: boolean;
 }
 
 export function useTournament() {
   const [state, setState] = useState<TournamentState>({
-    tournament: null, regions: null, results: {}, userPicks: {}, userBrackets: [], activeBracket: null, loading: true,
+    tournament: null, regions: null, results: {}, userPicks: {}, userBrackets: [], activeBracket: null, userTiebreaker: null, loading: true,
   });
 
   const loadBracket = useCallback((tournamentId: string, bracketName?: string) => {
-    api.tournaments.getPicks(tournamentId, bracketName).then(({ userPicks, userBrackets }) => {
+    api.tournaments.getPicks(tournamentId, bracketName).then(({ userPicks, userBrackets, userTiebreaker }) => {
       setState((s) => ({
         ...s,
         userPicks: userPicks || {},
         userBrackets: userBrackets || [],
         activeBracket: bracketName || userBrackets?.[0]?.bracket_name || null,
+        userTiebreaker: userTiebreaker ?? null,
       }));
     });
   }, []);
@@ -43,7 +45,7 @@ export function useTournament() {
       const bracket = typeof t.bracket_data === "string" ? JSON.parse(t.bracket_data) : t.bracket_data;
       const res = typeof t.results_data === "string" ? JSON.parse(t.results_data as string) : (t.results_data || {});
 
-      api.tournaments.getPicks(t.id).then(({ userPicks, userBrackets }) => {
+      api.tournaments.getPicks(t.id).then(({ userPicks, userBrackets, userTiebreaker }) => {
         setState({
           tournament: t,
           regions: bracket?.regions || null,
@@ -51,6 +53,7 @@ export function useTournament() {
           userPicks: userPicks || {},
           userBrackets: userBrackets || [],
           activeBracket: userBrackets?.[0]?.bracket_name || null,
+          userTiebreaker: userTiebreaker ?? null,
           loading: false,
         });
       });

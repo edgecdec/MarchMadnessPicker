@@ -39,6 +39,7 @@ export default function LeaderboardPage() {
                   <TableCell>Bracket</TableCell>
                   <TableCell align="right">Score</TableCell>
                   <TableCell align="right">Max Possible</TableCell>
+                  <TableCell align="right">Tiebreaker</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -49,6 +50,7 @@ export default function LeaderboardPage() {
                     <TableCell>{entry.bracket_name || "—"}</TableCell>
                     <TableCell align="right">{entry.score}</TableCell>
                     <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
+                    <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -42,6 +42,7 @@ function initDb(db: Database.Database) {
       tournament_id TEXT NOT NULL,
       bracket_name TEXT NOT NULL DEFAULT 'My Bracket',
       picks_data TEXT NOT NULL DEFAULT '{}',
+      tiebreaker INTEGER DEFAULT NULL,
       submitted_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
@@ -82,6 +83,7 @@ function initDb(db: Database.Database) {
   try { db.exec("ALTER TABLE groups ADD COLUMN scoring_settings TEXT NOT NULL DEFAULT '{}'"); } catch {}
   try { db.exec("ALTER TABLE groups ADD COLUMN max_brackets INTEGER DEFAULT NULL"); } catch {}
   try { db.exec("ALTER TABLE picks ADD COLUMN bracket_name TEXT NOT NULL DEFAULT 'My Bracket'"); } catch {}
+  try { db.exec("ALTER TABLE picks ADD COLUMN tiebreaker INTEGER DEFAULT NULL"); } catch {}
 
   // Migrate unique constraint: recreate picks table if old constraint exists
   try {

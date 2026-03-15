@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useRef, useMemo } from "react";
-import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import { Team, Region, GameScore } from "@/types";
@@ -17,6 +17,7 @@ interface Props {
   locked?: boolean;
   distribution?: Record<string, Record<string, number>>;
   bracketName?: string;
+  initialTiebreaker?: number | null;
   onSaved?: () => void;
 }
 
@@ -64,8 +65,9 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   return updated;
 }
 
-export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, onSaved }: Props) {
+export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, onSaved }: Props) {
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
+  const [tiebreaker, setTiebreaker] = useState<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
@@ -119,7 +121,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName }),
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -197,6 +199,23 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
             <Typography variant="body2" color="warning.main">🔒 Picks are locked</Typography>
           </Box>
         )}
+      </Box>
+
+      {/* Tiebreaker question */}
+      <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Tiebreaker: Predict the total combined score of the Championship Game
+        </Typography>
+        <TextField
+          type="number"
+          size="small"
+          value={tiebreaker}
+          onChange={(e) => !locked && setTiebreaker(e.target.value)}
+          disabled={locked}
+          placeholder="e.g. 145"
+          inputProps={{ min: 0, max: 500, "aria-label": "Tiebreaker score prediction" }}
+          sx={{ width: 120 }}
+        />
       </Box>
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}

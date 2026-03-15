@@ -27,10 +27,10 @@ export const api = {
     getPicks: (tournamentId: string, bracketName?: string) => {
       const params = new URLSearchParams({ tournament_id: tournamentId });
       if (bracketName) params.set("bracket_name", bracketName);
-      return request<{ tournaments: Tournament[]; userPicks: Record<string, string> | null; userBrackets: { id: string; bracket_name: string; submitted_at: string }[] }>(`/api/picks?${params}`);
+      return request<{ tournaments: Tournament[]; userPicks: Record<string, string> | null; userBrackets: { id: string; bracket_name: string; submitted_at: string }[]; userTiebreaker: number | null }>(`/api/picks?${params}`);
     },
-    savePicks: (tournamentId: string, picks: Record<string, string>, bracketName?: string) =>
-      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName }) }),
+    savePicks: (tournamentId: string, picks: Record<string, string>, bracketName?: string, tiebreaker?: number | null) =>
+      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker }) }),
     deleteBracket: (tournamentId: string, bracketName: string) =>
       request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, bracket_name: bracketName, action: "delete_bracket" }) }),
     renameBracket: (tournamentId: string, bracketName: string, newName: string) =>
