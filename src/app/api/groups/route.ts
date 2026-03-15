@@ -3,9 +3,10 @@ import { v4 as uuid } from "uuid";
 import crypto from "crypto";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
+import { DEFAULT_SCORING } from "@/types";
 
 function generateInviteCode(): string {
-  return crypto.randomBytes(4).toString("hex"); // 8 char hex code
+  return crypto.randomBytes(4).toString("hex");
 }
 
 export async function GET(req: NextRequest) {
@@ -15,16 +16,14 @@ export async function GET(req: NextRequest) {
   const db = getDb();
   const inviteCode = req.nextUrl.searchParams.get("invite_code");
 
-  // Lookup group by invite code
   if (inviteCode) {
     const group = db.prepare("SELECT g.*, u.username as creator_name FROM groups g JOIN users u ON g.created_by = u.id WHERE g.invite_code = ?").get(inviteCode) as any;
     if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
     const memberCount = (db.prepare("SELECT COUNT(*) as count FROM group_members WHERE group_id = ?").get(group.id) as any).count;
     const isMember = !!db.prepare("SELECT 1 FROM group_members WHERE group_id = ? AND user_id = ?").get(group.id, user.id);
-    return NextResponse.json({ group: { ...group, member_count: memberCount, is_member: isMember } });
+    return NextResponse.json({ group: { ...group, scoring_settings: JSON.parse(group.scoring_settings || "{}"), member_count: memberCount, is_member: isMember } });
   }
 
-  // List user's groups
   const groups = db.prepare(`
     SELECT g.*, u.username as creator_name,
       (SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.id) as member_count
@@ -33,9 +32,11 @@ export async function GET(req: NextRequest) {
     JOIN users u ON g.created_by = u.id
     WHERE gm.user_id = ?
     ORDER BY g.created_at DESC
-  `).all(user.id);
+  `).all(user.id) as any[];
 
-  return NextResponse.json({ groups });
+  return NextResponse.json({
+    groups: groups.map((g) => ({ ...g, scoring_settings: JSON.parse(g.scoring_settings || "{}") })),
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -49,7 +50,10 @@ export async function POST(req: NextRequest) {
     if (!data.name?.trim()) return NextResponse.json({ error: "Group name required" }, { status: 400 });
     const id = uuid();
     const inviteCode = generateInviteCode();
-    db.prepare("INSERT INTO groups (id, name, invite_code, created_by) VALUES (?, ?, ?, ?)").run(id, data.name.trim(), inviteCode, user.id);
+    const settings = data.scoring_settings || DEFAULT_SCORING;
+    db.prepare("INSERT INTO groups (id, name, invite_code, created_by, scoring_settings) VALUES (?, ?, ?, ?, ?)").run(
+      id, data.name.trim(), inviteCode, user.id, JSON.stringify(settings)
+    );
     db.prepare("INSERT INTO group_members (group_id, user_id) VALUES (?, ?)").run(id, user.id);
     return NextResponse.json({ id, invite_code: inviteCode });
   }
@@ -62,6 +66,14 @@ export async function POST(req: NextRequest) {
       db.prepare("INSERT INTO group_members (group_id, user_id) VALUES (?, ?)").run(group.id, user.id);
     }
     return NextResponse.json({ group_id: group.id });
+  }
+
+  if (action === "update_scoring") {
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(data.group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    if (group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change scoring" }, { status: 403 });
+    db.prepare("UPDATE groups SET scoring_settings = ? WHERE id = ?").run(JSON.stringify(data.scoring_settings), data.group_id);
+    return NextResponse.json({ ok: true });
   }
 
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });

@@ -1,6 +1,6 @@
 // Centralized API client — all fetch calls go through here
 
-import { User, Tournament, LeaderboardEntry, LiveGame, Group } from "@/types";
+import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings } from "@/types";
 
 async function request<T>(url: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(url, opts);
@@ -47,6 +47,8 @@ export const api = {
       request<{ id: string; invite_code: string }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", name }) }),
     join: (inviteCode: string) =>
       request<{ group_id: string }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "join", invite_code: inviteCode }) }),
+    updateScoring: (groupId: string, settings: ScoringSettings) =>
+      request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update_scoring", group_id: groupId, scoring_settings: settings }) }),
     leaderboard: (groupId: string, tournamentId: string) =>
       request<{ group: Group; leaderboard: (LeaderboardEntry & { has_picks: boolean })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
   },

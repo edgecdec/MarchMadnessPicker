@@ -52,6 +52,7 @@ function initDb(db: Database.Database) {
       name TEXT NOT NULL,
       invite_code TEXT UNIQUE NOT NULL,
       created_by TEXT NOT NULL,
+      scoring_settings TEXT NOT NULL DEFAULT '{}',
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (created_by) REFERENCES users(id)
     );
@@ -65,4 +66,7 @@ function initDb(db: Database.Database) {
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
   `);
+
+  // Migrations for existing DBs
+  try { db.exec("ALTER TABLE groups ADD COLUMN scoring_settings TEXT NOT NULL DEFAULT '{}'"); } catch {}
 }

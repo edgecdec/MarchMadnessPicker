@@ -41,12 +41,23 @@ export interface LeaderboardEntry {
   score: number;
 }
 
+export interface ScoringSettings {
+  pointsPerRound: number[];      // [R64, R32, S16, E8, FF, Champ]
+  upsetBonusPerRound: number[];  // bonus multiplied by (winner_seed - loser_seed) for upsets
+}
+
+export const DEFAULT_SCORING: ScoringSettings = {
+  pointsPerRound: [1, 2, 4, 8, 16, 32],
+  upsetBonusPerRound: [0, 0, 0, 0, 0, 0],
+};
+
 export interface Group {
   id: string;
   name: string;
   invite_code: string;
   created_by: string;
   created_at: string;
+  scoring_settings: string | ScoringSettings;
 }
 
 export interface LiveGame {
