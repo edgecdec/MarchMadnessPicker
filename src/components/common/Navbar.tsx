@@ -23,7 +23,7 @@ export default function Navbar() {
           <Button color="inherit" href="/leaderboard">Leaderboard</Button>
           <Button color="inherit" href="/compare">Compare</Button>
           {user.is_admin && <Button color="warning" href="/admin">Admin</Button>}
-          <Typography variant="body2" sx={{ mx: 1 }}>{user.username}</Typography>
+          <Button color="inherit" href={`/profile/${user.username}`} size="small">{user.username}</Button>
           <Button color="inherit" onClick={handleLogout} size="small">Logout</Button>
         </Box>
       </Toolbar>

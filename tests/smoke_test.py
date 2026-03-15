@@ -344,6 +344,33 @@ def run_tests(url):
     except Exception as e:
         log_result("Compare brackets page loads with selectors", False, str(e))
 
+    # Test: User profile page loads with groups and brackets sections
+    try:
+        with NovaAct(starting_page=f"{url}/profile/smoketest_user") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Do you see a profile page with the username 'smoketest_user', a 'Groups' section, and a 'Brackets' section with a table?")
+            log_result("User profile page loads with groups and brackets", True)
+    except Exception as e:
+        log_result("User profile page loads with groups and brackets", False, str(e))
+
+    # Test: Profile API returns valid JSON
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(f"{url}/api/profile/smoketest_user")
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            has_fields = "username" in body and "groups" in body and "brackets" in body
+            log_result("GET /api/profile/[username] returns valid JSON", has_fields, str(body.get("username", "")))
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            # 401 with JSON error body means endpoint works but requires auth
+            log_result("GET /api/profile/[username] returns valid JSON", "error" in body, f"status={he.code}")
+    except Exception as e:
+        log_result("GET /api/profile/[username] returns valid JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

@@ -88,4 +88,10 @@ export const api = {
     syncResults: () =>
       request<{ ok: boolean; updated: number; matched: string[]; unmatched: string[]; totalResults: number }>("/api/admin/sync-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }),
   },
+
+  // Profile
+  profile: {
+    get: (username: string) =>
+      request<{ username: string; created_at: string; groups: { id: string; name: string; invite_code: string; member_count: number }[]; brackets: { id: string; bracket_name: string; submitted_at: string; tiebreaker: number | null; score: number; roundScores: number[] }[] }>(`/api/profile/${username}`),
+  },
 };
