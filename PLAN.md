@@ -12,7 +12,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Give each bracket its own URL: Restructure bracket URLs so each bracket is accessible at /bracket/[username]/[bracketName] or /bracket/[bracketId]. The current /bracket page should list the user's brackets and link to each one. /bracket/[username] should show a list of that user's brackets (after lock time). This makes brackets individually shareable.
 
 ### Features
-- [ ] "Who picked whom" page: For each game in the bracket, show a breakdown of which users in your group picked which team. Helps see consensus and contrarian picks.
+- [x] "Who picked whom" page: For each game in the bracket, show a breakdown of which users in your group picked which team. Helps see consensus and contrarian picks.
 - [ ] "Bracket Busted" indicator: Show a skull/X icon next to users on the leaderboard whose championship pick has been eliminated.
 - [ ] Shareable bracket link: Generate a public read-only link to a specific bracket that works without login. For sharing on social media.
 - [ ] Bracket scoring breakdown popup: Click on any user's score on the leaderboard to see a detailed breakdown — which picks were correct, how many points each earned, bonus points from upsets.
