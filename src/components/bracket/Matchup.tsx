@@ -75,11 +75,21 @@ function TeamSlot({
         minHeight: { xs: 32, sm: "auto" },
         opacity: isEliminated ? 0.35 : 1,
         "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
-        transition: "background 0.15s, opacity 0.15s",
+        transition: "background 0.2s ease, opacity 0.2s ease, transform 0.2s ease",
+        transform: isWinner ? "scale(1.02)" : "scale(1)",
       }}
     >
       {team ? (
-        <>
+        <Box
+          sx={{
+            display: "contents",
+            "@keyframes pickFadeIn": {
+              from: { opacity: 0, transform: "translateX(-6px)" },
+              to: { opacity: 1, transform: "translateX(0)" },
+            },
+            animation: "pickFadeIn 0.25s ease-out",
+          }}
+        >
           <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
             {team.seed}
           </Typography>
@@ -104,7 +114,7 @@ function TeamSlot({
               </Typography>
             </Tooltip>
           )}
-        </>
+        </Box>
       ) : (
         <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
       )}

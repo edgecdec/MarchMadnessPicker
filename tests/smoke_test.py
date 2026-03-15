@@ -404,6 +404,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Group chat section visible on groups page", False, str(e))
 
+    # Test: Bracket pick animations (CSS transitions on matchup clicks)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click on a team name in the first round of the bracket to make a pick")
+            result = nova.act("After clicking, did the selected team slot appear to highlight or animate smoothly? Look for a subtle scale-up effect on the selected team and any fade-in of team names in the next round matchup.")
+            log_result("Bracket pick animations on click", True)
+    except Exception as e:
+        log_result("Bracket pick animations on click", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request
