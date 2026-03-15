@@ -1,12 +1,13 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import Matchup from "./Matchup";
+import Matchup, { GameScore } from "./Matchup";
 import { Team, Region } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
   picks: Record<string, string>;
   results?: Record<string, string>;
+  gameScores?: Record<string, GameScore>;
   onPick: (gameId: string, team: Team) => void;
   locked?: boolean;
 }
@@ -19,7 +20,7 @@ function findTeam(regions: Region[], name: string): Team | undefined {
   return undefined;
 }
 
-export default function FinalFour({ regions, picks, results, onPick, locked }: Props) {
+export default function FinalFour({ regions, picks, results, gameScores, onPick, locked }: Props) {
   // FF game 0: East winner vs West winner (top half)
   // FF game 1: South winner vs Midwest winner (bottom half)
   // Championship: FF0 winner vs FF1 winner
@@ -49,6 +50,7 @@ export default function FinalFour({ regions, picks, results, onPick, locked }: P
         teamB={ff0TeamB}
         winner={picks["ff-4-0"]}
         result={results?.["ff-4-0"]}
+        gameScore={gameScores?.["ff-4-0"]}
         onPick={(team) => onPick("ff-4-0", team)}
         locked={locked}
       />
@@ -61,6 +63,7 @@ export default function FinalFour({ regions, picks, results, onPick, locked }: P
           teamB={champTeamB}
           winner={picks["ff-5-0"]}
           result={results?.["ff-5-0"]}
+          gameScore={gameScores?.["ff-5-0"]}
           onPick={(team) => onPick("ff-5-0", team)}
           locked={locked}
         />
@@ -75,6 +78,7 @@ export default function FinalFour({ regions, picks, results, onPick, locked }: P
         teamB={ff1TeamB}
         winner={picks["ff-4-1"]}
         result={results?.["ff-4-1"]}
+        gameScore={gameScores?.["ff-4-1"]}
         onPick={(team) => onPick("ff-4-1", team)}
         locked={locked}
       />

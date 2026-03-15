@@ -2,11 +2,19 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { Team } from "@/lib/bracketData";
 
+export interface GameScore {
+  teamA?: string; // score string e.g. "74"
+  teamB?: string;
+  state?: string; // "pre" | "in" | "post"
+  detail?: string; // "Final" or "2nd 12:34"
+}
+
 interface Props {
   teamA?: Team;
   teamB?: Team;
   winner?: string;
-  result?: string; // actual result for scoring
+  result?: string;
+  gameScore?: GameScore;
   onPick: (team: Team) => void;
   locked?: boolean;
   compact?: boolean;
@@ -17,6 +25,8 @@ function TeamSlot({
   isWinner,
   isCorrect,
   isWrong,
+  score,
+  isLive,
   onClick,
   locked,
   position,
@@ -25,6 +35,8 @@ function TeamSlot({
   isWinner: boolean;
   isCorrect?: boolean;
   isWrong?: boolean;
+  score?: string;
+  isLive?: boolean;
   onClick: () => void;
   locked?: boolean;
   position: "top" | "bottom";
@@ -62,50 +74,45 @@ function TeamSlot({
           <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
             {team.seed}
           </Typography>
-          <Typography
-            variant="body2"
-            noWrap
-            sx={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400, flexGrow: 1 }}
-          >
+          <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400, flexGrow: 1 }}>
             {team.name}
           </Typography>
+          {score && (
+            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.65rem", color: isLive ? "#4caf50" : "#aaa", ml: 0.5 }}>
+              {score}
+            </Typography>
+          )}
         </>
       ) : (
-        <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>
-          —
-        </Typography>
+        <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
       )}
     </Box>
   );
 }
 
-export default function Matchup({ teamA, teamB, winner, result, onPick, locked, compact }: Props) {
+export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact }: Props) {
+  const isLive = gameScore?.state === "in";
+
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        background: "transparent",
-        borderRadius: 0,
-        my: compact ? 0 : 0.25,
-      }}
-    >
+    <Paper elevation={0} sx={{ background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25 }}>
+      {gameScore?.detail && (
+        <Typography variant="caption" sx={{ fontSize: "0.55rem", color: isLive ? "#4caf50" : "#666", display: "block", textAlign: "center" }}>
+          {isLive ? `🔴 ${gameScore.detail}` : gameScore.state === "post" ? gameScore.detail : ""}
+        </Typography>
+      )}
       <TeamSlot
-        team={teamA}
-        isWinner={!!teamA && winner === teamA.name}
+        team={teamA} isWinner={!!teamA && winner === teamA.name}
         isCorrect={!!result && !!teamA && winner === teamA.name && result === teamA.name}
         isWrong={!!result && !!teamA && winner === teamA.name && result !== teamA.name}
-        onClick={() => teamA && onPick(teamA)}
-        locked={locked}
-        position="top"
+        score={gameScore?.teamA} isLive={isLive}
+        onClick={() => teamA && onPick(teamA)} locked={locked} position="top"
       />
       <TeamSlot
-        team={teamB}
-        isWinner={!!teamB && winner === teamB.name}
+        team={teamB} isWinner={!!teamB && winner === teamB.name}
         isCorrect={!!result && !!teamB && winner === teamB.name && result === teamB.name}
         isWrong={!!result && !!teamB && winner === teamB.name && result !== teamB.name}
-        onClick={() => teamB && onPick(teamB)}
-        locked={locked}
-        position="bottom"
+        score={gameScore?.teamB} isLive={isLive}
+        onClick={() => teamB && onPick(teamB)} locked={locked} position="bottom"
       />
     </Paper>
   );

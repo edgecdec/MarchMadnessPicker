@@ -1,6 +1,6 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import Matchup from "./Matchup";
+import Matchup, { GameScore } from "./Matchup";
 import { Team, Region } from "@/lib/bracketData";
 
 const SEED_ORDER_PAIRS = [
@@ -9,11 +9,12 @@ const SEED_ORDER_PAIRS = [
 
 interface Props {
   region: Region;
-  picks: Record<string, string>;       // gameId -> winner name
-  results?: Record<string, string>;    // gameId -> actual winner
+  picks: Record<string, string>;
+  results?: Record<string, string>;
+  gameScores?: Record<string, GameScore>;
   onPick: (gameId: string, team: Team) => void;
   locked?: boolean;
-  direction: "left" | "right";         // left = rounds flow left-to-right, right = right-to-left
+  direction: "left" | "right";
 }
 
 function getTeamForGame(
@@ -38,7 +39,7 @@ function getTeamForGame(
   };
 }
 
-export default function RegionBracket({ region, picks, results, onPick, locked, direction }: Props) {
+export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
 
@@ -68,6 +69,7 @@ export default function RegionBracket({ region, picks, results, onPick, locked, 
                 teamB={teamB}
                 winner={picks[gameId]}
                 result={results?.[gameId]}
+                gameScore={gameScores?.[gameId]}
                 onPick={(team) => onPick(gameId, team)}
                 locked={locked}
               />

@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Container, Typography } from "@mui/material";
 import Navbar from "@/components/Navbar";
 import Bracket from "@/components/Bracket";
 import LiveScores from "@/components/LiveScores";
 import { Region } from "@/lib/bracketData";
+import { GameScore } from "@/components/Matchup";
 
 export default function BracketPage() {
   const [user, setUser] = useState<any>(null);
@@ -12,7 +13,17 @@ export default function BracketPage() {
   const [regions, setRegions] = useState<Region[] | null>(null);
   const [userPicks, setUserPicks] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, string>>({});
+  const [gameScores, setGameScores] = useState<Record<string, GameScore>>({});
   const [loading, setLoading] = useState(true);
+
+  // Build a lookup: team name -> game IDs they play in
+  const buildTeamGameMap = useCallback((regions: Region[], bracketResults: Record<string, string>) => {
+    // Map ESPN short names to our bracket team names
+    // This will be used to match live scores to bracket matchups
+    const teamNames = new Set<string>();
+    regions.forEach((r) => r.teams.forEach((t) => teamNames.add(t.name)));
+    return teamNames;
+  }, []);
 
   useEffect(() => {
     fetch("/api/auth").then((r) => r.json()).then((d) => {
@@ -74,6 +85,7 @@ export default function BracketPage() {
           tournamentId={tournament.id}
           initialPicks={userPicks}
           results={results}
+          gameScores={gameScores}
           locked={tournament.lock_time ? new Date(tournament.lock_time) < new Date() : false}
         />
       </Container>
