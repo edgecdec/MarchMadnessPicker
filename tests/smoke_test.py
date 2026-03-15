@@ -242,7 +242,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Sync Results from ESPN button on admin page", False, str(e))
 
-    # Test 17: POST /api/admin/sync-results returns valid JSON (admin-only)
+    # Test 17: Bracket export button visible on bracket page
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look for an 'Export PNG' or 'Export' button on the bracket page. Do you see a button for exporting the bracket as an image?")
+            log_result("Bracket export button visible", True)
+    except Exception as e:
+        log_result("Bracket export button visible", False, str(e))
+
+    # Test 18: POST /api/admin/sync-results returns valid JSON (admin-only)
     try:
         import urllib.request
         req_obj = urllib.request.Request(

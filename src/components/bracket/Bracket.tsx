@@ -106,7 +106,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
     setExporting(true);
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(bracketRef.current, { backgroundColor: "#fff", scale: 2, scrollX: 0, scrollY: 0, windowWidth: bracketRef.current.scrollWidth });
+      const canvas = await html2canvas(bracketRef.current, { backgroundColor: "#121212", scale: 2, scrollX: 0, scrollY: 0, windowWidth: bracketRef.current.scrollWidth });
       const link = document.createElement("a");
       link.download = "bracket.png";
       link.href = canvas.toDataURL("image/png");
