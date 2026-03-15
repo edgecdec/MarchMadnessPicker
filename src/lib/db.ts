@@ -40,11 +40,12 @@ function initDb(db: Database.Database) {
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       tournament_id TEXT NOT NULL,
+      bracket_name TEXT NOT NULL DEFAULT 'My Bracket',
       picks_data TEXT NOT NULL DEFAULT '{}',
       submitted_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
-      UNIQUE(user_id, tournament_id)
+      UNIQUE(user_id, tournament_id, bracket_name)
     );
 
     CREATE TABLE IF NOT EXISTS groups (
@@ -69,6 +70,31 @@ function initDb(db: Database.Database) {
 
   // Migrations for existing DBs
   try { db.exec("ALTER TABLE groups ADD COLUMN scoring_settings TEXT NOT NULL DEFAULT '{}'"); } catch {}
+  try { db.exec("ALTER TABLE picks ADD COLUMN bracket_name TEXT NOT NULL DEFAULT 'My Bracket'"); } catch {}
+
+  // Migrate unique constraint: recreate picks table if old constraint exists
+  try {
+    const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='picks'").get() as any;
+    if (tableInfo?.sql && tableInfo.sql.includes("UNIQUE(user_id, tournament_id)") && !tableInfo.sql.includes("bracket_name")) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS picks_new (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          tournament_id TEXT NOT NULL,
+          bracket_name TEXT NOT NULL DEFAULT 'My Bracket',
+          picks_data TEXT NOT NULL DEFAULT '{}',
+          submitted_at TEXT DEFAULT (datetime('now')),
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
+          UNIQUE(user_id, tournament_id, bracket_name)
+        );
+        INSERT OR IGNORE INTO picks_new (id, user_id, tournament_id, bracket_name, picks_data, submitted_at)
+          SELECT id, user_id, tournament_id, 'My Bracket', picks_data, submitted_at FROM picks;
+        DROP TABLE picks;
+        ALTER TABLE picks_new RENAME TO picks;
+      `);
+    }
+  } catch {}
 
   // Ensure "Everyone" group exists
   ensureEveryoneGroup(db);

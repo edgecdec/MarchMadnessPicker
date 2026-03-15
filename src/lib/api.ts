@@ -1,6 +1,6 @@
 // Centralized API client — all fetch calls go through here
 
-import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings } from "@/types";
+import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings, UserBracket } from "@/types";
 
 async function request<T>(url: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(url, opts);
@@ -24,11 +24,22 @@ export const api = {
   // Tournaments & Picks
   tournaments: {
     list: () => request<{ tournaments: Tournament[] }>("/api/picks"),
-    getPicks: (tournamentId: string) => request<{ tournaments: Tournament[]; userPicks: Record<string, string> | null }>(`/api/picks?tournament_id=${tournamentId}`),
-    savePicks: (tournamentId: string, picks: Record<string, string>) =>
-      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks }) }),
-    viewUser: (username: string, tournamentId: string) =>
-      request<{ username: string; picks: Record<string, string> | null }>(`/api/picks/${username}?tournament_id=${tournamentId}`),
+    getPicks: (tournamentId: string, bracketName?: string) => {
+      const params = new URLSearchParams({ tournament_id: tournamentId });
+      if (bracketName) params.set("bracket_name", bracketName);
+      return request<{ tournaments: Tournament[]; userPicks: Record<string, string> | null; userBrackets: { id: string; bracket_name: string; submitted_at: string }[] }>(`/api/picks?${params}`);
+    },
+    savePicks: (tournamentId: string, picks: Record<string, string>, bracketName?: string) =>
+      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName }) }),
+    deleteBracket: (tournamentId: string, bracketName: string) =>
+      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, bracket_name: bracketName, action: "delete_bracket" }) }),
+    renameBracket: (tournamentId: string, bracketName: string, newName: string) =>
+      request<{ ok: boolean }>("/api/picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tournament_id: tournamentId, bracket_name: bracketName, new_name: newName, action: "rename_bracket" }) }),
+    viewUser: (username: string, tournamentId: string, bracketName?: string) => {
+      const params = new URLSearchParams({ tournament_id: tournamentId });
+      if (bracketName) params.set("bracket_name", bracketName);
+      return request<{ username: string; picks: Record<string, string> | null; brackets: { id: string; bracket_name: string; submitted_at: string }[] }>(`/api/picks/${username}?${params}`);
+    },
     distribution: (tournamentId: string) =>
       request<{ distribution: Record<string, Record<string, number>> }>(`/api/picks/distribution?tournament_id=${tournamentId}`),
   },

@@ -15,6 +15,8 @@ interface Props {
   tournamentId?: string;
   locked?: boolean;
   distribution?: Record<string, Record<string, number>>;
+  bracketName?: string;
+  onSaved?: () => void;
 }
 
 // Given a game id, return the downstream game id that this winner feeds into
@@ -61,7 +63,7 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   return updated;
 }
 
-export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution }: Props) {
+export default function Bracket({ regions, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, onSaved }: Props) {
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
@@ -115,11 +117,12 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks }),
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSnack({ msg: "Picks saved!", severity: "success" });
+      onSaved?.();
     } catch (e: any) {
       setSnack({ msg: e.message || "Failed to save", severity: "error" });
     }
@@ -134,7 +137,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tournament_id: tournamentId, picks_data: {} }),
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: {}, bracket_name: bracketName }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

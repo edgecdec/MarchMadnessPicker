@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
   const tournament = db.prepare("SELECT results_data, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
 
-  // Use Everyone group's scoring settings
   const everyoneGroup = db.prepare("SELECT scoring_settings FROM groups WHERE id = 'everyone'").get() as any;
   const settings = everyoneGroup ? { ...DEFAULT_SCORING, ...JSON.parse(everyoneGroup.scoring_settings || "{}") } : DEFAULT_SCORING;
 
@@ -19,7 +18,9 @@ export async function GET(req: NextRequest) {
   const bracket = JSON.parse(tournament.bracket_data || "{}");
 
   const allPicks = db.prepare(`
-    SELECT p.picks_data, u.username FROM picks p JOIN users u ON p.user_id = u.id WHERE p.tournament_id = ?
+    SELECT p.picks_data, p.bracket_name, u.username
+    FROM picks p JOIN users u ON p.user_id = u.id
+    WHERE p.tournament_id = ?
   `).all(tournamentId) as any[];
 
   const leaderboard = allPicks
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
       const picks = JSON.parse(p.picks_data);
       return {
         username: p.username,
+        bracket_name: p.bracket_name,
         score: scorePicks(picks, results, settings, bracket.regions),
         maxRemaining: maxPossibleRemaining(picks, results, settings),
       };

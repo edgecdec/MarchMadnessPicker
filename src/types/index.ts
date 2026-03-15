@@ -38,6 +38,7 @@ export interface GameScore {
 
 export interface LeaderboardEntry {
   username: string;
+  bracket_name?: string;
   score: number;
   maxRemaining?: number;
 }
@@ -59,6 +60,13 @@ export interface Group {
   created_by: string;
   created_at: string;
   scoring_settings: string | ScoringSettings;
+}
+
+export interface UserBracket {
+  id: string;
+  bracket_name: string;
+  picks_data: Record<string, string>;
+  submitted_at: string;
 }
 
 export interface LiveGame {
