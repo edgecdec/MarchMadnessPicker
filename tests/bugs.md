@@ -4,7 +4,7 @@
 
 - [2026-03-14 23:18] **FIXED - Creating AND saving brackets fails with 500**: POST /api/picks returns "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint". The picks table schema was changed for multiple brackets (removed UNIQUE(user_id, tournament_id)) but the INSERT in src/app/api/picks/route.ts still uses `ON CONFLICT(user_id, tournament_id) DO UPDATE`. Fix: for new brackets just INSERT, for updating existing brackets UPDATE WHERE id = bracket_id. **RESOLVED**: DB migration in db.ts already recreated the picks table with UNIQUE(user_id, tournament_id, bracket_name), and the route uses ON CONFLICT(user_id, tournament_id, bracket_name) which matches.
 
-- [2026-03-14 23:22] **Pick counter shows wrong total**: Shows "63/67 picks made" — the denominator should always be 63 (TOTAL_GAMES constant). The numerator `Object.keys(picks).length` is counting stale/invalid keys. Fix: use TOTAL_GAMES for denominator, filter picks to only count valid game IDs for numerator.
+- [2026-03-14 23:22] **FIXED - Pick counter shows wrong total**: Shows "63/67 picks made" — the denominator should always be 63 (TOTAL_GAMES constant). The numerator `Object.keys(picks).length` is counting stale/invalid keys. Fix: use TOTAL_GAMES for denominator, filter picks to only count valid game IDs for numerator. **RESOLVED**: Added `validGameIds` useMemo set that generates all 63 valid game IDs from regions + Final Four, and filters picks against it.
 
 - [2026-03-14 23:25] **Confirm dialog shows "—" for all Final Four picks**: The save confirmation shows champion correctly but all four Final Four slots show "—". The dialog is looking up wrong game IDs for Elite 8 winners. Check the game ID format it expects vs what the bracket actually stores.
 

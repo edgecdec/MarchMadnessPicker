@@ -15,12 +15,21 @@ BUGS_FILE = "tests/bugs.md"
 
 results = []
 
+NOVA_AUTH_ERROR = "Authentication Failed"
+
 def log_result(name, passed, details=""):
     status = "✅ PASS" if passed else "❌ FAIL"
+    # Skip logging Nova Act auth errors — they're not real bugs
+    if not passed and NOVA_AUTH_ERROR in str(details):
+        print(f"  ⚠️ SKIP: {name} — Nova Act auth error (not a bug)")
+        return
     results.append({"name": name, "passed": passed, "details": details})
     print(f"  {status}: {name}" + (f" — {details}" if details else ""))
 
 def log_bug(name, details):
+    # Never log Nova Act auth errors as bugs
+    if NOVA_AUTH_ERROR in str(details):
+        return
     with open(BUGS_FILE, "a") as f:
         f.write(f"\n- [{datetime.now().strftime('%Y-%m-%d %H:%M')}] **{name}**: {details}\n")
 
