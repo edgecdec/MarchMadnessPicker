@@ -6,6 +6,7 @@ import FinalFour from "./FinalFour";
 import { Team, Region, GameScore } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { TOTAL_GAMES } from "@/lib/bracketData";
+import { autofillBracket } from "@/lib/autofill";
 
 interface Props {
   regions: Region[];
@@ -167,7 +168,16 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           )}
         </Box>
         {!locked && tournamentId && (
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk"))} disabled={saving}>
+              🏅 Chalk
+            </Button>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart"))} disabled={saving}>
+              🧠 Smart
+            </Button>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random"))} disabled={saving}>
+              🎲 Random
+            </Button>
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
               {exporting ? "Exporting..." : "📷 Export"}
             </Button>

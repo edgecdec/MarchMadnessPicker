@@ -118,6 +118,31 @@ def run_tests(url):
     except Exception as e:
         log_result("Championship pick highlighted prominently", False, str(e))
 
+    # Test 8: Autofill buttons visible on bracket page
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look for autofill buttons above the bracket. Do you see buttons labeled 'Chalk', 'Smart', and 'Random' (possibly with emoji icons like 🏅, 🧠, 🎲)?")
+            log_result("Autofill buttons visible on bracket", True)
+    except Exception as e:
+        log_result("Autofill buttons visible on bracket", False, str(e))
+
+    # Test 9: Chalk autofill fills all picks
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click the 'Chalk' button")
+            result = nova.act("Look at the picks counter near the top. Does it show '63/63 picks made'? Also check if a Champion is now displayed in the center of the bracket.")
+            log_result("Chalk autofill fills all 63 picks", True)
+    except Exception as e:
+        log_result("Chalk autofill fills all 63 picks", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
