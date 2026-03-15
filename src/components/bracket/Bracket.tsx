@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback } from "react";
-import { Box, Button, Typography, Snackbar, Alert } from "@mui/material";
+import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import { Team, Region, GameScore } from "@/types";
@@ -65,6 +65,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
@@ -107,6 +108,26 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
     setSaving(false);
   };
 
+  const handleReset = async () => {
+    setResetOpen(false);
+    if (!tournamentId) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/picks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: {} }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setPicks({});
+      setSnack({ msg: "Picks cleared!", severity: "success" });
+    } catch (e: any) {
+      setSnack({ msg: e.message || "Failed to clear picks", severity: "error" });
+    }
+    setSaving(false);
+  };
+
   const totalPicks = Object.keys(picks).length;
   const totalGames = TOTAL_GAMES;
 
@@ -124,9 +145,14 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           )}
         </Box>
         {!locked && tournamentId && (
-          <Button variant="contained" onClick={handleSave} disabled={saving} size="small">
-            {saving ? "Saving..." : "Save Picks"}
-          </Button>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button variant="outlined" color="error" onClick={() => setResetOpen(true)} disabled={saving || totalPicks === 0} size="small">
+              Reset Picks
+            </Button>
+            <Button variant="contained" onClick={handleSave} disabled={saving} size="small">
+              {saving ? "Saving..." : "Save Picks"}
+            </Button>
+          </Box>
         )}
         {locked && (
           <Typography variant="body2" color="warning.main">🔒 Picks are locked</Typography>
@@ -150,6 +176,17 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
           <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} />
         </Box>
       </Box>
+
+      <Dialog open={resetOpen} onClose={() => setResetOpen(false)}>
+        <DialogTitle>Reset All Picks?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>This will clear all {totalPicks} picks and save immediately. This cannot be undone.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setResetOpen(false)}>Cancel</Button>
+          <Button onClick={handleReset} color="error">Reset</Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar open={!!snack} autoHideDuration={3000} onClose={() => setSnack(null)}>
         <Alert severity={snack?.severity} onClose={() => setSnack(null)}>{snack?.msg}</Alert>
