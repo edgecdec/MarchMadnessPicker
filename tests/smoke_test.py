@@ -371,6 +371,16 @@ def run_tests(url):
     except Exception as e:
         log_result("GET /api/profile/[username] returns valid JSON", False, str(e))
 
+    # Test: Results update banner API returns valid JSON
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(f"{url}/api/tournaments/updates")
+        resp = urllib.request.urlopen(req_obj)
+        body = json.loads(resp.read())
+        log_result("GET /api/tournaments/updates returns valid JSON", "results_updated_at" in body, str(body))
+    except Exception as e:
+        log_result("GET /api/tournaments/updates returns valid JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

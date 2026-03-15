@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === "update_results") {
-    db.prepare("UPDATE tournaments SET results_data = ? WHERE id = ?").run(
+    db.prepare("UPDATE tournaments SET results_data = ?, results_updated_at = datetime('now') WHERE id = ?").run(
       JSON.stringify(data.results_data), data.tournament_id
     );
     return NextResponse.json({ ok: true });

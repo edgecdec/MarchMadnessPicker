@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
 
   // Save updated results
   if (updated > 0) {
-    db.prepare("UPDATE tournaments SET results_data = ? WHERE id = ?").run(
+    db.prepare("UPDATE tournaments SET results_data = ?, results_updated_at = datetime('now') WHERE id = ?").run(
       JSON.stringify(results), tournament.id
     );
   }

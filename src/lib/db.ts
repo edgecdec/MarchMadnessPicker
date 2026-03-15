@@ -84,6 +84,7 @@ function initDb(db: Database.Database) {
   try { db.exec("ALTER TABLE groups ADD COLUMN max_brackets INTEGER DEFAULT NULL"); } catch {}
   try { db.exec("ALTER TABLE picks ADD COLUMN bracket_name TEXT NOT NULL DEFAULT 'My Bracket'"); } catch {}
   try { db.exec("ALTER TABLE picks ADD COLUMN tiebreaker INTEGER DEFAULT NULL"); } catch {}
+  try { db.exec("ALTER TABLE tournaments ADD COLUMN results_updated_at TEXT DEFAULT NULL"); } catch {}
 
   // Migrate unique constraint: recreate picks table if old constraint exists
   try {
