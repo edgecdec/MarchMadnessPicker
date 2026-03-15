@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Tooltip } from "@mui/material";
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Tooltip, Popover, Box } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -9,15 +9,18 @@ import { PickDetail } from "@/lib/scoring";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringBreakdownDialog from "@/components/common/ScoringBreakdownDialog";
+import MiniBracket from "@/components/bracket/MiniBracket";
 
 const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
 
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
-  const { tournament, loading: tournLoading } = useTournament();
+  const { tournament, regions, results, loading: tournLoading } = useTournament();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownData, setBreakdownData] = useState<{ username: string; bracketName?: string | null; details: PickDetail[] }>({ username: "", details: [] });
+  const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
+  const [popoverEntry, setPopoverEntry] = useState<LeaderboardEntry | null>(null);
 
   useEffect(() => {
     if (tournament) {
@@ -78,7 +81,11 @@ export default function LeaderboardPage() {
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                     <TableCell>{i + 1}</TableCell>
                     <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
-                    <TableCell>{entry.bracket_name || "—"}</TableCell>
+                    <TableCell
+                      onMouseEnter={(e) => { if (entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
+                      onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
+                      sx={{ cursor: entry.ffPicks ? "default" : undefined }}
+                    >{entry.bracket_name || "—"}</TableCell>
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
                       <TableCell key={r} align="right">{s}</TableCell>
                     ))}
@@ -99,6 +106,21 @@ export default function LeaderboardPage() {
           bracketName={breakdownData.bracketName}
           details={breakdownData.details}
         />
+        <Popover
+          open={!!popoverAnchor && !!popoverEntry}
+          anchorEl={popoverAnchor}
+          onClose={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          sx={{ pointerEvents: "none" }}
+          disableRestoreFocus
+        >
+          <Box sx={{ p: 1 }}>
+            {popoverEntry?.ffPicks && regions && (
+              <MiniBracket regions={regions} picks={popoverEntry.ffPicks} results={results} />
+            )}
+          </Box>
+        </Popover>
       </Container>
     </>
   );

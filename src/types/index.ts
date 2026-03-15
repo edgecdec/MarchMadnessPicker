@@ -57,6 +57,7 @@ export interface LeaderboardEntry {
   championPick?: string | null;
   busted?: boolean;
   eliminated?: boolean;
+  ffPicks?: Record<string, string>;
 }
 
 export interface ScoringSettings {

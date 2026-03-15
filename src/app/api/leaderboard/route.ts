@@ -34,6 +34,10 @@ export async function GET(req: NextRequest) {
       const score = scorePicks(picks, results, settings, bracket.regions);
       const maxRemaining = maxPossibleRemaining(picks, results, settings);
       const championPick = picks["ff-5-0"] || null;
+      const ffPicks: Record<string, string> = {};
+      for (const key of Object.keys(picks)) {
+        if (key.endsWith("-3-0") || key.startsWith("ff-")) ffPicks[key] = picks[key];
+      }
       return {
         username: p.username,
         bracket_name: p.bracket_name,
@@ -44,6 +48,7 @@ export async function GET(req: NextRequest) {
         roundScores: scorePicksByRound(picks, results, settings, bracket.regions),
         championPick,
         busted: championPick ? eliminated.has(championPick) : false,
+        ffPicks,
       };
     })
     .sort((a, b) => b.score - a.score);

@@ -38,6 +38,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .map((m) => {
       const picks = m.picks_data ? JSON.parse(m.picks_data) : {};
       const championPick = picks["ff-5-0"] || null;
+      const ffPicks: Record<string, string> = {};
+      for (const key of Object.keys(picks)) {
+        if (key.endsWith("-3-0") || key.startsWith("ff-")) ffPicks[key] = picks[key];
+      }
       return {
         username: m.username,
         bracket_name: m.bracket_name || null,
@@ -47,6 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         tiebreaker: m.tiebreaker ?? null,
         championPick,
         busted: championPick ? eliminated.has(championPick) : false,
+        ffPicks,
       };
     })
     .sort((a, b) => b.score - a.score);
