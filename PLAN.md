@@ -21,7 +21,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 ### Picking Experience
 - [x] Add autofill options shown as buttons above the bracket: "Smart" (uses historical seed matchup win percentages to probabilistically pick — e.g. if 12-seeds historically beat 5-seeds 36% of the time, the 12-seed gets picked 36% of the time), "Chalk" (all higher seeds win), "Random" (fully random picks). Store historical seed vs seed win rates in src/lib/seedStats.ts.
 - [x] Add tiebreaker question: "Predict the total combined score of the Championship Game" — stored per bracket, used to break ties on leaderboard
-- [ ] Add confirmation dialog before submitting/saving picks with a summary of key picks (Final Four, Champion)
+- [x] Add confirmation dialog before submitting/saving picks with a summary of key picks (Final Four, Champion)
 
 ### Leaderboard & Scoring
 - [ ] Add round-by-round score breakdown on leaderboard (columns for R64, R32, S16, E8, FF, Champ points)

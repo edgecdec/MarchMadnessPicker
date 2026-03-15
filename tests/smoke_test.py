@@ -167,7 +167,7 @@ def run_tests(url):
     except Exception as e:
         log_result("Tiebreaker column on leaderboard", False, str(e))
 
-    # Test 12: Save bracket picks successfully
+    # Test 12: Save bracket picks successfully (with confirmation dialog)
     try:
         with NovaAct(starting_page=url) as nova:
             nova.act("Type 'smoketest_user' in the Username field")
@@ -175,11 +175,11 @@ def run_tests(url):
             nova.act("Click the Login button")
             nova.act("Click on 'Bracket' in the navigation bar")
             nova.act("Click the 'Chalk' button")
-            nova.act("Click the 'Save Picks' or 'Save' button")
-            result = nova.act("Do you see a success message like 'Picks saved' or a confirmation that the bracket was saved? Or did you see an error message?")
-            log_result("Save bracket picks successfully", True)
+            nova.act("Click the 'Save Picks' button")
+            result = nova.act("Do you see a confirmation dialog titled 'Confirm Save Picks' with a summary showing Final Four teams, a Champion, and a 'Save Picks' button inside the dialog?")
+            log_result("Save confirmation dialog shows key picks summary", True)
     except Exception as e:
-        log_result("Save bracket picks successfully", False, str(e))
+        log_result("Save confirmation dialog shows key picks summary", False, str(e))
 
     # Summary
     passed = sum(1 for r in results if r["passed"])

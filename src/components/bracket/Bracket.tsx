@@ -71,6 +71,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const bracketRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -186,7 +187,7 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
             <Button variant="outlined" color="error" onClick={() => setResetOpen(true)} disabled={saving || totalPicks === 0} size="small">
               Reset Picks
             </Button>
-            <Button variant="contained" onClick={handleSave} disabled={saving} size="small">
+            <Button variant="contained" onClick={() => setConfirmOpen(true)} disabled={saving} size="small">
               {saving ? "Saving..." : "Save Picks"}
             </Button>
           </Box>
@@ -237,6 +238,41 @@ export default function Bracket({ regions, initialPicks, results, gameScores, to
         </Box>
       </Box>
       </Box>
+
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Confirm Save Picks</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>Review your key picks before saving:</DialogContentText>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Typography variant="subtitle2">🏆 Final Four</Typography>
+            {regions.map((r) => {
+              const winner = picks[`${r.name.toLowerCase()}-3-0`];
+              return (
+                <Typography key={r.name} variant="body2" sx={{ pl: 2 }}>
+                  {r.name}: {winner || "—"}
+                </Typography>
+              );
+            })}
+            <Typography variant="subtitle2" sx={{ mt: 1 }}>🥇 Champion</Typography>
+            <Typography variant="body2" sx={{ pl: 2, fontWeight: 700 }}>
+              {picks["ff-5-0"] || "— (not picked)"}
+            </Typography>
+            {tiebreaker && (
+              <>
+                <Typography variant="subtitle2" sx={{ mt: 1 }}>🎯 Tiebreaker</Typography>
+                <Typography variant="body2" sx={{ pl: 2 }}>{tiebreaker} points</Typography>
+              </>
+            )}
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {totalPicks}/{totalGames} picks made
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setConfirmOpen(false); handleSave(); }} variant="contained">Save Picks</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={resetOpen} onClose={() => setResetOpen(false)}>
         <DialogTitle>Reset All Picks?</DialogTitle>
