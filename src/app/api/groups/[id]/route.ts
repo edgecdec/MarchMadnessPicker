@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
-import { scorePicks } from "@/lib/scoring";
+import { scorePicks, maxPossibleRemaining } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,11 +33,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   `).all(tournamentId, groupId) as any[];
 
   const leaderboard = members
-    .map((m) => ({
-      username: m.username,
-      score: m.picks_data ? scorePicks(JSON.parse(m.picks_data), results, scoring, bracket.regions) : 0,
-      has_picks: !!m.picks_data,
-    }))
+    .map((m) => {
+      const picks = m.picks_data ? JSON.parse(m.picks_data) : {};
+      return {
+        username: m.username,
+        score: m.picks_data ? scorePicks(picks, results, scoring, bracket.regions) : 0,
+        maxRemaining: m.picks_data ? maxPossibleRemaining(picks, results, scoring) : 0,
+        has_picks: !!m.picks_data,
+      };
+    })
     .sort((a, b) => b.score - a.score);
 
   return NextResponse.json({

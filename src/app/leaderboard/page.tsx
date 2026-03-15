@@ -37,6 +37,7 @@ export default function LeaderboardPage() {
                   <TableCell>Rank</TableCell>
                   <TableCell>Player</TableCell>
                   <TableCell align="right">Score</TableCell>
+                  <TableCell align="right">Max Possible</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -45,6 +46,7 @@ export default function LeaderboardPage() {
                     <TableCell>{i + 1}</TableCell>
                     <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
                     <TableCell align="right">{entry.score}</TableCell>
+                    <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

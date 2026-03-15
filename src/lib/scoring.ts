@@ -102,6 +102,26 @@ export function maxPossibleScore(results: Record<string, string>, settings?: Sco
   }, 0);
 }
 
+// Max remaining points a player could still earn (picks still alive in undecided games)
+export function maxPossibleRemaining(
+  picks: Record<string, string>,
+  results: Record<string, string>,
+  settings?: ScoringSettings,
+): number {
+  const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
+  const winners = new Set(Object.values(results));
+  let remaining = 0;
+  for (const [gameId, pickedTeam] of Object.entries(picks)) {
+    if (results[gameId]) continue;
+    const round = parseInt(gameId.split("-")[1]) || 0;
+    // R64 teams are always still alive if game undecided; later rounds require a prior win
+    if (round === 0 || winners.has(pickedTeam)) {
+      remaining += pts[round] || 0;
+    }
+  }
+  return remaining;
+}
+
 export function getRoundName(round: number): string {
   return ["Round of 64", "Round of 32", "Sweet 16", "Elite 8", "Final Four", "Championship"][round] || "";
 }

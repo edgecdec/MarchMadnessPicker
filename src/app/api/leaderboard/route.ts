@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { scorePicks } from "@/lib/scoring";
+import { scorePicks, maxPossibleRemaining } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 
 export async function GET(req: NextRequest) {
@@ -23,7 +23,14 @@ export async function GET(req: NextRequest) {
   `).all(tournamentId) as any[];
 
   const leaderboard = allPicks
-    .map((p) => ({ username: p.username, score: scorePicks(JSON.parse(p.picks_data), results, settings, bracket.regions) }))
+    .map((p) => {
+      const picks = JSON.parse(p.picks_data);
+      return {
+        username: p.username,
+        score: scorePicks(picks, results, settings, bracket.regions),
+        maxRemaining: maxPossibleRemaining(picks, results, settings),
+      };
+    })
     .sort((a, b) => b.score - a.score);
 
   return NextResponse.json({ leaderboard, scoring_settings: settings });

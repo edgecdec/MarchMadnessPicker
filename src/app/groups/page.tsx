@@ -106,6 +106,7 @@ export default function GroupsPage() {
                             <TableCell>Rank</TableCell>
                             <TableCell>Player</TableCell>
                             <TableCell align="right">Score</TableCell>
+                            <TableCell align="right">Max Possible</TableCell>
                             <TableCell align="right">Status</TableCell>
                           </TableRow>
                         </TableHead>
@@ -115,6 +116,7 @@ export default function GroupsPage() {
                               <TableCell>{i + 1}</TableCell>
                               <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
+                              <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
                               <TableCell align="right">{entry.has_picks ? "✅" : "⏳ No picks"}</TableCell>
                             </TableRow>
                           ))}

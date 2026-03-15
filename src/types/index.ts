@@ -39,6 +39,7 @@ export interface GameScore {
 export interface LeaderboardEntry {
   username: string;
   score: number;
+  maxRemaining?: number;
 }
 
 export interface ScoringSettings {
