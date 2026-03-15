@@ -1,1 +1,10 @@
 .bracket-export, .bracket-export * { color: #222 !important; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; color: #222 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  * { color: #222 !important; border-color: #999 !important; }
+  .MuiAppBar-root, .MuiSnackbar-root, .MuiDialog-root { display: none !important; }
+  .MuiContainer-root { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  .MuiPaper-root { box-shadow: none !important; }
+}

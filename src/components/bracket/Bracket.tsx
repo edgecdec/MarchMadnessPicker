@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Menu, MenuItem, Tooltip } from "@mui/material";
+import PrintIcon from "@mui/icons-material/Print";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import FirstFour from "./FirstFour";
@@ -217,7 +218,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
+      <Box className="no-print" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
         <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Typography variant="body2" color="text.secondary">
             {totalPicks}/{totalGames} picks made
@@ -247,6 +248,9 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
               {exporting ? "Exporting..." : "📷 Export"}
             </Button>
+            <Button variant="outlined" size="small" onClick={() => window.print()} startIcon={<PrintIcon />}>
+              Print
+            </Button>
             <Button variant="outlined" color="error" onClick={() => setResetOpen(true)} disabled={saving || totalPicks === 0} size="small">
               Reset Picks
             </Button>
@@ -261,13 +265,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
               {exporting ? "Exporting..." : "📷 Export"}
             </Button>
+            <Button variant="outlined" size="small" onClick={() => window.print()} startIcon={<PrintIcon />}>
+              Print
+            </Button>
             <Typography variant="body2" color="warning.main">🔒 Picks are locked</Typography>
           </Box>
         )}
       </Box>
 
       {/* Tiebreaker question */}
-      <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+      <Box className="no-print" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
         <Typography variant="body2" color="text.secondary">
           Tiebreaker: Predict the total combined score of the Championship Game
         </Typography>
