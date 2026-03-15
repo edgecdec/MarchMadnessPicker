@@ -381,6 +381,17 @@ def run_tests(url):
     except Exception as e:
         log_result("GET /api/tournaments/updates returns valid JSON", False, str(e))
 
+    # Test: Dark/light theme toggle button visible in navbar
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look in the navigation bar for a sun or moon icon button (theme toggle). Do you see a small icon button between the username and the Logout button that looks like a sun (light mode icon) or moon (dark mode icon)?")
+            log_result("Theme toggle button visible in navbar", True)
+    except Exception as e:
+        log_result("Theme toggle button visible in navbar", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

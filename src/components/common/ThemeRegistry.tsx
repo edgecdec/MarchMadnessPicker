@@ -1,19 +1,21 @@
 "use client";
-import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeModeProvider, useThemeMode } from "@/hooks/useThemeMode";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: { main: "#ff6f00" },
-    background: { default: "#121212", paper: "#1e1e1e" },
-  },
-});
-
-export default function ThemeRegistry({ children }: { children: React.ReactNode }) {
+function ThemeInner({ children }: { children: React.ReactNode }) {
+  const { theme } = useThemeMode();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {children}
     </ThemeProvider>
+  );
+}
+
+export default function ThemeRegistry({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeModeProvider>
+      <ThemeInner>{children}</ThemeInner>
+    </ThemeModeProvider>
   );
 }
