@@ -42,7 +42,6 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [ ] Dark/light theme toggle
 - [ ] Add chat/comments per group
 - [ ] Animate bracket transitions when clicking picks
-- [ ] Add "Second Chance" bracket option after Sweet 16 — fill out a new bracket for remaining teams only
 - [ ] Show historical seed matchup stats on hover (e.g. "12-seeds beat 5-seeds 36% of the time")
 
 ### Completed
