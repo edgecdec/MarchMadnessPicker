@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel } from "@mui/material";
+import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -209,7 +209,7 @@ export default function GroupsPage() {
                           {leaderboard.map((entry, i) => (
                             <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                               <TableCell>{i + 1}</TableCell>
-                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link></TableCell>
+                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}</TableCell>
                               <TableCell>{entry.bracket_name || "—"}</TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
                               <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { scorePicks, maxPossibleRemaining, scorePicksByRound } from "@/lib/scoring";
+import { scorePicks, maxPossibleRemaining, scorePicksByRound, getEliminatedTeams } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 import { autoFillIncompleteBrackets } from "@/lib/autoFillAtLock";
 
@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
 
   const results = JSON.parse(tournament.results_data || "{}");
   const bracket = JSON.parse(tournament.bracket_data || "{}");
+  const eliminated = getEliminatedTeams(results, bracket.regions);
 
   const allPicks = db.prepare(`
     SELECT p.picks_data, p.bracket_name, p.tiebreaker, u.username
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
       const picks = JSON.parse(p.picks_data);
       const score = scorePicks(picks, results, settings, bracket.regions);
       const maxRemaining = maxPossibleRemaining(picks, results, settings);
+      const championPick = picks["ff-5-0"] || null;
       return {
         username: p.username,
         bracket_name: p.bracket_name,
@@ -40,6 +42,8 @@ export async function GET(req: NextRequest) {
         maxPossible: score + maxRemaining,
         tiebreaker: p.tiebreaker ?? null,
         roundScores: scorePicksByRound(picks, results, settings, bracket.regions),
+        championPick,
+        busted: championPick ? eliminated.has(championPick) : false,
       };
     })
     .sort((a, b) => b.score - a.score);

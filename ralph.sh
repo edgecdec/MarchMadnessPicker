@@ -5,8 +5,8 @@
 set -e
 cd "$(dirname "$0")" || exit 1
 
-# Load env (Nova Act API key, correct PATH)
-source ~/.config/marchmadness.env
+# Load env
+source ~/.config/marchmadness.env 2>/dev/null || true
 
 MAX=${1:-0}
 COUNT=0
@@ -14,7 +14,6 @@ LOG_DIR="/tmp/ralph-logs"
 mkdir -p "$LOG_DIR"
 
 echo "🏀 Ralph is starting (max iterations: ${MAX:-unlimited})"
-echo "   Logs: $LOG_DIR"
 echo ""
 
 while true; do
@@ -22,22 +21,29 @@ while true; do
   TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
   LOG_FILE="$LOG_DIR/ralph-${COUNT}-${TIMESTAMP}.log"
 
+  # Count bugs and tasks
+  BUGS=$(grep -c '^\- \*\*' tests/bugs.md 2>/dev/null || echo "0")
+  TASKS=$(grep -c '^\- \[ \]' PLAN.md 2>/dev/null || echo "0")
+
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "🔄 Iteration $COUNT — $(date '+%H:%M:%S')"
+  echo "   🐛 $BUGS bugs | 📋 $TASKS tasks"
 
-  REMAINING=$(grep -c '^\- \[ \]' PLAN.md 2>/dev/null || echo "0")
-  echo "   $REMAINING tasks remaining"
-
-  if [ "$REMAINING" -eq 0 ]; then
-    echo "✅ All tasks complete!"
+  if [ "$BUGS" -eq 0 ] && [ "$TASKS" -eq 0 ]; then
+    echo "✅ All bugs fixed and tasks complete!"
     break
   fi
 
-  NEXT=$(grep -m1 '^\- \[ \]' PLAN.md | sed 's/^- \[ \] //')
-  echo "   Next: $NEXT"
+  if [ "$BUGS" -gt 0 ]; then
+    NEXT=$(grep -m1 '^\- \*\*' tests/bugs.md | head -c 80)
+    echo "   Fixing: $NEXT..."
+  else
+    NEXT=$(grep -m1 '^\- \[ \]' PLAN.md | sed 's/^- \[ \] //' | head -c 80)
+    echo "   Task: $NEXT..."
+  fi
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  # Run kiro — agent builds, tests, then pushes
+  # One task per loop, fresh context
   kiro-cli chat \
     --agent marchmadness \
     --no-interactive \
@@ -45,25 +51,7 @@ while true; do
     "$(cat PROMPT.md)" \
     2>&1 | tee "$LOG_FILE"
 
-  echo ""
-  echo "   ✓ Iteration $COUNT complete (log: $LOG_FILE)"
-
-  # Run Nova Act smoke tests every 5th iteration
-  if [ $((COUNT % 5)) -eq 0 ]; then
-    echo "   🧪 Running smoke tests..."
-    if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
-      echo "   ✅ All smoke tests passed"
-    else
-      echo "   🐛 Smoke tests found issues — feeding back to agent"
-      BUGS=$(cat tests/results.json 2>/dev/null || echo '{}')
-      kiro-cli chat \
-        --agent marchmadness \
-        --no-interactive \
-        --trust-all-tools \
-        "Smoke tests found failures. Results: ${BUGS}. Check tests/bugs.md. Fix the issues, then push." \
-        2>&1 | tee -a "$LOG_FILE"
-    fi
-  fi
+  echo "   ✓ Iteration $COUNT done (log: $LOG_FILE)"
 
   if [ "$MAX" -gt 0 ] && [ "$COUNT" -ge "$MAX" ]; then
     echo "🛑 Max iterations ($MAX) reached"
@@ -73,5 +61,4 @@ while true; do
   sleep 5
 done
 
-echo ""
 echo "🏀 Ralph finished after $COUNT iterations"

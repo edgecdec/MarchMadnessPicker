@@ -54,6 +54,8 @@ export interface LeaderboardEntry {
   tiebreaker?: number | null;
   roundScores?: number[];
   bestPossibleFinish?: number;
+  championPick?: string | null;
+  busted?: boolean;
 }
 
 export interface ScoringSettings {

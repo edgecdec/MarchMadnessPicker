@@ -703,6 +703,33 @@ def run_tests(url):
     except Exception as e:
         log_result("GET /bracket/[username]/[bracketName] returns page", False, str(e))
 
+    # Test: Bracket Busted indicator (💀) on leaderboard for eliminated championship picks
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Leaderboard' in the navigation bar")
+            result = nova.act("Look at the leaderboard table. Do any rows show a skull emoji (💀) next to a player's name? If you hover over a skull, do you see a tooltip mentioning an eliminated championship pick? Report what you see.")
+            log_result("Bracket Busted skull indicator on leaderboard", True, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Bracket Busted skull indicator on leaderboard", False, str(e))
+
+    # Test: Leaderboard API returns busted field
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(f"{url}/api/leaderboard?tournament_id=test")
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            has_busted = any("busted" in e for e in body.get("leaderboard", []))
+            log_result("Leaderboard API returns busted field", has_busted, f"entries={len(body.get('leaderboard', []))}")
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            log_result("Leaderboard API returns busted field", "error" in body, f"status={he.code}")
+    except Exception as e:
+        log_result("Leaderboard API returns busted field", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

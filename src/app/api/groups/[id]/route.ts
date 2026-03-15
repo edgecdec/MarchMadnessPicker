@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
-import { scorePicks, maxPossibleRemaining } from "@/lib/scoring";
+import { scorePicks, maxPossibleRemaining, getEliminatedTeams } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const bracket = JSON.parse(tournament.bracket_data || "{}");
   const settings = JSON.parse(group.scoring_settings || "{}");
   const scoring = { ...DEFAULT_SCORING, ...settings };
+  const eliminated = getEliminatedTeams(results, bracket.regions);
 
   const members = db.prepare(`
     SELECT u.username, p.picks_data, p.bracket_name, p.tiebreaker
@@ -36,6 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const leaderboard = members
     .map((m) => {
       const picks = m.picks_data ? JSON.parse(m.picks_data) : {};
+      const championPick = picks["ff-5-0"] || null;
       return {
         username: m.username,
         bracket_name: m.bracket_name || null,
@@ -43,6 +45,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         maxRemaining: m.picks_data ? maxPossibleRemaining(picks, results, scoring) : 0,
         has_picks: !!m.picks_data,
         tiebreaker: m.tiebreaker ?? null,
+        championPick,
+        busted: championPick ? eliminated.has(championPick) : false,
       };
     })
     .sort((a, b) => b.score - a.score);
