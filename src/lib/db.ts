@@ -88,7 +88,7 @@ function initDb(db: Database.Database) {
   // Migrate unique constraint: recreate picks table if old constraint exists
   try {
     const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='picks'").get() as any;
-    if (tableInfo?.sql && tableInfo.sql.includes("UNIQUE(user_id, tournament_id)") && !tableInfo.sql.includes("bracket_name")) {
+    if (tableInfo?.sql && tableInfo.sql.includes("UNIQUE(user_id, tournament_id)") && !tableInfo.sql.includes("UNIQUE(user_id, tournament_id, bracket_name)")) {
       db.exec(`
         CREATE TABLE IF NOT EXISTS picks_new (
           id TEXT PRIMARY KEY,
@@ -96,13 +96,14 @@ function initDb(db: Database.Database) {
           tournament_id TEXT NOT NULL,
           bracket_name TEXT NOT NULL DEFAULT 'My Bracket',
           picks_data TEXT NOT NULL DEFAULT '{}',
+          tiebreaker INTEGER DEFAULT NULL,
           submitted_at TEXT DEFAULT (datetime('now')),
           FOREIGN KEY (user_id) REFERENCES users(id),
           FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
           UNIQUE(user_id, tournament_id, bracket_name)
         );
-        INSERT OR IGNORE INTO picks_new (id, user_id, tournament_id, bracket_name, picks_data, submitted_at)
-          SELECT id, user_id, tournament_id, 'My Bracket', picks_data, submitted_at FROM picks;
+        INSERT OR IGNORE INTO picks_new (id, user_id, tournament_id, bracket_name, picks_data, tiebreaker, submitted_at)
+          SELECT id, user_id, tournament_id, bracket_name, picks_data, tiebreaker, submitted_at FROM picks;
         DROP TABLE picks;
         ALTER TABLE picks_new RENAME TO picks;
       `);

@@ -201,7 +201,23 @@ def run_tests(url):
     except Exception as e:
         log_result("POST /api/picks returns valid JSON", False, str(e))
 
-    # Test 14: First Four section visible on bracket page
+    # Test 14: Save bracket completes successfully (no 500 error)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click the 'Chalk' button")
+            nova.act("Click the 'Save Picks' button")
+            nova.act("Click the 'Save Picks' button inside the confirmation dialog")
+            result = nova.act("Do you see a success message like 'Picks saved' or a green notification? Or did you see an error message? Describe what you see.")
+            passed = not any(word in (result.response or "").lower() for word in ["error", "fail", "500"])
+            log_result("Save bracket completes without error", passed, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Save bracket completes without error", False, str(e))
+
+    # Test 15: First Four section visible on bracket page
     try:
         with NovaAct(starting_page=url) as nova:
             nova.act("Type 'smoketest_user' in the Username field")
@@ -213,7 +229,7 @@ def run_tests(url):
     except Exception as e:
         log_result("First Four section visible on bracket page", False, str(e))
 
-    # Test 15: Sync Results from ESPN button on admin page
+    # Test 16: Sync Results from ESPN button on admin page
     try:
         with NovaAct(starting_page=f"{url}/admin") as nova:
             nova.act("Type 'smoketest_user' in the Username field")
@@ -224,7 +240,7 @@ def run_tests(url):
     except Exception as e:
         log_result("Sync Results from ESPN button on admin page", False, str(e))
 
-    # Test 16: POST /api/admin/sync-results returns valid JSON (admin-only)
+    # Test 17: POST /api/admin/sync-results returns valid JSON (admin-only)
     try:
         import urllib.request
         req_obj = urllib.request.Request(
