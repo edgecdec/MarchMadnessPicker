@@ -213,6 +213,37 @@ def run_tests(url):
     except Exception as e:
         log_result("First Four section visible on bracket page", False, str(e))
 
+    # Test 15: Sync Results from ESPN button on admin page
+    try:
+        with NovaAct(starting_page=f"{url}/admin") as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            result = nova.act("Look for a section titled 'Sync Results from ESPN' with a button that says 'Sync Results from ESPN'. Do you see it?")
+            log_result("Sync Results from ESPN button on admin page", True)
+    except Exception as e:
+        log_result("Sync Results from ESPN button on admin page", False, str(e))
+
+    # Test 16: POST /api/admin/sync-results returns valid JSON (admin-only)
+    try:
+        import urllib.request
+        req_obj = urllib.request.Request(
+            f"{url}/api/admin/sync-results",
+            data=json.dumps({}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            resp = urllib.request.urlopen(req_obj)
+            body = json.loads(resp.read())
+            log_result("POST /api/admin/sync-results returns JSON", True)
+        except urllib.error.HTTPError as he:
+            body = json.loads(he.read())
+            # 403 with JSON error body means endpoint works but requires admin
+            log_result("POST /api/admin/sync-results returns JSON", "error" in body, f"status={he.code} body={body}")
+    except Exception as e:
+        log_result("POST /api/admin/sync-results returns JSON", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Container, Typography, TextField, Button, Box, Paper } from "@mui/material";
+import { Container, Typography, TextField, Button, Box, Paper, CircularProgress } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
@@ -13,6 +13,8 @@ export default function AdminPage() {
   const [year, setYear] = useState("2026");
   const [lockTime, setLockTime] = useState("");
   const [msg, setMsg] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
 
   if (loading) return null;
   if (!user) return <AuthForm />;
@@ -27,6 +29,22 @@ export default function AdminPage() {
     }
   };
 
+  const syncResults = async () => {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const data = await api.admin.syncResults();
+      const parts = [`Updated ${data.updated} game(s). Total results: ${data.totalResults}.`];
+      if (data.matched.length) parts.push(`Matched: ${data.matched.join(", ")}`);
+      if (data.unmatched.length) parts.push(`Unmatched ESPN games: ${data.unmatched.join(", ")}`);
+      setSyncMsg(parts.join("\n"));
+    } catch (e: any) {
+      setSyncMsg(`Error: ${e.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -36,6 +54,17 @@ export default function AdminPage() {
         <Box sx={{ mb: 3 }}>
           <PlanEditor />
         </Box>
+
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>Sync Results from ESPN</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fetches completed NCAA tournament games from ESPN and auto-updates results. Handles First Four and all rounds.
+          </Typography>
+          <Button variant="contained" color="secondary" onClick={syncResults} disabled={syncing} startIcon={syncing ? <CircularProgress size={16} /> : undefined}>
+            {syncing ? "Syncing..." : "Sync Results from ESPN"}
+          </Button>
+          {syncMsg && <Typography variant="body2" sx={{ mt: 2, whiteSpace: "pre-wrap" }}>{syncMsg}</Typography>}
+        </Paper>
 
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>Create Tournament</Typography>

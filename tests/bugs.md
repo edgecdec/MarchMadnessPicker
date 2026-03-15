@@ -2,6 +2,8 @@
 
 Bugs discovered by Nova Act smoke tests during Ralph development loops.
 
-- [2026-03-14 23:10] **Site shows black page after deploy**: The `.next/` directory on the server is empty — the deploy wiped it but the build either failed or hasn't completed. The site serves HTML but all JS chunks return 400, so React never hydrates and the page is blank. Likely cause: concurrent deploys racing (two webhooks fire close together, one wipes `.next` while the other is building). Fix: add a lock file to deploy_webhook.sh to prevent concurrent deploys — `flock /tmp/marchmadness-deploy.lock bash deploy_webhook.sh`. Also verify the build succeeded before restarting pm2. Immediate fix: SSH in and run `pm2 stop marchmadness && rm -rf .next && npm run build && NODE_ENV=production pm2 restart marchmadness --update-env`.
+- [2026-03-14 23:10] ~~**Site shows black page after deploy**: The `.next/` directory on the server is empty — the deploy wiped it but the build either failed or hasn't completed.~~ **FIXED** — Rebuilt on server manually (`pm2 stop && rm -rf .next && npm run build && pm2 restart`). Deploy script already has lock file and build check. Race condition was a one-off.
 
 - [2026-03-14 22:55] ~~**Save bracket fails**: JSON.parse error when clicking Save Picks.~~ **FIXED** — uuid import issue in picks route.
+
+- [2026-03-14 23:18] **Creating new bracket fails with 500**: POST /api/picks returns "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint". The picks table schema was changed to support multiple brackets per user (removed the UNIQUE(user_id, tournament_id) constraint), but the INSERT statement in src/app/api/picks/route.ts still uses `ON CONFLICT(user_id, tournament_id) DO UPDATE`. Fix: update the SQL to match the new schema. If the table now uses a different unique constraint (e.g. bracket id), use that. Or if creating a new bracket should always INSERT (not upsert), remove the ON CONFLICT clause entirely and just INSERT.

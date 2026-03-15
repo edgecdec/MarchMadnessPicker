@@ -85,5 +85,7 @@ export const api = {
     getPlan: () => request<{ tasks: { text: string; done: boolean }[] }>("/api/admin/plan"),
     savePlan: (tasks: { text: string; done: boolean }[]) =>
       request<{ ok: boolean }>("/api/admin/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tasks }) }),
+    syncResults: () =>
+      request<{ ok: boolean; updated: number; matched: string[]; unmatched: string[]; totalResults: number }>("/api/admin/sync-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }),
   },
 };
