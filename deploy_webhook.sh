@@ -38,9 +38,14 @@ if [ "$OLD_PKG_HASH" != "$NEW_PKG_HASH" ] || [ ! -d "node_modules" ]; then
     rm -rf node_modules
     npm install --production=false >> "$LOG_FILE" 2>&1
     if [ $? -ne 0 ]; then
-        log "DEPLOY FAILED: npm install failed"
-        pm2 restart marchmadness >> "$LOG_FILE" 2>&1
-        exit 1
+        log "npm install failed, trying without lockfile..."
+        rm -rf node_modules package-lock.json
+        npm install --production=false >> "$LOG_FILE" 2>&1
+        if [ $? -ne 0 ]; then
+            log "DEPLOY FAILED: npm install failed"
+            pm2 restart marchmadness >> "$LOG_FILE" 2>&1
+            exit 1
+        fi
     fi
 else
     log "package.json unchanged — skipping npm install"

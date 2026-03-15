@@ -129,6 +129,7 @@ export default function BracketPage() {
 
         {(userBrackets.length > 0 || locked) && (
           <Bracket
+            key={activeBracket}
             regions={regions}
             firstFour={firstFour}
             tournamentId={tournament.id}
