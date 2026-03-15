@@ -80,7 +80,7 @@ function getMatchupTeams(
     let teamB = region.teams.find(t => t.seed === pair[1])?.name;
     if (firstFour) {
       for (const ff of firstFour) {
-        if (ff.region !== region.name || ff.slot !== gameIndex) continue;
+        if (ff.region !== region.name || (ff.seed !== pair[0] && ff.seed !== pair[1])) continue;
         if (ff.seed === pair[0]) teamA = `${ff.teamA}/${ff.teamB}`;
         else teamB = `${ff.teamA}/${ff.teamB}`;
       }

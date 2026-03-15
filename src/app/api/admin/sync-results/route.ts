@@ -99,7 +99,7 @@ function buildGameTeams(
       // Check if slot is a First Four play-in (resolved winner replaces the seed)
       if (bracketData.first_four) {
         for (const ff of bracketData.first_four) {
-          if (ff.region === region.name && ff.slot === i) {
+          if (ff.region === region.name && (ff.seed === pair[0] || ff.seed === pair[1])) {
             const ffGid = `ff-play-${ff.region}-${ff.seed}-${ff.slot}`;
             const ffWinner = results[ffGid];
             if (ffWinner) {

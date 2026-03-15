@@ -69,9 +69,9 @@ function getTeamForGame(region: Region, round: number, gameIndex: number, picks:
     let teamB = region.teams.find(t => t.seed === pair[1]);
     if (firstFour) {
       for (const ff of firstFour) {
-        if (ff.region !== region.name || ff.slot !== gameIndex) continue;
+        if (ff.region !== region.name || (ff.seed !== pair[0] && ff.seed !== pair[1])) continue;
         const gid = ffGameId(ff);
-        const resolved = results?.[gid] || picks[gid];
+        const resolved = results?.[gid];
         const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}` };
         if (ff.seed === pair[0]) teamA = placeholder; else teamB = placeholder;
       }
@@ -80,9 +80,14 @@ function getTeamForGame(region: Region, round: number, gameIndex: number, picks:
   }
   const prevA = picks[`${region.name}-${round - 1}-${gameIndex * 2}`];
   const prevB = picks[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
+  const findTeamByName = (name: string): Team | undefined =>
+    region.teams.find(t => t.name === name) ||
+    (firstFour && firstFour.find(ff => ff.region === region.name && (ff.teamA === name || ff.teamB === name))
+      ? { seed: firstFour.find(ff => ff.region === region.name && (ff.teamA === name || ff.teamB === name))!.seed, name }
+      : undefined);
   return {
-    teamA: prevA ? region.teams.find(t => t.name === prevA) : undefined,
-    teamB: prevB ? region.teams.find(t => t.name === prevB) : undefined,
+    teamA: prevA ? findTeamByName(prevA) : undefined,
+    teamB: prevB ? findTeamByName(prevB) : undefined,
   };
 }
 
