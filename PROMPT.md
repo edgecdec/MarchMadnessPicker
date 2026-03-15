@@ -34,12 +34,11 @@ src/
 5. Add or update a Nova Act test in tests/smoke_test.py for the feature you just implemented
 6. Run `npx next build` to verify it compiles. If build fails, fix and retry. Do NOT proceed with broken code.
 7. Start the app locally and test it:
-   - Run: `PORT=3003 NODE_ENV=production node server.js &`
-   - Wait 5 seconds for startup
-   - Test key endpoints with curl: `curl -s -o /dev/null -w "%{http_code}" http://localhost:3003` (should be 200)
-   - Test the API route you changed: e.g. `curl -s http://localhost:3003/api/picks` — verify it returns valid JSON, not HTML or empty
-   - If any test fails, stop the server (`kill %1`), fix the issue, rebuild, and test again
-   - Once everything passes, stop the local server: `kill %1`
+   - Run in one command: `cd ~/TestProjects/MarchMadness && PORT=3003 NODE_ENV=production timeout 30 node server.js &` then in a SEPARATE shell command: `sleep 5 && curl -s -o /dev/null -w "%{http_code}" http://localhost:3003`
+   - IMPORTANT: Always use separate shell commands for starting the server and testing it. Never combine them.
+   - Test the API route you changed with curl in another separate command
+   - When done testing, kill the server: `lsof -ti:3003 | xargs kill -9 2>/dev/null`
+   - If any test fails, kill the server, fix the issue, rebuild, and test again
 8. Commit and push: `git add -A && git commit -m "descriptive message" && git push`
 9. Wait 45 seconds for deploy, then verify: `curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` — must return 200
 10. If the site is NOT returning 200, check: `ssh -i ~/.ssh/vps1.priv root@5.78.132.57 "tail -30 /var/log/webhook_deploy_marchmadness.log"` and fix immediately
