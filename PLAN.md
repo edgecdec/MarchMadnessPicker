@@ -20,7 +20,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 
 ### Admin
 - [x] Let admin bulk-import bracket data via JSON paste on admin page
-- [ ] Let admin bulk-update results via JSON paste on admin page
+- [x] Let admin bulk-update results via JSON paste on admin page
 
 ### Social & Views
 - [ ] Show which picks are correct/incorrect with color coding on the view-others-bracket page
