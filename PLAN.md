@@ -19,7 +19,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Add "best possible finish" to leaderboard — highest rank each player could still achieve given remaining games
 
 ### Admin
-- [ ] Let admin bulk-import bracket data via JSON paste on admin page
+- [x] Let admin bulk-import bracket data via JSON paste on admin page
 - [ ] Let admin bulk-update results via JSON paste on admin page
 
 ### Social & Views
