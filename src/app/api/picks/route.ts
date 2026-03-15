@@ -4,11 +4,12 @@ import { getUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const db = getDb();
-  const tournaments = db.prepare("SELECT id, name, year, lock_time FROM tournaments ORDER BY year DESC").all();
+  const tournamentId = req.nextUrl.searchParams.get("tournament_id");
+
+  const tournaments = db.prepare("SELECT id, name, year, lock_time, bracket_data, results_data FROM tournaments ORDER BY year DESC").all();
 
   const user = await getUser();
   let userPicks: any = null;
-  const tournamentId = req.nextUrl.searchParams.get("tournament_id");
   if (user && tournamentId) {
     const row = db.prepare("SELECT picks_data FROM picks WHERE user_id = ? AND tournament_id = ?").get(user.id, tournamentId) as any;
     if (row) userPicks = JSON.parse(row.picks_data);

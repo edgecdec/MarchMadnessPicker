@@ -16,12 +16,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Username taken" }, { status: 409 });
     }
     const id = uuid();
-    const isFirstUser = !db.prepare("SELECT id FROM users LIMIT 1").get();
-    db.prepare("INSERT INTO users (id, username, password_hash, is_admin) VALUES (?, ?, ?, ?)").run(
-      id, username, hashPassword(password), isFirstUser ? 1 : 0
+    db.prepare("INSERT INTO users (id, username, password_hash, is_admin) VALUES (?, ?, ?, 0)").run(
+      id, username, hashPassword(password)
     );
-    const token = createToken({ id, username, is_admin: !!isFirstUser });
-    const res = NextResponse.json({ id, username, is_admin: !!isFirstUser });
+    const token = createToken({ id, username, is_admin: false });
+    const res = NextResponse.json({ id, username, is_admin: false });
     res.headers.set("Set-Cookie", setTokenCookie(token));
     return res;
   }
