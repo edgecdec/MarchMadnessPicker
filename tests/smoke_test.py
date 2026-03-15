@@ -440,6 +440,21 @@ def run_tests(url):
     except Exception as e:
         log_result("Seed matchup stats tooltip on hover", False, str(e))
 
+    # Test: Pick counter shows correct denominator (63)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click the 'Chalk' button")
+            result = nova.act("Look at the pick counter. Does it say '63/63 picks made'? Report the exact text you see for the picks counter.")
+            response = (getattr(result, 'response', '') or '').lower()
+            passed = '63/63' in response
+            log_result("Pick counter shows 63/63 after chalk autofill", passed, getattr(result, 'response', ''))
+    except Exception as e:
+        log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
+
     # Test: Group messages API returns valid JSON
     try:
         import urllib.request

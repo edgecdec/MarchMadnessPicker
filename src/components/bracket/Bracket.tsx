@@ -179,7 +179,17 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
     setSaving(false);
   };
 
-  const totalPicks = Object.keys(picks).filter(k => !k.startsWith("ff-play-")).length;
+  const validGameIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of regions) {
+      for (let round = 0; round <= 3; round++) {
+        for (let i = 0; i < 8 / Math.pow(2, round); i++) ids.add(`${r.name}-${round}-${i}`);
+      }
+    }
+    ids.add("ff-4-0"); ids.add("ff-4-1"); ids.add("ff-5-0");
+    return ids;
+  }, [regions]);
+  const totalPicks = Object.keys(picks).filter(k => validGameIds.has(k)).length;
   const totalGames = TOTAL_GAMES;
 
   return (
