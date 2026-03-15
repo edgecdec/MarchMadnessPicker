@@ -45,3 +45,4 @@ src/
 - If a task is unclear, implement the simplest reasonable interpretation.
 - NEVER push code that doesn't build. Always run `npx next build` first.
 - ALWAYS verify the site is up after pushing. If it's down, fix it before finishing.
+- Check tests/bugs.md for any known bugs. If there are unfixed bugs, fix them BEFORE picking a new task from PLAN.md.
