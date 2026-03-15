@@ -81,6 +81,45 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
 
   const orderedRounds = direction === "left" ? rounds : [...rounds].reverse();
 
+  // Connector column between two adjacent rounds
+  const renderConnectors = (fromRound: number) => {
+    const fromCount = gamesPerRound[fromRound];
+    const toCount = fromCount / 2;
+    // Each pair of "from" matchups merges into one "to" matchup
+    return (
+      <Box
+        key={`conn-${fromRound}`}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-around",
+          width: 16,
+          flexShrink: 0,
+        }}
+      >
+        {Array.from({ length: toCount }, (_, i) => (
+          <Box key={i} sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
+            {/* Top half: horizontal line from top matchup, then vertical down to center */}
+            <Box sx={{ flex: 1, borderRight: "2px solid #555", borderBottom: direction === "left" ? "2px solid #555" : "none", borderTop: direction === "right" ? "2px solid #555" : "none" }} />
+            {/* Bottom half: horizontal line from bottom matchup, then vertical up to center */}
+            <Box sx={{ flex: 1, borderRight: "2px solid #555", borderTop: direction === "left" ? "2px solid #555" : "none", borderBottom: direction === "right" ? "2px solid #555" : "none" }} />
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  // Build interleaved rounds and connectors
+  const elements: React.ReactNode[] = [];
+  for (let i = 0; i < orderedRounds.length; i++) {
+    elements.push(renderRound(orderedRounds[i]));
+    if (i < orderedRounds.length - 1) {
+      // Determine which round is "earlier" (feeds into the next)
+      const fromRound = direction === "left" ? orderedRounds[i] : orderedRounds[i + 1];
+      elements.push(renderConnectors(fromRound));
+    }
+  }
+
   return (
     <Box>
       <Typography variant="subtitle2" align="center" sx={{ mb: 0.5, fontWeight: 700, color: "primary.main" }}>
@@ -94,7 +133,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
           minHeight: 400,
         }}
       >
-        {orderedRounds.map((round) => renderRound(round))}
+        {elements}
       </Box>
     </Box>
   );
