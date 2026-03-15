@@ -10,7 +10,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] "Who picked whom": per-game breakdown of group members' picks.
 - [x] "Bracket Busted" indicator: skull icon on leaderboard when user's champion is eliminated.
 - [x] Shareable public bracket link that works without login.
-- [ ] Scoring breakdown popup: click a leaderboard score to see per-pick detail with bonus points.
+- [x] Scoring breakdown popup: click a leaderboard score to see per-pick detail with bonus points.
 - [ ] "Eliminated from contention" indicator on leaderboard.
 - [ ] Bracket stats dashboard: most popular champion, biggest upset picked, most chalk/contrarian bracket.
 - [ ] Mini-bracket widget: compact Final Four + Championship view for cards/sidebars.
