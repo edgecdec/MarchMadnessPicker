@@ -31,7 +31,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Add notification/banner when new results are entered
 - [x] Dark/light theme toggle
 - [x] Add chat/comments per group
-- [ ] Animate bracket transitions when clicking picks
+- [x] Animate bracket transitions when clicking picks
 - [ ] Show historical seed matchup stats on hover (e.g. "12-seeds beat 5-seeds 36% of the time")
 
 ### Completed
