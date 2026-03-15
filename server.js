@@ -22,10 +22,8 @@ app.prepare().then(() => {
         if (signature === digest) {
           console.log("Webhook verified. Deploying...");
           res.statusCode = 200; res.end("Deploying");
-          exec("bash /var/www/MarchMadness/deploy_webhook.sh", (error, stdout, stderr) => {
+          exec("nohup bash /var/www/MarchMadness/deploy_webhook.sh > /dev/null 2>&1 &", (error) => {
             if (error) console.error(`exec error: ${error}`);
-            if (stdout) console.log(`stdout: ${stdout}`);
-            if (stderr) console.error(`stderr: ${stderr}`);
           });
         } else {
           res.statusCode = 403; res.end("Forbidden");
