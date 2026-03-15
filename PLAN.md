@@ -16,7 +16,7 @@ An agent reads this file each loop iteration, picks the most important incomplet
 - [x] Color-code each region with a distinct accent color (e.g. East=blue, West=red, South=green, Midwest=orange) in the region header and matchup borders
 - [x] Grey out / dim eliminated teams across all rounds after results are entered (team lost = faded everywhere they appear in later rounds)
 - [x] Add team logos next to team names in matchups. Store logo URLs in bracket_data for each team. ESPN logos available at espncdn.com/i/teamlogos/ncaa/500/{teamId}.png
-- [ ] Highlight the championship pick prominently in the center of the bracket with larger text and the team logo
+- [x] Highlight the championship pick prominently in the center of the bracket with larger text and the team logo
 
 ### Picking Experience
 - [ ] Add autofill options shown as buttons above the bracket: "Smart" (uses historical seed matchup win percentages to probabilistically pick — e.g. if 12-seeds historically beat 5-seeds 36% of the time, the 12-seed gets picked 36% of the time), "Chalk" (all higher seeds win), "Random" (fully random picks). Store historical seed vs seed win rates in src/lib/seedStats.ts.
