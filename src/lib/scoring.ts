@@ -126,4 +126,17 @@ export function getRoundName(round: number): string {
   return ["Round of 64", "Round of 32", "Sweet 16", "Elite 8", "Final Four", "Championship"][round] || "";
 }
 
+// Build set of eliminated team names from results
+export function getEliminatedTeams(
+  results: Record<string, string>,
+  regions?: Region[],
+): Set<string> {
+  const eliminated = new Set<string>();
+  for (const [gameId, winner] of Object.entries(results)) {
+    const loser = getLoser(gameId, winner, {}, results, regions);
+    if (loser) eliminated.add(loser);
+  }
+  return eliminated;
+}
+
 export { DEFAULT_POINTS as POINTS_PER_ROUND };

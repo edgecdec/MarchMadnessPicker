@@ -13,6 +13,7 @@ interface Props {
   locked?: boolean;
   direction: "left" | "right";
   distribution?: Record<string, Record<string, number>>;
+  eliminated?: Set<string>;
 }
 
 function getTeamForGame(
@@ -37,7 +38,7 @@ function getTeamForGame(
   };
 }
 
-export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution }: Props) {
+export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution, eliminated }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
   const regionColor = REGION_COLORS[region.name] || "#888";
@@ -73,6 +74,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
                 locked={locked}
                 distribution={distribution?.[gameId]}
                 regionColor={regionColor}
+                eliminated={eliminated}
               />
             </Box>
           );

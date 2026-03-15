@@ -13,6 +13,7 @@ interface Props {
   compact?: boolean;
   distribution?: Record<string, number>;
   regionColor?: string;
+  eliminated?: Set<string>;
 }
 
 function TeamSlot({
@@ -20,6 +21,7 @@ function TeamSlot({
   isWinner,
   isCorrect,
   isWrong,
+  isEliminated,
   score,
   isLive,
   onClick,
@@ -32,6 +34,7 @@ function TeamSlot({
   isWinner: boolean;
   isCorrect?: boolean;
   isWrong?: boolean;
+  isEliminated?: boolean;
   score?: string;
   isLive?: boolean;
   onClick: () => void;
@@ -65,8 +68,9 @@ function TeamSlot({
         borderRight: `1px solid ${regionColor || "#444"}`,
         minWidth: 120,
         minHeight: { xs: 32, sm: "auto" },
+        opacity: isEliminated ? 0.35 : 1,
         "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
-        transition: "background 0.15s",
+        transition: "background 0.15s, opacity 0.15s",
       }}
     >
       {team ? (
@@ -97,7 +101,7 @@ function TeamSlot({
   );
 }
 
-export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor }: Props) {
+export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor, eliminated }: Props) {
   const isLive = gameScore?.state === "in";
 
   return (
@@ -111,6 +115,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         team={teamA} isWinner={!!teamA && winner === teamA.name}
         isCorrect={!!result && !!teamA && winner === teamA.name && result === teamA.name}
         isWrong={!!result && !!teamA && winner === teamA.name && result !== teamA.name}
+        isEliminated={!!teamA && !!eliminated?.has(teamA.name)}
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} locked={locked} position="top"
         pct={teamA && distribution?.[teamA.name] !== undefined ? distribution[teamA.name] : undefined}
@@ -120,6 +125,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         team={teamB} isWinner={!!teamB && winner === teamB.name}
         isCorrect={!!result && !!teamB && winner === teamB.name && result === teamB.name}
         isWrong={!!result && !!teamB && winner === teamB.name && result !== teamB.name}
+        isEliminated={!!teamB && !!eliminated?.has(teamB.name)}
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} locked={locked} position="bottom"
         pct={teamB && distribution?.[teamB.name] !== undefined ? distribution[teamB.name] : undefined}

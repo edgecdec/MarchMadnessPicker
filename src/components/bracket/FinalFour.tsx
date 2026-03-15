@@ -11,6 +11,7 @@ interface Props {
   onPick: (gameId: string, team: Team) => void;
   locked?: boolean;
   distribution?: Record<string, Record<string, number>>;
+  eliminated?: Set<string>;
 }
 
 function findTeam(regions: Region[], name: string): Team | undefined {
@@ -21,7 +22,7 @@ function findTeam(regions: Region[], name: string): Team | undefined {
   return undefined;
 }
 
-export default function FinalFour({ regions, picks, results, gameScores, onPick, locked, distribution }: Props) {
+export default function FinalFour({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated }: Props) {
   // FF game 0: East winner vs West winner (top half)
   // FF game 1: South winner vs Midwest winner (bottom half)
   // Championship: FF0 winner vs FF1 winner
@@ -55,6 +56,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         onPick={(team) => onPick("ff-4-0", team)}
         locked={locked}
         distribution={distribution?.["ff-4-0"]}
+        eliminated={eliminated}
       />
       <Box sx={{ my: 1 }}>
         <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 700, color: "primary.main", mb: 0.5 }}>
@@ -69,6 +71,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           onPick={(team) => onPick("ff-5-0", team)}
           locked={locked}
           distribution={distribution?.["ff-5-0"]}
+          eliminated={eliminated}
         />
         {picks["ff-5-0"] && (
           <Typography variant="body2" align="center" sx={{ mt: 1, fontWeight: 700, color: "primary.main", fontSize: "0.85rem" }}>
@@ -85,6 +88,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         onPick={(team) => onPick("ff-4-1", team)}
         locked={locked}
         distribution={distribution?.["ff-4-1"]}
+        eliminated={eliminated}
       />
     </Box>
   );

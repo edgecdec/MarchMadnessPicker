@@ -38,9 +38,6 @@ while true; do
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
   # Run kiro with the marchmadness agent
-  # --no-interactive: don't wait for user input
-  # --trust-all-tools: allow file writes, shell commands, etc without confirmation
-  # Input: the contents of PROMPT.md as the first message
   kiro-cli chat \
     --agent marchmadness \
     --no-interactive \
@@ -51,15 +48,32 @@ while true; do
   echo ""
   echo "   ✓ Iteration $COUNT complete (log: $LOG_FILE)"
 
+  # Wait for deploy
+  echo "   ⏳ Waiting 30s for deploy..."
+  sleep 30
+
+  # Run smoke tests with Nova Act
+  echo "   🧪 Running smoke tests..."
+  if python3 tests/smoke_test.py 2>&1 | tee "$LOG_DIR/test-${COUNT}-${TIMESTAMP}.log"; then
+    echo "   ✅ All tests passed"
+  else
+    echo "   🐛 Tests found issues — feeding back to agent"
+    BUGS=$(cat tests/results.json)
+    kiro-cli chat \
+      --agent marchmadness \
+      --no-interactive \
+      --trust-all-tools \
+      "The smoke tests found failures after your last change. Here are the results: ${BUGS}. Also check tests/bugs.md for details. Fix the issues, build, commit, push, and verify the site works." \
+      2>&1 | tee -a "$LOG_FILE"
+  fi
+
   # Check if max iterations reached
   if [ "$MAX" -gt 0 ] && [ "$COUNT" -ge "$MAX" ]; then
     echo "🛑 Max iterations ($MAX) reached"
     break
   fi
 
-  # Brief pause between loops to let deploy finish
-  echo "   ⏳ Waiting 10s before next iteration..."
-  sleep 10
+  sleep 5
 done
 
 echo ""
