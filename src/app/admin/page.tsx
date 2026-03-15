@@ -20,11 +20,14 @@ export default function AdminPage() {
   const [selectedTournament, setSelectedTournament] = useState("");
   const [bracketJson, setBracketJson] = useState("");
   const [bracketMsg, setBracketMsg] = useState("");
+  const [resultsJson, setResultsJson] = useState("");
+  const [resultsMsg, setResultsMsg] = useState("");
+  const [resultsTournament, setResultsTournament] = useState("");
 
   useEffect(() => {
     api.tournaments.list().then(({ tournaments: t }) => {
       setTournaments(t);
-      if (t.length) setSelectedTournament(t[0].id);
+      if (t.length) { setSelectedTournament(t[0].id); setResultsTournament(t[0].id); }
     }).catch(() => {});
   }, []);
 
@@ -98,6 +101,29 @@ export default function AdminPage() {
               } catch (e: any) { setBracketMsg(`Error: ${e.message}`); }
             }}>Import Bracket Data</Button>
             {bracketMsg && <Typography variant="body2" sx={{ mt: 2 }}>{bracketMsg}</Typography>}
+          </Paper>
+        )}
+
+        {tournaments.length > 0 && (
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>Update Results Data (JSON)</Typography>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Tournament</InputLabel>
+              <Select value={resultsTournament} label="Tournament" onChange={e => setResultsTournament(e.target.value)}>
+                {tournaments.map(t => <MenuItem key={t.id} value={t.id}>{t.name} ({t.year})</MenuItem>)}
+              </Select>
+            </FormControl>
+            <TextField label="Results JSON" multiline minRows={4} maxRows={12} fullWidth value={resultsJson} onChange={e => setResultsJson(e.target.value)}
+              helperText='Paste results JSON: { "East-0-0": "TeamName", "East-0-1": "TeamName", ... }' />
+            <Button variant="contained" sx={{ mt: 2 }} disabled={!resultsJson.trim() || !resultsTournament} onClick={async () => {
+              setResultsMsg("");
+              try {
+                const parsed = JSON.parse(resultsJson);
+                await api.admin.updateResults(resultsTournament, parsed);
+                setResultsMsg("Results data updated successfully.");
+              } catch (e: any) { setResultsMsg(`Error: ${e.message}`); }
+            }}>Update Results</Button>
+            {resultsMsg && <Typography variant="body2" sx={{ mt: 2 }}>{resultsMsg}</Typography>}
           </Paper>
         )}
 
