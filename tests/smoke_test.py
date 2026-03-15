@@ -471,6 +471,19 @@ def run_tests(url):
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
 
+    # Test: Unsaved changes warning shown after making picks
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click on a team name in the first round of the bracket to make a pick")
+            result = nova.act("Look for a warning message that says 'Unsaved changes' near the Save Picks button. Do you see it?")
+            log_result("Unsaved changes warning shown after picking", True)
+    except Exception as e:
+        log_result("Unsaved changes warning shown after picking", False, str(e))
+
     # Test: Viewing own bracket redirects to /bracket (not locked view)
     try:
         with NovaAct(starting_page=url) as nova:

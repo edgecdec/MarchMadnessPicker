@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from "@mui/material";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
@@ -95,6 +95,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [confirmOpen, setConfirmOpen] = useState(false);
   const bracketRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
+  const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
+
+  // Warn on unsaved changes when leaving page
+  const isDirty = !locked && JSON.stringify(picks) !== savedPicksRef.current;
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
@@ -151,6 +161,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      savedPicksRef.current = JSON.stringify(picks);
       setSnack({ msg: "Picks saved!", severity: "success" });
       onSaved?.();
     } catch (e: any) {
@@ -172,6 +183,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPicks({});
+      savedPicksRef.current = JSON.stringify({});
       setSnack({ msg: "Picks cleared!", severity: "success" });
     } catch (e: any) {
       setSnack({ msg: e.message || "Failed to clear picks", severity: "error" });
@@ -225,6 +237,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
             <Button variant="contained" onClick={() => setConfirmOpen(true)} disabled={saving} size="small">
               {saving ? "Saving..." : "Save Picks"}
             </Button>
+            {isDirty && <Typography variant="body2" color="warning.main">⚠ Unsaved changes</Typography>}
           </Box>
         )}
         {locked && (
