@@ -175,4 +175,46 @@ export function getEliminatedTeams(
   return eliminated;
 }
 
+export interface PickDetail {
+  gameId: string;
+  round: number;
+  pick: string;
+  result: string | null;
+  correct: boolean;
+  basePoints: number;
+  upsetBonus: number;
+}
+
+export function scorePicksDetailed(
+  picks: Record<string, string>,
+  results: Record<string, string>,
+  settings?: ScoringSettings,
+  regions?: Region[],
+): PickDetail[] {
+  const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
+  const bonus = settings?.upsetBonusPerRound ?? [0, 0, 0, 0, 0, 0];
+  const seedMap: Record<string, number> = {};
+  if (regions) for (const r of regions) for (const t of r.teams) seedMap[t.name] = t.seed;
+
+  const details: PickDetail[] = [];
+  for (const [gameId, pick] of Object.entries(picks)) {
+    const round = parseInt(gameId.split("-")[1]) || 0;
+    const result = results[gameId] || null;
+    const correct = result !== null && pick === result;
+    let base = 0, upsetB = 0;
+    if (correct) {
+      base = pts[round] || 0;
+      if (bonus[round] > 0 && Object.keys(seedMap).length > 0) {
+        const loser = getLoser(gameId, pick, picks, results, regions);
+        if (loser && seedMap[pick] && seedMap[loser]) {
+          const diff = seedMap[pick] - seedMap[loser];
+          if (diff > 0) upsetB = bonus[round] * diff;
+        }
+      }
+    }
+    details.push({ gameId, round, pick, result, correct, basePoints: base, upsetBonus: upsetB });
+  }
+  return details.sort((a, b) => a.round - b.round || a.gameId.localeCompare(b.gameId));
+}
+
 export { DEFAULT_POINTS as POINTS_PER_ROUND };

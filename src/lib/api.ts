@@ -1,6 +1,7 @@
 // Centralized API client — all fetch calls go through here
 
 import { User, Tournament, LeaderboardEntry, LiveGame, Group, ScoringSettings, UserBracket, GroupMessage } from "@/types";
+import { PickDetail } from "@/lib/scoring";
 
 async function request<T>(url: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(url, opts);
@@ -49,6 +50,11 @@ export const api = {
   // Leaderboard
   leaderboard: {
     get: (tournamentId: string) => request<{ leaderboard: LeaderboardEntry[] }>(`/api/leaderboard?tournament_id=${tournamentId}`),
+    breakdown: (tournamentId: string, username: string, bracketName?: string | null) => {
+      const params = new URLSearchParams({ tournament_id: tournamentId, username });
+      if (bracketName) params.set("bracket_name", bracketName);
+      return request<{ details: PickDetail[]; settings: ScoringSettings }>(`/api/leaderboard/breakdown?${params}`);
+    },
   },
 
   // Live Scores
