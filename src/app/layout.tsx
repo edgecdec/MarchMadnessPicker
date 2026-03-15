@@ -7,6 +7,9 @@ export const metadata: Metadata = { title: "March Madness Picker" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <style>{`.bracket-export, .bracket-export * { color: #222 !important; }`}</style>
+      </head>
       <body>
         <ThemeRegistry>
           <AuthProvider>{children}</AuthProvider>

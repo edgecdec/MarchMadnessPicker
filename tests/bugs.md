@@ -6,7 +6,7 @@
 
 - [2026-03-14 23:22] **FIXED - Pick counter shows wrong total**: Shows "63/67 picks made" — the denominator should always be 63 (TOTAL_GAMES constant). The numerator `Object.keys(picks).length` is counting stale/invalid keys. Fix: use TOTAL_GAMES for denominator, filter picks to only count valid game IDs for numerator. **RESOLVED**: Added `validGameIds` useMemo set that generates all 63 valid game IDs from regions + Final Four, and filters picks against it.
 
-- [2026-03-14 23:25] **Confirm dialog shows "—" for all Final Four picks**: The save confirmation shows champion correctly but all four Final Four slots show "—". The dialog is looking up wrong game IDs for Elite 8 winners. Check the game ID format it expects vs what the bracket actually stores.
+- [2026-03-14 23:25] **FIXED - Confirm dialog shows "—" for all Final Four picks**: The save confirmation shows champion correctly but all four Final Four slots show "—". The dialog is looking up wrong game IDs for Elite 8 winners. Check the game ID format it expects vs what the bracket actually stores. **RESOLVED**: Fixed in commit 140c621 — dialog was using `r.name.toLowerCase()` (e.g. "east-3-0") but game IDs use original case (e.g. "East-3-0"). Changed to `r.name`.
 
 - [2026-03-14 23:35] **FIXED - Bracket PNG export unreadable**: Export has white background but uses dark theme text colors (light grey text on white). Team names and seeds are nearly invisible. Fix: force dark text colors (black/dark grey) when rendering the export, regardless of app theme. **RESOLVED**: Added `.bracket-export` CSS class that forces `color: #222` on all elements. Export now adds/removes this class during html2canvas render with white background.
 
@@ -1311,3 +1311,7 @@ NOTE: The Nova Act smoke tests are broken because NOVA_ACT_API_KEY is not set in
 *                                                                                                        *
 * Please configure one or the other in order to run your workflow.                                       *
 **********************************************************************************************************
+
+- [2026-03-15 01:42] **Bracket export CSS forces dark text**: bracket-export class should be in page source
+
+- [2026-03-15 01:48] **Bracket export CSS forces dark text**: bracket-export class should be in page source

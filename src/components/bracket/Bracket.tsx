@@ -194,7 +194,6 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
   return (
     <Box>
-      <style>{`.bracket-export, .bracket-export * { color: #222 !important; }`}</style>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
         <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Typography variant="body2" color="text.secondary">
