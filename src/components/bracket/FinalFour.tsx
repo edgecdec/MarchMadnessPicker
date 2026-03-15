@@ -2,6 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore } from "@/types";
+import { getTeamLogoUrl } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -73,11 +74,27 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           distribution={distribution?.["ff-5-0"]}
           eliminated={eliminated}
         />
-        {picks["ff-5-0"] && (
-          <Typography variant="body2" align="center" sx={{ mt: 1, fontWeight: 700, color: "primary.main", fontSize: "0.85rem" }}>
-            🏆 {picks["ff-5-0"]}
-          </Typography>
-        )}
+        {picks["ff-5-0"] && (() => {
+          const champTeam = findTeam(regions, picks["ff-5-0"]);
+          const logo = getTeamLogoUrl(picks["ff-5-0"]);
+          return (
+            <Box sx={{ mt: 1.5, mb: 0.5, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1.5, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,111,0,0.15))", border: "2px solid rgba(255,215,0,0.5)" }}>
+              <Typography sx={{ fontSize: "1.5rem", lineHeight: 1 }}>🏆</Typography>
+              {logo && <Box component="img" src={logo} alt="" sx={{ width: 48, height: 48, objectFit: "contain" }} />}
+              <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: "#FFD700", fontSize: "1.1rem", lineHeight: 1.2 }}>
+                {picks["ff-5-0"]}
+              </Typography>
+              {champTeam && (
+                <Typography variant="caption" sx={{ color: "#aaa", fontSize: "0.7rem" }}>
+                  ({champTeam.seed}) seed
+                </Typography>
+              )}
+              <Typography variant="caption" sx={{ color: "#FFD700", fontWeight: 600, fontSize: "0.65rem", letterSpacing: 1, textTransform: "uppercase" }}>
+                Champion
+              </Typography>
+            </Box>
+          );
+        })()}
       </Box>
       <Matchup
         teamA={ff1TeamA}

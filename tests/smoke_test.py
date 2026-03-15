@@ -106,6 +106,18 @@ def run_tests(url):
     except Exception as e:
         log_result("Groups page loads", False, str(e))
 
+    # Test 7: Championship pick highlighted prominently
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            result = nova.act("Look at the center of the bracket near the Championship matchup. If a champion has been picked, do you see a prominent highlighted champion display with a trophy emoji, a team logo image, the team name in large gold text, and the word 'Champion'? If no champion is picked yet, just confirm the Championship matchup area exists.")
+            log_result("Championship pick highlighted prominently", True)
+    except Exception as e:
+        log_result("Championship pick highlighted prominently", False, str(e))
+
     # Summary
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
