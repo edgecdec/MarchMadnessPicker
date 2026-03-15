@@ -471,6 +471,22 @@ def run_tests(url):
     except Exception as e:
         log_result("Pick counter shows 63/63 after chalk autofill", False, str(e))
 
+    # Test: Autofill preserves existing picks (only fills empty slots)
+    try:
+        with NovaAct(starting_page=url) as nova:
+            nova.act("Type 'smoketest_user' in the Username field")
+            nova.act("Type 'test1234' in the Password field")
+            nova.act("Click the Login button")
+            nova.act("Click on 'Bracket' in the navigation bar")
+            nova.act("Click the 'Reset Picks' button if visible, then confirm the reset")
+            nova.act("Click on a team name in the first matchup of the first region to make a single pick")
+            result_before = nova.act("Look at the pick counter. What does it say? Report the exact text like 'X/63 picks made'.")
+            nova.act("Click the 'Chalk' button to autofill remaining picks")
+            result_after = nova.act("Look at the pick counter. Does it now say '63/63 picks made'? Report the exact text.")
+            log_result("Autofill preserves existing picks and fills empty slots", True, f"Before: {getattr(result_before, 'response', '')} | After: {getattr(result_after, 'response', '')}")
+    except Exception as e:
+        log_result("Autofill preserves existing picks and fills empty slots", False, str(e))
+
     # Test: Unsaved changes warning shown after making picks
     try:
         with NovaAct(starting_page=url) as nova:

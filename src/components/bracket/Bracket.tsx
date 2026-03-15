@@ -219,13 +219,13 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         </Box>
         {!locked && tournamentId && (
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk", firstFour))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "chalk", firstFour, picks))} disabled={saving}>
               🏅 Chalk
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart", firstFour))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "smart", firstFour, picks))} disabled={saving}>
               🧠 Smart
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random", firstFour))} disabled={saving}>
+            <Button variant="outlined" size="small" onClick={() => setPicks(autofillBracket(regions, "random", firstFour, picks))} disabled={saving}>
               🎲 Random
             </Button>
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>

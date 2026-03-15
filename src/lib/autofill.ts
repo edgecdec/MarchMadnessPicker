@@ -13,13 +13,14 @@ function pickWinner(a: Team, b: Team, mode: Mode): Team {
   return Math.random() < probA ? a : b;
 }
 
-export function autofillBracket(regions: Region[], mode: Mode, firstFour?: FirstFourGame[]): Record<string, string> {
-  const picks: Record<string, string> = {};
+export function autofillBracket(regions: Region[], mode: Mode, firstFour?: FirstFourGame[], existingPicks?: Record<string, string>): Record<string, string> {
+  const picks: Record<string, string> = existingPicks ? { ...existingPicks } : {};
 
   // Fill First Four play-in games
   if (firstFour) {
     for (const ff of firstFour) {
       const gid = ffGameId(ff);
+      if (picks[gid]) continue;
       const a: Team = { seed: ff.seed, name: ff.teamA };
       const b: Team = { seed: ff.seed, name: ff.teamB };
       picks[gid] = (mode === "random" ? (Math.random() < 0.5 ? a : b) : a).name;
@@ -30,6 +31,7 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
   for (const region of regions) {
     // Round 0: R64
     for (let i = 0; i < 8; i++) {
+      if (picks[`${region.name}-0-${i}`]) continue;
       const [seedA, seedB] = SEED_ORDER_PAIRS[i];
       const teamA = region.teams.find((t) => t.seed === seedA)!;
       const teamB = region.teams.find((t) => t.seed === seedB)!;
@@ -39,10 +41,13 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
     for (let round = 1; round <= 3; round++) {
       const count = 8 / Math.pow(2, round);
       for (let i = 0; i < count; i++) {
+        if (picks[`${region.name}-${round}-${i}`]) continue;
         const nameA = picks[`${region.name}-${round - 1}-${i * 2}`];
         const nameB = picks[`${region.name}-${round - 1}-${i * 2 + 1}`];
+        if (!nameA || !nameB) continue;
         const teamA = region.teams.find((t) => t.name === nameA)!;
         const teamB = region.teams.find((t) => t.name === nameB)!;
+        if (!teamA || !teamB) continue;
         picks[`${region.name}-${round}-${i}`] = pickWinner(teamA, teamB, mode).name;
       }
     }
@@ -50,22 +55,28 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
 
   // Final Four
   const allTeams = regions.flatMap((r) => r.teams);
-  const find = (name: string) => allTeams.find((t) => t.name === name)!;
+  const find = (name: string) => allTeams.find((t) => t.name === name);
 
   // ff-4-0: East(0) winner vs West(1) winner
-  const e8_0a = find(picks[`${regions[0].name}-3-0`]);
-  const e8_0b = find(picks[`${regions[1].name}-3-0`]);
-  picks["ff-4-0"] = pickWinner(e8_0a, e8_0b, mode).name;
+  if (!picks["ff-4-0"]) {
+    const a = picks[`${regions[0].name}-3-0`] && find(picks[`${regions[0].name}-3-0`]);
+    const b = picks[`${regions[1].name}-3-0`] && find(picks[`${regions[1].name}-3-0`]);
+    if (a && b) picks["ff-4-0"] = pickWinner(a, b, mode).name;
+  }
 
   // ff-4-1: South(2) winner vs Midwest(3) winner
-  const e8_1a = find(picks[`${regions[2].name}-3-0`]);
-  const e8_1b = find(picks[`${regions[3].name}-3-0`]);
-  picks["ff-4-1"] = pickWinner(e8_1a, e8_1b, mode).name;
+  if (!picks["ff-4-1"]) {
+    const a = picks[`${regions[2].name}-3-0`] && find(picks[`${regions[2].name}-3-0`]);
+    const b = picks[`${regions[3].name}-3-0`] && find(picks[`${regions[3].name}-3-0`]);
+    if (a && b) picks["ff-4-1"] = pickWinner(a, b, mode).name;
+  }
 
   // Championship
-  const chA = find(picks["ff-4-0"]);
-  const chB = find(picks["ff-4-1"]);
-  picks["ff-5-0"] = pickWinner(chA, chB, mode).name;
+  if (!picks["ff-5-0"]) {
+    const a = picks["ff-4-0"] && find(picks["ff-4-0"]);
+    const b = picks["ff-4-1"] && find(picks["ff-4-1"]);
+    if (a && b) picks["ff-5-0"] = pickWinner(a, b, mode).name;
+  }
 
   return picks;
 }
