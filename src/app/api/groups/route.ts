@@ -132,5 +132,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "remove_bracket") {
+    const { pick_id, group_id } = data;
+    if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    const isEveryone = group.id === "everyone";
+    if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can remove brackets from this group" }, { status: 403 });
+    if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can remove brackets" }, { status: 403 });
+    db.prepare("DELETE FROM bracket_group_assignments WHERE pick_id = ? AND group_id = ?").run(pick_id, group_id);
+    return NextResponse.json({ ok: true });
+  }
+
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }

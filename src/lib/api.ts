@@ -80,6 +80,8 @@ export const api = {
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assign_bracket", pick_id: pickId, group_id: groupId }) }),
     unassignBracket: (pickId: string, groupId: string) =>
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unassign_bracket", pick_id: pickId, group_id: groupId }) }),
+    removeBracket: (pickId: string, groupId: string) =>
+      request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "remove_bracket", pick_id: pickId, group_id: groupId }) }),
     messages: (groupId: string, before?: string) => {
       const params = before ? `?before=${before}` : "";
       return request<{ messages: GroupMessage[] }>(`/api/groups/${groupId}/messages${params}`);

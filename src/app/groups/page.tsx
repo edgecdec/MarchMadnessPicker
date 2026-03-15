@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -203,6 +204,7 @@ export default function GroupsPage() {
                             <TableCell align="right">Score</TableCell>
                             <TableCell align="right">Max Possible</TableCell>
                             <TableCell align="right">Status</TableCell>
+                            {canEdit && <TableCell align="right"></TableCell>}
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -214,6 +216,28 @@ export default function GroupsPage() {
                               <TableCell align="right">{entry.score}</TableCell>
                               <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
                               <TableCell align="right">{entry.has_picks ? "✅" : "⏳ No picks"}</TableCell>
+                              {canEdit && entry.pick_id && (
+                                <TableCell align="right">
+                                  <Tooltip title="Remove bracket from group">
+                                    <IconButton size="small" color="error" onClick={async () => {
+                                      if (!confirm(`Remove ${entry.username}'s bracket "${entry.bracket_name}" from this group?`)) return;
+                                      try {
+                                        await api.groups.removeBracket(entry.pick_id, g.id);
+                                        const d = await api.groups.leaderboard(g.id, tournament!.id);
+                                        setLeaderboard(d.leaderboard);
+                                        setSnackSeverity("success");
+                                        setSnack("Bracket removed from group");
+                                      } catch (e: any) {
+                                        setSnackSeverity("error");
+                                        setSnack(e.message || "Failed to remove bracket");
+                                      }
+                                    }}>
+                                      <RemoveCircleOutlineIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </TableCell>
+                              )}
+                              {canEdit && !entry.pick_id && <TableCell />}
                             </TableRow>
                           ))}
                         </TableBody>
