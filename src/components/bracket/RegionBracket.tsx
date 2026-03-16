@@ -102,7 +102,7 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-around",
-          minWidth: 130,
+          minWidth: 155,
           flexShrink: 0,
         }}
       >
