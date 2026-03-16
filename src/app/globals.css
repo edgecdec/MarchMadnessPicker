@@ -1,6 +1,6 @@
 .bracket-export, .bracket-export * { color: #222 !important; }
 
-@page { size: landscape; margin: 0.15in; }
+@page { size: landscape; margin: 0.25in; }
 @media print {
   .no-print { display: none !important; }
   html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; color: #222 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow: visible !important; height: auto !important; }
@@ -8,9 +8,9 @@
   .MuiAppBar-root, .MuiSnackbar-root, .MuiDialog-root, footer, nav { display: none !important; }
   .MuiContainer-root { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
   .MuiPaper-root { box-shadow: none !important; padding: 1px !important; }
-  .MuiTypography-root { font-size: 0.5rem !important; line-height: 1.1 !important; }
-  .MuiTypography-h6 { font-size: 0.6rem !important; }
-  .bracket-print-container { transform: scale(0.42); transform-origin: top left; width: 238%; overflow: visible !important; page-break-inside: avoid; break-inside: avoid; }
+  .bracket-print-container { transform-origin: top left; overflow: visible !important; page-break-inside: avoid; break-inside: avoid; }
   .bracket-print-container * { overflow: visible !important; }
-  .bracket-print-container img { width: 12px !important; height: 12px !important; }
+  .bracket-print-container .MuiTypography-root { font-size: 0.55rem !important; line-height: 1.15 !important; }
+  .bracket-print-container .MuiTypography-h6 { font-size: 0.65rem !important; }
+  .bracket-print-container img { width: 14px !important; height: 14px !important; }
 }

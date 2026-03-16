@@ -92,6 +92,31 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
     savedTiebreakerRef.current = initialTiebreaker != null ? String(initialTiebreaker) : "";
   }, [initialTiebreaker, bracketName]);
 
+  // Dynamic print scaling: measure bracket and fit to landscape page
+  useEffect(() => {
+    const beforePrint = () => {
+      const el = bracketRef.current;
+      if (!el) return;
+      // Landscape printable area: ~10in wide × ~7.5in tall at 96dpi, minus margins
+      const pageW = 9.5 * 96; // ~912px
+      const pageH = 7.0 * 96; // ~672px
+      const scaleX = pageW / el.scrollWidth;
+      const scaleY = pageH / el.scrollHeight;
+      const scale = Math.min(scaleX, scaleY, 1);
+      el.style.transform = `scale(${scale})`;
+      el.style.width = `${100 / scale}%`;
+    };
+    const afterPrint = () => {
+      const el = bracketRef.current;
+      if (!el) return;
+      el.style.transform = "";
+      el.style.width = "";
+    };
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+    return () => { window.removeEventListener("beforeprint", beforePrint); window.removeEventListener("afterprint", afterPrint); };
+  }, []);
+
   // Warn on unsaved changes when leaving page
   const isDirty = !locked && (JSON.stringify(picks) !== savedPicksRef.current || tiebreaker !== savedTiebreakerRef.current);
   useEffect(() => {
