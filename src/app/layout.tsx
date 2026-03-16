@@ -10,7 +10,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+              <div style={{ flex: 1 }}>{children}</div>
+              <footer style={{ textAlign: "center", padding: "24px 0", color: "#888", fontSize: "0.75rem" }}>
+                Made by Declan Edgecombe
+              </footer>
+            </div>
+          </AuthProvider>
         </ThemeRegistry>
       </body>
     </html>
