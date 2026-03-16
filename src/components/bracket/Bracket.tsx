@@ -347,23 +347,29 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         />
       </Box>
 
-      {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
-      <Box ref={bracketRef} className="bracket-print-container" sx={{ mx: "auto", width: "fit-content", maxWidth: "100%" }}>
-      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
+      {/* Bracket grid: two panes with Final Four overlapping the seam */}
+      <Box ref={bracketRef} className="bracket-print-container" sx={{ mx: "auto", width: "fit-content", maxWidth: "100%", position: "relative" }}>
+      {/* Top half: East | spacer | West */}
+      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", overflow: "hidden" }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
-          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
+          <Box sx={{ minWidth: 160 }} />
           <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
         </Box>
       </Box>
 
-      {/* Bottom half: South (left-to-right) | spacer | Midwest (right-to-left) */}
-      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+      {/* Bottom half: South | spacer | Midwest */}
+      <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", overflow: "hidden" }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[2]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
-          <Box sx={{ minWidth: 160 }} /> {/* spacer to match Final Four width */}
+          <Box sx={{ minWidth: 160 }} />
           <RegionBracket region={regions[3]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
         </Box>
+      </Box>
+
+      {/* Final Four: absolutely positioned to overlap the seam between top and bottom panes */}
+      <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10, bgcolor: "background.paper", borderRadius: 2 }}>
+        <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
       </Box>
       </Box>
 
