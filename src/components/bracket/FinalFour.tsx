@@ -36,17 +36,17 @@ function findTeam(regions: Region[], name: string, firstFour?: FirstFourGame[], 
 }
 
 export default function FinalFour({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour }: Props) {
-  // FF game 0: East winner vs West winner (top half)
-  // FF game 1: South winner vs Midwest winner (bottom half)
+  // FF game 0: East(0) vs South(2) — LEFT side (top-left vs bottom-left)
+  // FF game 1: West(1) vs Midwest(3) — RIGHT side (top-right vs bottom-right)
   // Championship: FF0 winner vs FF1 winner
   const eastWinner = picks[`${regions[0].name}-3-0`];
-  const westWinner = picks[`${regions[1].name}-3-0`];
   const southWinner = picks[`${regions[2].name}-3-0`];
+  const westWinner = picks[`${regions[1].name}-3-0`];
   const midwestWinner = picks[`${regions[3].name}-3-0`];
 
   const ff0TeamA = eastWinner ? findTeam(regions, eastWinner, firstFour, results) : undefined;
-  const ff0TeamB = westWinner ? findTeam(regions, westWinner, firstFour, results) : undefined;
-  const ff1TeamA = southWinner ? findTeam(regions, southWinner, firstFour, results) : undefined;
+  const ff0TeamB = southWinner ? findTeam(regions, southWinner, firstFour, results) : undefined;
+  const ff1TeamA = westWinner ? findTeam(regions, westWinner, firstFour, results) : undefined;
   const ff1TeamB = midwestWinner ? findTeam(regions, midwestWinner, firstFour, results) : undefined;
 
   const ff0Winner = picks["ff-4-0"];

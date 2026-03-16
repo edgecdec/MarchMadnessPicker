@@ -78,16 +78,16 @@ export function autofillBracket(regions: Region[], mode: Mode, firstFour?: First
     return allTeams.find((t) => t.name === name);
   };
 
-  // ff-4-0: East(0) winner vs West(1) winner
+  // ff-4-0: East(0) winner vs South(2) winner — LEFT side
   if (!picks["ff-4-0"]) {
     const a = picks[`${regions[0].name}-3-0`] && find(picks[`${regions[0].name}-3-0`]);
-    const b = picks[`${regions[1].name}-3-0`] && find(picks[`${regions[1].name}-3-0`]);
+    const b = picks[`${regions[2].name}-3-0`] && find(picks[`${regions[2].name}-3-0`]);
     if (a && b) picks["ff-4-0"] = pickWinner(a, b, mode).name;
   }
 
-  // ff-4-1: South(2) winner vs Midwest(3) winner
+  // ff-4-1: West(1) winner vs Midwest(3) winner — RIGHT side
   if (!picks["ff-4-1"]) {
-    const a = picks[`${regions[2].name}-3-0`] && find(picks[`${regions[2].name}-3-0`]);
+    const a = picks[`${regions[1].name}-3-0`] && find(picks[`${regions[1].name}-3-0`]);
     const b = picks[`${regions[3].name}-3-0`] && find(picks[`${regions[3].name}-3-0`]);
     if (a && b) picks["ff-4-1"] = pickWinner(a, b, mode).name;
   }

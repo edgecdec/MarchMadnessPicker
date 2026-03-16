@@ -91,11 +91,12 @@ function getLoser(
     if (regionName === "ff") {
       if (round === 5) { feederA = "ff-4-0"; feederB = "ff-4-1"; }
       else if (round === 4 && idx === 0) {
-        // East vs West E8 winners — need region names from bracket
-        if (regions) { feederA = `${regions[0].name}-3-0`; feederB = `${regions[1].name}-3-0`; }
+        // East(0) vs South(2) — LEFT side
+        if (regions) { feederA = `${regions[0].name}-3-0`; feederB = `${regions[2].name}-3-0`; }
         else return null;
       } else if (round === 4 && idx === 1) {
-        if (regions) { feederA = `${regions[2].name}-3-0`; feederB = `${regions[3].name}-3-0`; }
+        // West(1) vs Midwest(3) — RIGHT side
+        if (regions) { feederA = `${regions[1].name}-3-0`; feederB = `${regions[3].name}-3-0`; }
         else return null;
       } else return null;
     } else {

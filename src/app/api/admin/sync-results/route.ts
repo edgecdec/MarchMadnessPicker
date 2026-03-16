@@ -130,10 +130,10 @@ function buildGameTeams(
   // Final Four (round 4): E8 winners
   if (regions.length >= 4) {
     const ff0a = results[`${regions[0].name}-3-0`];
-    const ff0b = results[`${regions[1].name}-3-0`];
+    const ff0b = results[`${regions[2].name}-3-0`];
     if (ff0a && ff0b) map.set("ff-4-0", [ff0a, ff0b]);
 
-    const ff1a = results[`${regions[2].name}-3-0`];
+    const ff1a = results[`${regions[1].name}-3-0`];
     const ff1b = results[`${regions[3].name}-3-0`];
     if (ff1a && ff1b) map.set("ff-4-1", [ff1a, ff1b]);
   }
