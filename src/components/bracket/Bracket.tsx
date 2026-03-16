@@ -60,7 +60,10 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   }
 
   // Clear Final Four and Championship if affected
-  for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
+  // But NOT when changing the championship pick itself (ff-5-0) — nothing is downstream of it,
+  // and clearing ff-4-x would remove the opponent from the championship display.
+  const ffGids = gameId === "ff-5-0" ? [] : ["ff-4-0", "ff-4-1", "ff-5-0"];
+  for (const gid of ffGids) {
     if (updated[gid] === oldWinner) delete updated[gid];
   }
 
