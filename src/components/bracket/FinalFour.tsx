@@ -72,37 +72,44 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const champTeamA = ff0Winner ? findTeam(regions, ff0Winner, firstFour, results) : undefined;
   const champTeamB = ff1Winner ? findTeam(regions, ff1Winner, firstFour, results) : undefined;
 
+  const ffWrap = { p: 0.75, borderRadius: 1.5, border: "2px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", transform: "scale(1.06)", transformOrigin: "center" } as const;
+  const champWrap = { p: 1, borderRadius: 2, border: "2px solid rgba(255,215,0,0.45)", background: "linear-gradient(135deg, rgba(255,215,0,0.07), rgba(255,111,0,0.07))", transform: "scale(1.12)", transformOrigin: "center" } as const;
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 160 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 180 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.main" }}>
         Final Four
       </Typography>
-      <Matchup
-        teamA={ff0TeamA}
-        teamB={ff0TeamB}
-        winner={picks["ff-4-0"]}
-        result={results?.["ff-4-0"]}
-        gameScore={gameScores?.["ff-4-0"]}
-        onPick={(team) => onPick("ff-4-0", team)}
-        locked={locked}
-        distribution={distribution?.["ff-4-0"]}
-        eliminated={eliminated}
-      />
-      <Box sx={{ my: 1 }}>
-        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 700, color: "primary.main", mb: 0.5 }}>
-          Championship
-        </Typography>
+      <Box sx={ffWrap}>
         <Matchup
-          teamA={champTeamA}
-          teamB={champTeamB}
-          winner={picks["ff-5-0"]}
-          result={results?.["ff-5-0"]}
-          gameScore={gameScores?.["ff-5-0"]}
-          onPick={(team) => onPick("ff-5-0", team)}
+          teamA={ff0TeamA}
+          teamB={ff0TeamB}
+          winner={picks["ff-4-0"]}
+          result={results?.["ff-4-0"]}
+          gameScore={gameScores?.["ff-4-0"]}
+          onPick={(team) => onPick("ff-4-0", team)}
           locked={locked}
-          distribution={distribution?.["ff-5-0"]}
+          distribution={distribution?.["ff-4-0"]}
           eliminated={eliminated}
         />
+      </Box>
+      <Box sx={{ my: 1 }}>
+        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 800, color: "#FFD700", mb: 0.5, letterSpacing: 0.5, fontSize: "0.8rem" }}>
+          Championship
+        </Typography>
+        <Box sx={champWrap}>
+          <Matchup
+            teamA={champTeamA}
+            teamB={champTeamB}
+            winner={picks["ff-5-0"]}
+            result={results?.["ff-5-0"]}
+            gameScore={gameScores?.["ff-5-0"]}
+            onPick={(team) => onPick("ff-5-0", team)}
+            locked={locked}
+            distribution={distribution?.["ff-5-0"]}
+            eliminated={eliminated}
+          />
+        </Box>
         {picks["ff-5-0"] && (() => {
           const champTeam = findTeam(regions, picks["ff-5-0"], firstFour, results);
           const champName = champTeam?.name || resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results);
@@ -126,17 +133,19 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           );
         })()}
       </Box>
-      <Matchup
-        teamA={ff1TeamA}
-        teamB={ff1TeamB}
-        winner={picks["ff-4-1"]}
-        result={results?.["ff-4-1"]}
-        gameScore={gameScores?.["ff-4-1"]}
-        onPick={(team) => onPick("ff-4-1", team)}
-        locked={locked}
-        distribution={distribution?.["ff-4-1"]}
-        eliminated={eliminated}
-      />
+      <Box sx={ffWrap}>
+        <Matchup
+          teamA={ff1TeamA}
+          teamB={ff1TeamB}
+          winner={picks["ff-4-1"]}
+          result={results?.["ff-4-1"]}
+          gameScore={gameScores?.["ff-4-1"]}
+          onPick={(team) => onPick("ff-4-1", team)}
+          locked={locked}
+          distribution={distribution?.["ff-4-1"]}
+          eliminated={eliminated}
+        />
+      </Box>
     </Box>
   );
 }
