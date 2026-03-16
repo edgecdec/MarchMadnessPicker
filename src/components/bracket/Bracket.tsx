@@ -385,7 +385,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       </Box>
 
       {/* Final Four: absolutely positioned to overlap the seam between top and bottom panes */}
-      <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10, bgcolor: "background.paper", borderRadius: 2 }}>
+      <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10, bgcolor: "background.paper", borderRadius: 3, p: 1 }}>
         <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
       </Box>
       </Box>

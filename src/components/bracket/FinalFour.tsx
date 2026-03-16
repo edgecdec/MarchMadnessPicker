@@ -72,12 +72,23 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const champTeamA = ff0Winner ? findTeam(regions, ff0Winner, firstFour, results) : undefined;
   const champTeamB = ff1Winner ? findTeam(regions, ff1Winner, firstFour, results) : undefined;
 
-  const ffWrap = { p: 0.5, borderRadius: 1, border: "1px solid rgba(255,255,255,0.12)" } as const;
-  const champWrap = { p: 0.5, borderRadius: 1, border: "1px solid rgba(255,215,0,0.3)" } as const;
+  const ffWrap = {
+    p: 1,
+    borderRadius: 2,
+    border: "1.5px solid rgba(144,202,249,0.35)",
+    background: "linear-gradient(135deg, rgba(144,202,249,0.06) 0%, rgba(144,202,249,0.02) 100%)",
+  } as const;
+  const champWrap = {
+    p: 1.5,
+    borderRadius: 2,
+    border: "2px solid rgba(255,215,0,0.5)",
+    background: "linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.02) 100%)",
+    boxShadow: "0 0 12px rgba(255,215,0,0.15)",
+  } as const;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5, minWidth: 160 }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.main" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 180, py: 1 }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", letterSpacing: 1, textTransform: "uppercase", fontSize: "0.75rem" }}>
         Final Four
       </Typography>
       <Box sx={ffWrap}>
@@ -94,8 +105,8 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         />
       </Box>
       <Box sx={{ my: 0.5 }}>
-        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 700, color: "#FFD700", mb: 0.5, fontSize: "0.7rem" }}>
-          Championship
+        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 800, color: "#FFD700", mb: 0.75, fontSize: "0.8rem", letterSpacing: 1, textTransform: "uppercase" }}>
+          🏆 Championship
         </Typography>
         <Box sx={champWrap}>
           <Matchup
@@ -110,7 +121,6 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
             eliminated={eliminated}
           />
         </Box>
-
       </Box>
       <Box sx={ffWrap}>
         <Matchup
