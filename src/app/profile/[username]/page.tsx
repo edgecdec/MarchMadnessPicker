@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Box, Link } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
+import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -18,10 +19,14 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
+  const { tournament } = useTournament();
   const params = useParams();
   const username = params.username as string;
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [error, setError] = useState("");
+  const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
+  const isOwnProfile = user?.username === username;
+  const showTiebreaker = locked || isOwnProfile;
 
   useEffect(() => {
     if (username) {
@@ -76,7 +81,7 @@ export default function ProfilePage() {
                       <TableCell>Bracket</TableCell>
                       {ROUND_LABELS.map((l) => <TableCell key={l} align="right">{l}</TableCell>)}
                       <TableCell align="right">Total</TableCell>
-                      <TableCell align="right">Tiebreaker</TableCell>
+                      {showTiebreaker && <TableCell align="right">Tiebreaker</TableCell>}
                       <TableCell>Submitted</TableCell>
                     </TableRow>
                   </TableHead>
@@ -92,7 +97,7 @@ export default function ProfilePage() {
                           <TableCell key={i} align="right">{s}</TableCell>
                         ))}
                         <TableCell align="right" sx={{ fontWeight: "bold" }}>{b.score}</TableCell>
-                        <TableCell align="right">{b.tiebreaker != null ? b.tiebreaker : "—"}</TableCell>
+                        {showTiebreaker && <TableCell align="right">{b.tiebreaker != null ? b.tiebreaker : "—"}</TableCell>}
                         <TableCell>{new Date(b.submitted_at).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}

@@ -47,6 +47,8 @@ export default function LeaderboardPage() {
     ? Math.round(((leaderboard.length - 1 - userBestRank) / (leaderboard.length - 1)) * 100)
     : null;
 
+  const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
+
   return (
     <>
       <Navbar />
@@ -73,7 +75,7 @@ export default function LeaderboardPage() {
                   <TableCell align="right">Total</TableCell>
                   <TableCell align="right">Max Possible</TableCell>
                   <TableCell align="right">Best Finish</TableCell>
-                  <TableCell align="right">Tiebreaker</TableCell>
+                  {locked && <TableCell align="right">Tiebreaker</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -92,7 +94,7 @@ export default function LeaderboardPage() {
                     <TableCell align="right" sx={{ fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
                     <TableCell align="right">{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
-                    <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>
+                    {locked && <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
