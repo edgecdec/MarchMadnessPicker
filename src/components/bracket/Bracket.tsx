@@ -7,7 +7,7 @@ import FinalFour from "./FinalFour";
 import FirstFour from "./FirstFour";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
-import { TOTAL_GAMES } from "@/lib/bracketData";
+import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed } from "@/lib/bracketData";
 import { autofillBracket } from "@/lib/autofill";
 
 interface Props {
@@ -48,43 +48,38 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   const updated = { ...picks };
   const parts = gameId.split("-");
 
-  // Match helper: handles combined FF names (e.g. "NC State/Texas" matches "NC State" or "Texas")
-  const matches = (pick: string) => pick === oldWinner || (oldWinner.includes("/") && oldWinner.split("/").includes(pick)) || (pick.includes("/") && pick.split("/").includes(oldWinner));
-
   // First Four picks: cascade into the R64 slot and beyond
   if (parts[0] === "ff" && parts[1] === "play") {
     const ffRegion = parts[2];
-    const ffSlot = parseInt(parts[4]);
     // Clear R64 slot and all downstream in that region
     for (let r = 0; r <= 3; r++) {
       const gamesInRound = 8 / Math.pow(2, r);
       for (let i = 0; i < gamesInRound; i++) {
         const gid = `${ffRegion}-${r}-${i}`;
-        if (updated[gid] && matches(updated[gid])) delete updated[gid];
+        if (updated[gid] === oldWinner) delete updated[gid];
       }
     }
     for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
-      if (updated[gid] && matches(updated[gid])) delete updated[gid];
+      if (updated[gid] === oldWinner) delete updated[gid];
     }
     return updated;
   }
 
   const region = parts[0];
   const round = parseInt(parts[1]);
-  const idx = parseInt(parts[2]);
 
   // Clear in subsequent rounds within the region
   for (let r = round + 1; r <= 3; r++) {
     const gamesInRound = 8 / Math.pow(2, r);
     for (let i = 0; i < gamesInRound; i++) {
       const gid = `${region}-${r}-${i}`;
-      if (updated[gid] && matches(updated[gid])) delete updated[gid];
+      if (updated[gid] === oldWinner) delete updated[gid];
     }
   }
 
   // Clear Final Four and Championship if affected
   for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
-    if (updated[gid] && matches(updated[gid])) delete updated[gid];
+    if (updated[gid] === oldWinner) delete updated[gid];
   }
 
   return updated;
@@ -185,18 +180,34 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       if (locked) return;
       setPicks((prev) => {
         let updated = { ...prev };
+        // Determine region-seed identifier for this team
+        const parts = gameId.split("-");
+        let regionSeed: string;
+        if (parts[0] === "ff" && parts[1] === "play") {
+          // First Four play-in: store team name (both teams share same region-seed)
+          regionSeed = team.name;
+        } else if (parts[0] === "ff") {
+          // Final Four / Championship: team's region-seed was propagated from earlier picks
+          // Find the team's region from bracket data
+          const regionName = getTeamRegion(team.name, regions);
+          regionSeed = regionName ? toRegionSeed(regionName, team.seed) : team.name;
+        } else {
+          // Regional game: region is in the gameId
+          regionSeed = toRegionSeed(parts[0], team.seed);
+        }
+
         const oldWinner = updated[gameId];
-        if (oldWinner === team.name) return prev; // same pick, no-op
+        if (oldWinner === regionSeed) return prev; // same pick, no-op
 
         // If changing a pick, cascade-clear downstream
         if (oldWinner) {
           updated = cascadeClear(updated, gameId, oldWinner);
         }
-        updated[gameId] = team.name;
+        updated[gameId] = regionSeed;
         return updated;
       });
     },
-    [locked]
+    [locked, regions]
   );
 
   const handleSave = async () => {
@@ -367,13 +378,13 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
               const winner = picks[`${r.name}-3-0`];
               return (
                 <Typography key={r.name} variant="body2" sx={{ pl: 2 }}>
-                  {r.name}: {winner || "—"}
+                  {r.name}: {winner ? resolveRegionSeed(winner, regions, firstFour, results) : "—"}
                 </Typography>
               );
             })}
             <Typography variant="subtitle2" sx={{ mt: 1 }}>🥇 Champion</Typography>
             <Typography variant="body2" sx={{ pl: 2, fontWeight: 700 }}>
-              {picks["ff-5-0"] || "— (not picked)"}
+              {picks["ff-5-0"] ? resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results) : "— (not picked)"}
             </Typography>
             {tiebreaker && (
               <>

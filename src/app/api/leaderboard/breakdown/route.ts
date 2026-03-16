@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { scorePicksDetailed } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
+import { resolveRegionSeed } from "@/lib/bracketData";
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -29,5 +30,12 @@ export async function GET(req: NextRequest) {
   const bracket = JSON.parse(tournament.bracket_data || "{}");
   const picks = JSON.parse(pickRow.picks_data);
 
-  return NextResponse.json({ details: scorePicksDetailed(picks, results, settings, bracket.regions), settings });
+  return NextResponse.json({
+    details: scorePicksDetailed(picks, results, settings, bracket.regions).map(d => ({
+      ...d,
+      pick: resolveRegionSeed(d.pick, bracket.regions, bracket.first_four, results),
+      result: d.result ? resolveRegionSeed(d.result, bracket.regions, bracket.first_four, results) : null,
+    })),
+    settings,
+  });
 }

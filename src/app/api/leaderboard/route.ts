@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { scorePicks, maxPossibleRemaining, scorePicksByRound, getEliminatedTeams } from "@/lib/scoring";
-import { DEFAULT_SCORING } from "@/types";
+import { DEFAULT_SCORING, BracketData } from "@/types";
 import { autoFillIncompleteBrackets } from "@/lib/autoFillAtLock";
+import { resolveRegionSeed } from "@/lib/bracketData";
 
 export async function GET(req: NextRequest) {
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
@@ -33,10 +34,13 @@ export async function GET(req: NextRequest) {
       const picks = JSON.parse(p.picks_data);
       const score = scorePicks(picks, results, settings, bracket.regions);
       const maxRemaining = maxPossibleRemaining(picks, results, settings);
-      const championPick = picks["ff-5-0"] || null;
+      const championPickRS = picks["ff-5-0"] || null;
+      const championPick = championPickRS ? resolveRegionSeed(championPickRS, bracket.regions, bracket.first_four, results) : null;
       const ffPicks: Record<string, string> = {};
       for (const key of Object.keys(picks)) {
-        if (key.endsWith("-3-0") || key.startsWith("ff-")) ffPicks[key] = picks[key];
+        if (key.endsWith("-3-0") || key.startsWith("ff-")) {
+          ffPicks[key] = resolveRegionSeed(picks[key], bracket.regions, bracket.first_four, results);
+        }
       }
       return {
         username: p.username,
@@ -47,7 +51,7 @@ export async function GET(req: NextRequest) {
         tiebreaker: p.tiebreaker ?? null,
         roundScores: scorePicksByRound(picks, results, settings, bracket.regions),
         championPick,
-        busted: championPick ? eliminated.has(championPick) : false,
+        busted: championPick ? eliminated.has(championPick) || eliminated.has(championPickRS!) : false,
         ffPicks,
       };
     })

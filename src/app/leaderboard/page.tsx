@@ -15,7 +15,7 @@ const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
 
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
-  const { tournament, regions, results, loading: tournLoading } = useTournament();
+  const { tournament, regions, results, firstFour, loading: tournLoading } = useTournament();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownData, setBreakdownData] = useState<{ username: string; bracketName?: string | null; details: PickDetail[] }>({ username: "", details: [] });
@@ -119,7 +119,7 @@ export default function LeaderboardPage() {
         >
           <Box sx={{ p: 1 }}>
             {popoverEntry?.ffPicks && regions && (
-              <MiniBracket regions={regions} picks={popoverEntry.ffPicks} results={results} />
+              <MiniBracket regions={regions} picks={popoverEntry.ffPicks} results={results} firstFour={firstFour} />
             )}
           </Box>
         </Popover>

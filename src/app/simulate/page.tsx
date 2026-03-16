@@ -14,6 +14,7 @@ import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { scorePicks } from "@/lib/scoring";
 import { ScoringSettings, Region, Team, FirstFourGame } from "@/types";
+import { toRegionSeed, getTeamRegion } from "@/lib/bracketData";
 import RegionBracket from "@/components/bracket/RegionBracket";
 import FinalFour from "@/components/bracket/FinalFour";
 import Navbar from "@/components/common/Navbar";
@@ -104,10 +105,21 @@ export default function SimulatePage() {
 
   const pickHypo = useCallback((gameId: string, team: Team) => {
     if (results[gameId]) return; // can't override actual results
+    // Compute region-seed for the team
+    const parts = gameId.split("-");
+    let rs: string;
+    if (parts[0] === "ff" && parts[1] === "play") {
+      rs = team.name; // FF play-in: store team name
+    } else if (parts[0] === "ff") {
+      const regionName = getTeamRegion(team.name, regions);
+      rs = regionName ? toRegionSeed(regionName, team.seed) : team.name;
+    } else {
+      rs = toRegionSeed(parts[0], team.seed);
+    }
     setHypo((prev) => {
       const next = { ...prev };
-      if (next[gameId] === team.name) { delete next[gameId]; }
-      else { next[gameId] = team.name; }
+      if (next[gameId] === rs) { delete next[gameId]; }
+      else { next[gameId] = rs; }
       // Clear downstream games that depended on a different winner
       const ids = regions.length ? allGameIds(regions) : [];
       for (const id of ids) {

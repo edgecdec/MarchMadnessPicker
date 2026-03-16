@@ -1,3 +1,5 @@
+import { Region, FirstFourGame } from "@/types";
+
 // Bracket structure constants
 
 // Standard NCAA bracket matchup order: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
@@ -63,6 +65,54 @@ export function getTeamLogoUrl(teamName: string): string | undefined {
 // Generate a unique game ID for a First Four play-in game
 export function ffGameId(game: { region: string; seed: number; slot: number }): string {
   return `ff-play-${game.region}-${game.seed}-${game.slot}`;
+}
+
+// Convert a team + region name to a region-seed identifier (e.g. "East-1")
+export function toRegionSeed(regionName: string, seed: number): string {
+  return `${regionName}-${seed}`;
+}
+
+// Parse a region-seed identifier back to { region, seed }
+export function parseRegionSeed(rs: string): { region: string; seed: number } | null {
+  const i = rs.lastIndexOf("-");
+  if (i < 0) return null;
+  const region = rs.slice(0, i);
+  const seed = parseInt(rs.slice(i + 1));
+  if (isNaN(seed)) return null;
+  return { region, seed };
+}
+
+// Resolve a region-seed identifier to a display name using bracket data
+// For First Four slots, uses the FF result if available, otherwise shows "TeamA/TeamB"
+export function resolveRegionSeed(
+  rs: string,
+  regions: Region[],
+  firstFour?: FirstFourGame[],
+  ffResults?: Record<string, string>,
+): string {
+  const parsed = parseRegionSeed(rs);
+  if (!parsed) return rs;
+  const region = regions.find(r => r.name === parsed.region);
+  if (!region) return rs;
+  // Check if this seed is a First Four play-in slot
+  if (firstFour) {
+    const ff = firstFour.find(f => f.region === parsed.region && f.seed === parsed.seed);
+    if (ff) {
+      const gid = ffGameId(ff);
+      const resolved = ffResults?.[gid];
+      return resolved || `${ff.teamA}/${ff.teamB}`;
+    }
+  }
+  const team = region.teams.find(t => t.seed === parsed.seed);
+  return team?.name || rs;
+}
+
+// Get the region name for a team from bracket data
+export function getTeamRegion(teamName: string, regions: Region[]): string | null {
+  for (const r of regions) {
+    if (r.teams.some(t => t.name === teamName)) return r.name;
+  }
+  return null;
 }
 
 // Historical NCAA tournament win rates by higher seed in matchup (1985–2024)

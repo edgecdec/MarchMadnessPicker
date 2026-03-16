@@ -158,12 +158,14 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
   const isLive = gameScore?.state === "in";
   const seedTip = getSeedMatchupTip(teamA, teamB);
 
-  // Match helper for FF combined names: "NC State/Texas" matches "Texas"
-  const nameMatch = (a?: string, b?: string) => {
-    if (!a || !b) return false;
-    if (a === b) return true;
-    if (a.includes("/")) return a.split("/").includes(b);
-    if (b.includes("/")) return b.split("/").includes(a);
+  // Match pick/result values against team's regionSeed (preferred) or name (fallback)
+  const teamMatch = (team: Team | undefined, value?: string) => {
+    if (!team || !value) return false;
+    if (team.regionSeed && team.regionSeed === value) return true;
+    // Fallback for legacy name-based values and FF play-in picks
+    if (team.name === value) return true;
+    if (value.includes("/")) return value.split("/").includes(team.name);
+    if (team.name.includes("/")) return team.name.split("/").includes(value);
     return false;
   };
 
@@ -175,25 +177,25 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         </Typography>
       )}
       <TeamSlot
-        team={teamA} isWinner={!!teamA && nameMatch(winner, teamA.name)}
-        isCorrect={!!result && !!teamA && nameMatch(winner, teamA.name) && nameMatch(result, teamA.name)}
-        isWrong={!!result && !!teamA && nameMatch(winner, teamA.name) && !nameMatch(result, teamA.name)}
-        isActualWinner={!!result && !!teamA && nameMatch(result, teamA.name)}
+        team={teamA} isWinner={!!teamA && teamMatch(teamA, winner)}
+        isCorrect={!!result && !!teamA && teamMatch(teamA, winner) && teamMatch(teamA, result)}
+        isWrong={!!result && !!teamA && teamMatch(teamA, winner) && !teamMatch(teamA, result)}
+        isActualWinner={!!result && !!teamA && teamMatch(teamA, result)}
         isEliminated={!!teamA && !!eliminated?.has(teamA.name)}
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} onPickTeam={onPick} locked={locked} position="top"
-        pct={teamA && distribution?.[teamA.name] !== undefined ? distribution[teamA.name] : undefined}
+        pct={teamA && distribution?.[teamA.name] !== undefined ? distribution[teamA.name] : (teamA?.regionSeed && distribution?.[teamA.regionSeed] !== undefined ? distribution[teamA.regionSeed] : undefined)}
         regionColor={regionColor}
       />
       <TeamSlot
-        team={teamB} isWinner={!!teamB && nameMatch(winner, teamB.name)}
-        isCorrect={!!result && !!teamB && nameMatch(winner, teamB.name) && nameMatch(result, teamB.name)}
-        isWrong={!!result && !!teamB && nameMatch(winner, teamB.name) && !nameMatch(result, teamB.name)}
-        isActualWinner={!!result && !!teamB && nameMatch(result, teamB.name)}
+        team={teamB} isWinner={!!teamB && teamMatch(teamB, winner)}
+        isCorrect={!!result && !!teamB && teamMatch(teamB, winner) && teamMatch(teamB, result)}
+        isWrong={!!result && !!teamB && teamMatch(teamB, winner) && !teamMatch(teamB, result)}
+        isActualWinner={!!result && !!teamB && teamMatch(teamB, result)}
         isEliminated={!!teamB && !!eliminated?.has(teamB.name)}
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} onPickTeam={onPick} locked={locked} position="bottom"
-        pct={teamB && distribution?.[teamB.name] !== undefined ? distribution[teamB.name] : undefined}
+        pct={teamB && distribution?.[teamB.name] !== undefined ? distribution[teamB.name] : (teamB?.regionSeed && distribution?.[teamB.regionSeed] !== undefined ? distribution[teamB.regionSeed] : undefined)}
         regionColor={regionColor}
       />
     </Paper>

@@ -2,7 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, REGION_COLORS, parseRegionSeed, toRegionSeed } from "@/lib/bracketData";
 import { ffGameId } from "./FirstFour";
 
 interface Props {
@@ -31,13 +31,17 @@ function getTeamForGame(
     let teamA = region.teams.find((t) => t.seed === pair[0]);
     let teamB = region.teams.find((t) => t.seed === pair[1]);
 
+    // Add regionSeed to teams
+    if (teamA) teamA = { ...teamA, regionSeed: toRegionSeed(region.name, teamA.seed) };
+    if (teamB) teamB = { ...teamB, regionSeed: toRegionSeed(region.name, teamB.seed) };
+
     // Check if either slot is a First Four play-in
     if (firstFour) {
       for (const ff of firstFour) {
         if (ff.region !== region.name || (ff.seed !== pair[0] && ff.seed !== pair[1])) continue;
         const gid = ffGameId(ff);
         const resolved = results?.[gid];
-        const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}` };
+        const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: toRegionSeed(region.name, ff.seed) };
         if (ff.seed === pair[0]) teamA = placeholder;
         else teamB = placeholder;
       }
@@ -45,29 +49,39 @@ function getTeamForGame(
 
     return { teamA, teamB };
   }
-  // Teams come from winners of previous round
+  // Teams come from winners of previous round (picks are now region-seed identifiers)
   const prevA = picks[`${region.name}-${round - 1}-${gameIndex * 2}`];
   const prevB = picks[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
-  const findTeam = (name: string): Team | undefined => {
-    const direct = region.teams.find((t) => t.name === name);
-    if (direct) return direct;
-    // Handle First Four combined names (e.g. "NC State/Texas")
-    if (name.includes("/") && firstFour) {
-      const ff = firstFour.find((ff) => ff.region === region.name && `${ff.teamA}/${ff.teamB}` === name);
+  const resolveTeam = (rs: string): Team | undefined => {
+    const parsed = parseRegionSeed(rs);
+    if (parsed) {
+      const rsId = toRegionSeed(parsed.region, parsed.seed);
+      // Check if this seed is a First Four play-in slot
+      if (firstFour) {
+        const ff = firstFour.find(f => f.region === parsed.region && f.seed === parsed.seed);
+        if (ff) {
+          const resolved = results?.[ffGameId(ff)];
+          return { seed: parsed.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: rsId };
+        }
+      }
+      const team = region.teams.find(t => t.seed === parsed.seed);
+      if (team) return { ...team, regionSeed: rsId };
+    }
+    // Fallback: try direct name match (for FF play-in picks stored as team names)
+    const direct = region.teams.find(t => t.name === rs);
+    if (direct) return { ...direct, regionSeed: toRegionSeed(region.name, direct.seed) };
+    if (rs.includes("/") && firstFour) {
+      const ff = firstFour.find(f => f.region === region.name && `${f.teamA}/${f.teamB}` === rs);
       if (ff) {
         const resolved = results?.[ffGameId(ff)];
-        return { seed: ff.seed, name: resolved || name };
+        return { seed: ff.seed, name: resolved || rs, regionSeed: toRegionSeed(region.name, ff.seed) };
       }
-    }
-    if (firstFour) {
-      const ff = firstFour.find((ff) => ff.region === region.name && (ff.teamA === name || ff.teamB === name));
-      if (ff) return { seed: ff.seed, name };
     }
     return undefined;
   };
   return {
-    teamA: prevA ? findTeam(prevA) : undefined,
-    teamB: prevB ? findTeam(prevB) : undefined,
+    teamA: prevA ? resolveTeam(prevA) : undefined,
+    teamB: prevB ? resolveTeam(prevB) : undefined,
   };
 }
 

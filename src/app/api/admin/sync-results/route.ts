@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { BracketData, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, toRegionSeed } from "@/lib/bracketData";
 
 const ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
 
@@ -73,12 +73,22 @@ function matchEspnName(espnName: string, ourTeams: Record<string, string>): stri
 }
 
 // Build a map of which two teams play in each possible game
+// Returns team NAMES for matching against ESPN data
 function buildGameTeams(
   bracketData: BracketData,
   results: Record<string, string>,
 ): Map<string, [string, string]> {
   const map = new Map<string, [string, string]>();
   const regions = bracketData.regions;
+
+  // Build region-seed -> name lookup
+  const rsToName: Record<string, string> = {};
+  for (const r of regions) {
+    for (const t of r.teams) {
+      rsToName[`${r.name}-${t.seed}`] = t.name;
+    }
+  }
+  const resolveName = (val: string): string => rsToName[val] || val;
 
   // First Four games
   if (bracketData.first_four) {
@@ -101,7 +111,7 @@ function buildGameTeams(
         for (const ff of bracketData.first_four) {
           if (ff.region === region.name && (ff.seed === pair[0] || ff.seed === pair[1])) {
             const ffGid = `ff-play-${ff.region}-${ff.seed}-${ff.slot}`;
-            const ffWinner = results[ffGid];
+            const ffWinner = results[ffGid]; // FF play-in results are team names
             if (ffWinner) {
               if (ff.seed === pair[0]) teamA = ffWinner;
               else teamB = ffWinner;
@@ -114,14 +124,16 @@ function buildGameTeams(
     }
   }
 
-  // Rounds 1-3 (R32, S16, E8) — teams come from previous round winners
+  // Rounds 1-3 — results are now region-seed, resolve to names
   for (const region of regions) {
     for (let round = 1; round <= 3; round++) {
       const count = 8 / Math.pow(2, round);
       for (let i = 0; i < count; i++) {
         const gid = `${region.name}-${round}-${i}`;
-        const teamA = results[`${region.name}-${round - 1}-${i * 2}`];
-        const teamB = results[`${region.name}-${round - 1}-${i * 2 + 1}`];
+        const rawA = results[`${region.name}-${round - 1}-${i * 2}`];
+        const rawB = results[`${region.name}-${round - 1}-${i * 2 + 1}`];
+        const teamA = rawA ? resolveName(rawA) : undefined;
+        const teamB = rawB ? resolveName(rawB) : undefined;
         if (teamA && teamB) map.set(gid, [teamA, teamB]);
       }
     }
@@ -131,17 +143,17 @@ function buildGameTeams(
   if (regions.length >= 4) {
     const ff0a = results[`${regions[0].name}-3-0`];
     const ff0b = results[`${regions[2].name}-3-0`];
-    if (ff0a && ff0b) map.set("ff-4-0", [ff0a, ff0b]);
+    if (ff0a && ff0b) map.set("ff-4-0", [resolveName(ff0a), resolveName(ff0b)]);
 
     const ff1a = results[`${regions[1].name}-3-0`];
     const ff1b = results[`${regions[3].name}-3-0`];
-    if (ff1a && ff1b) map.set("ff-4-1", [ff1a, ff1b]);
+    if (ff1a && ff1b) map.set("ff-4-1", [resolveName(ff1a), resolveName(ff1b)]);
   }
 
   // Championship (round 5)
   const chA = results["ff-4-0"];
   const chB = results["ff-4-1"];
-  if (chA && chB) map.set("ff-5-0", [chA, chB]);
+  if (chA && chB) map.set("ff-5-0", [resolveName(chA), resolveName(chB)]);
 
   return map;
 }
@@ -158,6 +170,20 @@ export async function POST(req: NextRequest) {
   const results: Record<string, string> = JSON.parse(tournament.results_data || "{}");
   const ourTeams = buildEspnIdToName(bracketData);
   const gameTeams = buildGameTeams(bracketData, results);
+
+  // Build name -> region-seed lookup
+  const nameToRS: Record<string, string> = {};
+  for (const r of bracketData.regions) {
+    for (const t of r.teams) {
+      nameToRS[t.name] = toRegionSeed(r.name, t.seed);
+    }
+  }
+  if (bracketData.first_four) {
+    for (const ff of bracketData.first_four) {
+      nameToRS[ff.teamA] = toRegionSeed(ff.region, ff.seed);
+      nameToRS[ff.teamB] = toRegionSeed(ff.region, ff.seed);
+    }
+  }
 
   // Fetch ESPN scoreboard for multiple dates (First Four through Championship)
   // Fetch without date to get current/recent games, plus we can pass date ranges
@@ -218,9 +244,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (foundGameId && !results[foundGameId]) {
-      results[foundGameId] = winnerName;
+      // For First Four play-in games, store team name; for bracket games, store region-seed
+      if (foundGameId.startsWith("ff-play-")) {
+        results[foundGameId] = winnerName;
+      } else {
+        results[foundGameId] = nameToRS[winnerName] || winnerName;
+      }
       updated++;
-      matched.push(`${foundGameId}: ${winnerName}`);
+      matched.push(`${foundGameId}: ${results[foundGameId]}`);
 
       // Rebuild game teams map since new results may unlock later rounds
       const newGameTeams = buildGameTeams(bracketData, results);

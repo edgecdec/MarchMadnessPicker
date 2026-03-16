@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { BracketData, Region } from "@/types";
-import { SEED_ORDER_PAIRS } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, resolveRegionSeed, parseRegionSeed } from "@/lib/bracketData";
 
 export async function GET(req: NextRequest) {
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
@@ -41,18 +41,17 @@ export async function GET(req: NextRequest) {
   for (const row of rows) {
     const picks = JSON.parse(row.picks_data) as Record<string, string>;
 
-    // Champion
-    const champ = picks["ff-5-0"];
+    // Champion — resolve region-seed to name
+    const champRS = picks["ff-5-0"];
+    const champ = champRS ? resolveRegionSeed(champRS, regions, bracket.first_four) : undefined;
     if (champ) championCounts[champ] = (championCounts[champ] || 0) + 1;
 
-    // Chalk score: for each pick, if the picked team has a lower seed number, +1 (chalk)
-    // Higher seed number = upset pick
+    // Chalk score: for each pick, resolve to seed number
     let chalkScore = 0;
-    for (const [gameId, team] of Object.entries(picks)) {
-      const s = seedMap[team];
+    for (const [gameId, val] of Object.entries(picks)) {
+      const parsed = parseRegionSeed(val);
+      const s = parsed ? parsed.seed : seedMap[val];
       if (s !== undefined) {
-        // Lower seed number = more chalk. We invert: chalk score += (17 - seed)
-        // so picking all 1-seeds = high chalk score
         chalkScore += 17 - s;
       }
     }
@@ -61,15 +60,17 @@ export async function GET(req: NextRequest) {
 
   // Find biggest upset picked: the pick with highest seed number that appears in later rounds
   // Look for the highest-seeded team picked to win in the latest round
-  const upsetPicks: Record<string, { seed: number; round: number; count: number }> = {};
+  const upsetPicks: Record<string, { seed: number; round: number; count: number; name: string }> = {};
   for (const row of rows) {
     const picks = JSON.parse(row.picks_data) as Record<string, string>;
-    for (const [gameId, team] of Object.entries(picks)) {
+    for (const [gameId, val] of Object.entries(picks)) {
       const round = parseInt(gameId.split("-")[1]) || 0;
-      const seed = seedMap[team];
-      if (seed === undefined || seed <= 4) continue; // only count real upsets
-      const key = `${team}-R${round}`;
-      if (!upsetPicks[key]) upsetPicks[key] = { seed, round, count: 0 };
+      const parsed = parseRegionSeed(val);
+      const seed = parsed ? parsed.seed : seedMap[val];
+      if (seed === undefined || seed <= 4) continue;
+      const name = parsed ? resolveRegionSeed(val, regions, bracket.first_four) : val;
+      const key = `${val}-R${round}`;
+      if (!upsetPicks[key]) upsetPicks[key] = { seed, round, count: 0, name };
       upsetPicks[key].count++;
     }
   }
@@ -92,7 +93,7 @@ export async function GET(req: NextRequest) {
       totalBrackets,
       champions,
       biggestUpset: topUpset ? {
-        team: topUpset[0].split("-R")[0],
+        team: topUpset[1].name,
         seed: topUpset[1].seed,
         round: topUpset[1].round,
         count: topUpset[1].count,

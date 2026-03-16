@@ -136,6 +136,9 @@ function initDb(db: Database.Database) {
     const ins = db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, 'everyone')");
     for (const row of unassigned) ins.run(row.id);
   } catch {}
+
+  // Migrate picks and results from team names to region-seed identifiers
+  migrateToRegionSeed(db);
 }
 
 export function ensureEveryoneGroup(db: Database.Database): string {
@@ -159,4 +162,71 @@ export function joinEveryoneGroup(db: Database.Database, userId: string) {
 
 export function autoAssignBracketToEveryone(db: Database.Database, pickId: string) {
   db.prepare("INSERT OR IGNORE INTO bracket_group_assignments (pick_id, group_id) VALUES (?, 'everyone')").run(pickId);
+}
+
+// Migrate picks and results from team-name values to region-seed identifiers
+function migrateToRegionSeed(db: Database.Database) {
+  try {
+    const tournaments = db.prepare("SELECT id, bracket_data, results_data FROM tournaments").all() as any[];
+    for (const t of tournaments) {
+      const bracket = JSON.parse(t.bracket_data || "{}");
+      if (!bracket.regions?.length) continue;
+
+      // Build name -> region-seed map
+      const nameToRS: Record<string, string> = {};
+      for (const r of bracket.regions) {
+        for (const team of r.teams) {
+          nameToRS[team.name] = `${r.name}-${team.seed}`;
+        }
+      }
+      if (bracket.first_four) {
+        for (const ff of bracket.first_four) {
+          nameToRS[ff.teamA] = `${ff.region}-${ff.seed}`;
+          nameToRS[ff.teamB] = `${ff.region}-${ff.seed}`;
+        }
+      }
+
+      // Migrate results
+      const results = JSON.parse(t.results_data || "{}");
+      let resultsChanged = false;
+      for (const [gid, val] of Object.entries(results)) {
+        if (gid.startsWith("ff-play-")) continue; // FF play-in results stay as team names
+        const v = val as string;
+        if (nameToRS[v]) {
+          results[gid] = nameToRS[v];
+          resultsChanged = true;
+        }
+      }
+      if (resultsChanged) {
+        db.prepare("UPDATE tournaments SET results_data = ? WHERE id = ?").run(JSON.stringify(results), t.id);
+      }
+
+      // Migrate picks
+      const allPicks = db.prepare("SELECT id, picks_data FROM picks WHERE tournament_id = ?").all(t.id) as any[];
+      const updatePick = db.prepare("UPDATE picks SET picks_data = ? WHERE id = ?");
+      for (const p of allPicks) {
+        const picks = JSON.parse(p.picks_data || "{}");
+        let changed = false;
+        for (const [gid, val] of Object.entries(picks)) {
+          if (gid.startsWith("ff-play-")) continue; // FF play-in picks stay as team names
+          const v = val as string;
+          if (nameToRS[v]) {
+            picks[gid] = nameToRS[v];
+            changed = true;
+          }
+          // Handle combined FF names like "NC State/Texas"
+          if (v.includes("/") && !nameToRS[v]) {
+            const parts = v.split("/");
+            if (nameToRS[parts[0]]) {
+              picks[gid] = nameToRS[parts[0]]; // Both map to same region-seed
+              changed = true;
+            }
+          }
+        }
+        if (changed) updatePick.run(JSON.stringify(picks), p.id);
+      }
+    }
+  } catch (e) {
+    console.error("migrateToRegionSeed error:", e);
+  }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
+import { resolveRegionSeed } from "@/lib/bracketData";
 
 export async function GET(req: NextRequest) {
   const user = await getUser();
@@ -13,6 +14,11 @@ export async function GET(req: NextRequest) {
   const db = getDb();
   const tournament = db.prepare("SELECT lock_time, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
+
+  const bracket = JSON.parse(tournament.bracket_data || "{}");
+  const results = JSON.parse(
+    (db.prepare("SELECT results_data FROM tournaments WHERE id = ?").get(tournamentId) as any)?.results_data || "{}"
+  );
 
   // Only show after lock
   if (!tournament.lock_time || new Date(tournament.lock_time) > new Date()) {
@@ -37,8 +43,10 @@ export async function GET(req: NextRequest) {
   for (const m of members) {
     if (!m.picks_data) continue;
     const picks = JSON.parse(m.picks_data) as Record<string, string>;
-    for (const [gameId, team] of Object.entries(picks)) {
+    for (const [gameId, val] of Object.entries(picks)) {
       if (!games[gameId]) games[gameId] = {};
+      // Resolve region-seed to team name for display
+      const team = resolveRegionSeed(val, bracket.regions || [], bracket.first_four, results);
       if (!games[gameId][team]) games[gameId][team] = { count: 0, users: [] };
       games[gameId][team].count++;
       games[gameId][team].users.push({ username: m.username, bracket_name: m.bracket_name || null });

@@ -1,12 +1,13 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import { Region } from "@/types";
-import { getTeamLogoUrl } from "@/lib/bracketData";
+import { Region, FirstFourGame } from "@/types";
+import { getTeamLogoUrl, resolveRegionSeed, parseRegionSeed } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
   picks: Record<string, string>;
   results?: Record<string, string>;
+  firstFour?: FirstFourGame[];
 }
 
 function MiniTeam({ name, seed, result, bold }: { name?: string; seed?: number; result?: string; bold?: boolean }) {
@@ -23,38 +24,44 @@ function MiniTeam({ name, seed, result, bold }: { name?: string; seed?: number; 
   );
 }
 
-function findSeed(regions: Region[], name: string): number | undefined {
-  for (const r of regions) { const t = r.teams.find(t => t.name === name); if (t) return t.seed; }
+function findSeed(regions: Region[], nameOrRS: string): number | undefined {
+  const parsed = parseRegionSeed(nameOrRS);
+  if (parsed) return parsed.seed;
+  for (const r of regions) { const t = r.teams.find(t => t.name === nameOrRS); if (t) return t.seed; }
 }
 
-export default function MiniBracket({ regions, picks, results }: Props) {
+export default function MiniBracket({ regions, picks, results, firstFour }: Props) {
+  const resolve = (val?: string) => val ? resolveRegionSeed(val, regions, firstFour, results) : undefined;
   const ff = [
-    picks[`${regions[0].name}-3-0`],
-    picks[`${regions[1].name}-3-0`],
-    picks[`${regions[2].name}-3-0`],
-    picks[`${regions[3].name}-3-0`],
+    resolve(picks[`${regions[0].name}-3-0`]),
+    resolve(picks[`${regions[1].name}-3-0`]),
+    resolve(picks[`${regions[2].name}-3-0`]),
+    resolve(picks[`${regions[3].name}-3-0`]),
   ];
-  const ffWinners = [picks["ff-4-0"], picks["ff-4-1"]];
-  const champ = picks["ff-5-0"];
+  const ffRaw = [picks[`${regions[0].name}-3-0`], picks[`${regions[1].name}-3-0`], picks[`${regions[2].name}-3-0`], picks[`${regions[3].name}-3-0`]];
+  const ffWinners = [resolve(picks["ff-4-0"]), resolve(picks["ff-4-1"])];
+  const ffWinnersRaw = [picks["ff-4-0"], picks["ff-4-1"]];
+  const champ = resolve(picks["ff-5-0"]);
+  const champResult = results?.["ff-5-0"] ? resolve(results["ff-5-0"]) : undefined;
 
   return (
     <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, p: 0.5, border: "1px solid", borderColor: "divider", borderRadius: 1, background: "rgba(0,0,0,0.15)" }}>
       {/* Semis */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
         <Box sx={{ border: "1px solid #333", borderRadius: 0.5 }}>
-          <MiniTeam name={ff[0]} seed={ff[0] ? findSeed(regions, ff[0]) : undefined} result={results?.["ff-4-0"]} bold={ffWinners[0] === ff[0] && !!ff[0]} />
-          <MiniTeam name={ff[1]} seed={ff[1] ? findSeed(regions, ff[1]) : undefined} result={results?.["ff-4-0"]} bold={ffWinners[0] === ff[1] && !!ff[1]} />
+          <MiniTeam name={ff[0]} seed={ff[0] ? findSeed(regions, ffRaw[0]) : undefined} result={results?.["ff-4-0"] ? resolve(results["ff-4-0"]) : undefined} bold={ffWinnersRaw[0] === ffRaw[0] && !!ff[0]} />
+          <MiniTeam name={ff[1]} seed={ff[1] ? findSeed(regions, ffRaw[1]) : undefined} result={results?.["ff-4-0"] ? resolve(results["ff-4-0"]) : undefined} bold={ffWinnersRaw[0] === ffRaw[1] && !!ff[1]} />
         </Box>
         <Box sx={{ border: "1px solid #333", borderRadius: 0.5 }}>
-          <MiniTeam name={ff[2]} seed={ff[2] ? findSeed(regions, ff[2]) : undefined} result={results?.["ff-4-1"]} bold={ffWinners[1] === ff[2] && !!ff[2]} />
-          <MiniTeam name={ff[3]} seed={ff[3] ? findSeed(regions, ff[3]) : undefined} result={results?.["ff-4-1"]} bold={ffWinners[1] === ff[3] && !!ff[3]} />
+          <MiniTeam name={ff[2]} seed={ff[2] ? findSeed(regions, ffRaw[2]) : undefined} result={results?.["ff-4-1"] ? resolve(results["ff-4-1"]) : undefined} bold={ffWinnersRaw[1] === ffRaw[2] && !!ff[2]} />
+          <MiniTeam name={ff[3]} seed={ff[3] ? findSeed(regions, ffRaw[3]) : undefined} result={results?.["ff-4-1"] ? resolve(results["ff-4-1"]) : undefined} bold={ffWinnersRaw[1] === ffRaw[3] && !!ff[3]} />
         </Box>
       </Box>
       {/* Championship */}
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25 }}>
         <Box sx={{ border: "1px solid #333", borderRadius: 0.5 }}>
-          <MiniTeam name={ffWinners[0]} seed={ffWinners[0] ? findSeed(regions, ffWinners[0]) : undefined} result={results?.["ff-5-0"]} bold={champ === ffWinners[0] && !!ffWinners[0]} />
-          <MiniTeam name={ffWinners[1]} seed={ffWinners[1] ? findSeed(regions, ffWinners[1]) : undefined} result={results?.["ff-5-0"]} bold={champ === ffWinners[1] && !!ffWinners[1]} />
+          <MiniTeam name={ffWinners[0]} seed={ffWinners[0] ? findSeed(regions, ffWinnersRaw[0]) : undefined} result={champResult} bold={picks["ff-5-0"] === ffWinnersRaw[0] && !!ffWinners[0]} />
+          <MiniTeam name={ffWinners[1]} seed={ffWinners[1] ? findSeed(regions, ffWinnersRaw[1]) : undefined} result={champResult} bold={picks["ff-5-0"] === ffWinnersRaw[1] && !!ffWinners[1]} />
         </Box>
       </Box>
       {/* Champion */}

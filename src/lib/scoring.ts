@@ -1,22 +1,18 @@
 import { ScoringSettings, DEFAULT_SCORING, Region } from "@/types";
+import { parseRegionSeed } from "@/lib/bracketData";
 
 const DEFAULT_POINTS = [1, 2, 4, 8, 16, 32];
 
-// Check if a pick matches a result, accounting for First Four combined names
-// A pick of "TeamA/TeamB" matches a result of either "TeamA" or "TeamB"
-function pickMatches(pick: string | undefined, result: string): boolean {
+// Check if a pick matches a result
+// Both should be region-seed identifiers (e.g. "East-1") for bracket games,
+// or team names for First Four play-in games.
+// Also handles legacy name-based picks for backward compatibility.
+function pickMatches(pick: string | undefined, result: string, seedMap?: Record<string, { region: string; seed: number }>): boolean {
   if (!pick) return false;
   if (pick === result) return true;
+  // Legacy: combined FF name "TeamA/TeamB" matches either team
   if (pick.includes("/")) return pick.split("/").includes(result);
   return false;
-}
-
-// Resolve a pick: if it's a combined FF name and the result is known, return the actual team name
-function resolvePick(pick: string | undefined, gameId: string, results: Record<string, string>): string | undefined {
-  if (!pick) return pick;
-  const result = results[gameId];
-  if (result && pick.includes("/") && pick.split("/").includes(result)) return result;
-  return pick;
 }
 
 export function scorePicks(
@@ -28,12 +24,14 @@ export function scorePicks(
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
   const bonus = settings?.upsetBonusPerRound ?? [0, 0, 0, 0, 0, 0];
 
-  // Build seed lookup from regions
-  const seedMap: Record<string, number> = {};
+  // Build seed lookup: region-seed -> seed number, and team name -> seed number
+  const seedFromRS: Record<string, number> = {};
+  const seedFromName: Record<string, number> = {};
   if (regions) {
     for (const r of regions) {
       for (const t of r.teams) {
-        seedMap[t.name] = t.seed;
+        seedFromRS[`${r.name}-${t.seed}`] = t.seed;
+        seedFromName[t.name] = t.seed;
       }
     }
   }
@@ -45,14 +43,14 @@ export function scorePicks(
     const round = parseInt(gameId.split("-")[1]) || 0;
     score += pts[round] || 0;
 
-    // Upset bonus: if winner has a higher seed number (worse seed) than loser
-    if (bonus[round] > 0 && Object.keys(seedMap).length > 0) {
+    // Upset bonus
+    if (bonus[round] > 0 && regions) {
       const loser = getLoser(gameId, winner, picks, results, regions);
-      if (loser && seedMap[winner] && seedMap[loser]) {
-        const diff = seedMap[winner] - seedMap[loser];
-        if (diff > 0) {
-          score += bonus[round] * diff;
-        }
+      const winnerSeed = seedFromRS[winner] ?? seedFromName[winner];
+      const loserSeed = loser ? (seedFromRS[loser] ?? seedFromName[loser]) : undefined;
+      if (winnerSeed && loserSeed) {
+        const diff = winnerSeed - loserSeed;
+        if (diff > 0) score += bonus[round] * diff;
       }
     }
   }
@@ -67,8 +65,6 @@ function getLoser(
   results: Record<string, string>,
   regions?: Region[],
 ): string | null {
-  // For R64 games, we can derive both teams from the bracket structure
-  // For later rounds, the two teams are the winners of the two feeder games
   const parts = gameId.split("-");
   const regionName = parts[0];
   const round = parseInt(parts[1]);
@@ -80,6 +76,12 @@ function getLoser(
     const region = regions.find((r) => r.name === regionName);
     if (region) {
       const pair = SEED_ORDER_PAIRS[idx];
+      // Build region-seed identifiers for both teams
+      const rsA = `${regionName}-${pair[0]}`;
+      const rsB = `${regionName}-${pair[1]}`;
+      if (winner === rsA) return rsB;
+      if (winner === rsB) return rsA;
+      // Fallback: name-based matching
       const teamA = region.teams.find((t) => t.seed === pair[0]);
       const teamB = region.teams.find((t) => t.seed === pair[1]);
       if (teamA?.name === winner) return teamB?.name || null;
@@ -91,11 +93,9 @@ function getLoser(
     if (regionName === "ff") {
       if (round === 5) { feederA = "ff-4-0"; feederB = "ff-4-1"; }
       else if (round === 4 && idx === 0) {
-        // East(0) vs South(2) — LEFT side
         if (regions) { feederA = `${regions[0].name}-3-0`; feederB = `${regions[2].name}-3-0`; }
         else return null;
       } else if (round === 4 && idx === 1) {
-        // West(1) vs Midwest(3) — RIGHT side
         if (regions) { feederA = `${regions[1].name}-3-0`; feederB = `${regions[3].name}-3-0`; }
         else return null;
       } else return null;
@@ -121,11 +121,13 @@ export function scorePicksByRound(
   const bonus = settings?.upsetBonusPerRound ?? [0, 0, 0, 0, 0, 0];
   const scores = [0, 0, 0, 0, 0, 0];
 
-  const seedMap: Record<string, number> = {};
+  const seedFromRS: Record<string, number> = {};
+  const seedFromName: Record<string, number> = {};
   if (regions) {
     for (const r of regions) {
       for (const t of r.teams) {
-        seedMap[t.name] = t.seed;
+        seedFromRS[`${r.name}-${t.seed}`] = t.seed;
+        seedFromName[t.name] = t.seed;
       }
     }
   }
@@ -135,10 +137,12 @@ export function scorePicksByRound(
     const round = parseInt(gameId.split("-")[1]) || 0;
     if (round >= 0 && round < 6) {
       scores[round] += pts[round] || 0;
-      if (bonus[round] > 0 && Object.keys(seedMap).length > 0) {
+      if (bonus[round] > 0 && regions) {
         const loser = getLoser(gameId, winner, picks, results, regions);
-        if (loser && seedMap[winner] && seedMap[loser]) {
-          const diff = seedMap[winner] - seedMap[loser];
+        const winnerSeed = seedFromRS[winner] ?? seedFromName[winner];
+        const loserSeed = loser ? (seedFromRS[loser] ?? seedFromName[loser]) : undefined;
+        if (winnerSeed && loserSeed) {
+          const diff = winnerSeed - loserSeed;
           if (diff > 0) scores[round] += bonus[round] * diff;
         }
       }
@@ -169,7 +173,7 @@ export function maxPossibleRemaining(
     if (results[gameId]) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
     // R64 teams are always still alive if game undecided; later rounds require a prior win
-    const alive = round === 0 || winners.has(pickedTeam) || (pickedTeam.includes("/") && pickedTeam.split("/").some(t => winners.has(t)));
+    const alive = round === 0 || winners.has(pickedTeam);
     if (alive) {
       remaining += pts[round] || 0;
     }
@@ -181,7 +185,7 @@ export function getRoundName(round: number): string {
   return ["Round of 64", "Round of 32", "Sweet 16", "Elite 8", "Final Four", "Championship"][round] || "";
 }
 
-// Build set of eliminated team names from results
+// Build set of eliminated team identifiers (region-seed or name) from results
 export function getEliminatedTeams(
   results: Record<string, string>,
   regions?: Region[],
@@ -189,7 +193,18 @@ export function getEliminatedTeams(
   const eliminated = new Set<string>();
   for (const [gameId, winner] of Object.entries(results)) {
     const loser = getLoser(gameId, winner, {}, results, regions);
-    if (loser) eliminated.add(loser);
+    if (loser) {
+      eliminated.add(loser);
+      // Also add the team name for display-level checks
+      if (regions) {
+        const parsed = parseRegionSeed(loser);
+        if (parsed) {
+          const region = regions.find(r => r.name === parsed.region);
+          const team = region?.teams.find(t => t.seed === parsed.seed);
+          if (team) eliminated.add(team.name);
+        }
+      }
+    }
   }
   return eliminated;
 }
@@ -212,8 +227,12 @@ export function scorePicksDetailed(
 ): PickDetail[] {
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
   const bonus = settings?.upsetBonusPerRound ?? [0, 0, 0, 0, 0, 0];
-  const seedMap: Record<string, number> = {};
-  if (regions) for (const r of regions) for (const t of r.teams) seedMap[t.name] = t.seed;
+  const seedFromRS: Record<string, number> = {};
+  const seedFromName: Record<string, number> = {};
+  if (regions) for (const r of regions) for (const t of r.teams) {
+    seedFromRS[`${r.name}-${t.seed}`] = t.seed;
+    seedFromName[t.name] = t.seed;
+  }
 
   const details: PickDetail[] = [];
   for (const [gameId, pick] of Object.entries(picks)) {
@@ -223,10 +242,12 @@ export function scorePicksDetailed(
     let base = 0, upsetB = 0;
     if (correct) {
       base = pts[round] || 0;
-      if (bonus[round] > 0 && Object.keys(seedMap).length > 0) {
-        const loser = getLoser(gameId, pick, picks, results, regions);
-        if (loser && seedMap[pick] && seedMap[loser]) {
-          const diff = seedMap[pick] - seedMap[loser];
+      if (bonus[round] > 0 && regions) {
+        const loser = getLoser(gameId, result, picks, results, regions);
+        const winnerSeed = seedFromRS[result] ?? seedFromName[result];
+        const loserSeed = loser ? (seedFromRS[loser] ?? seedFromName[loser]) : undefined;
+        if (winnerSeed && loserSeed) {
+          const diff = winnerSeed - loserSeed;
           if (diff > 0) upsetB = bonus[round] * diff;
         }
       }

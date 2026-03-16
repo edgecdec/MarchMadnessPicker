@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { scorePicks, maxPossibleRemaining, getEliminatedTeams } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
+import { resolveRegionSeed } from "@/lib/bracketData";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
@@ -37,10 +38,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const leaderboard = members
     .map((m) => {
       const picks = m.picks_data ? JSON.parse(m.picks_data) : {};
-      const championPick = picks["ff-5-0"] || null;
+      const championPickRS = picks["ff-5-0"] || null;
+      const championPick = championPickRS ? resolveRegionSeed(championPickRS, bracket.regions, bracket.first_four, results) : null;
       const ffPicks: Record<string, string> = {};
       for (const key of Object.keys(picks)) {
-        if (key.endsWith("-3-0") || key.startsWith("ff-")) ffPicks[key] = picks[key];
+        if (key.endsWith("-3-0") || key.startsWith("ff-")) {
+          ffPicks[key] = resolveRegionSeed(picks[key], bracket.regions, bracket.first_four, results);
+        }
       }
       return {
         username: m.username,
@@ -51,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         has_picks: !!m.picks_data,
         tiebreaker: m.tiebreaker ?? null,
         championPick,
-        busted: championPick ? eliminated.has(championPick) : false,
+        busted: championPick ? eliminated.has(championPick) || (championPickRS ? eliminated.has(championPickRS) : false) : false,
         ffPicks,
       };
     })

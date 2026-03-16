@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { LeaderboardEntry, Team, Region, GameScore, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, parseRegionSeed, toRegionSeed, resolveRegionSeed } from "@/lib/bracketData";
 import { ffGameId } from "@/components/bracket/FirstFour";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -32,7 +32,7 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
   return (
     <Box sx={{ my: 0.25 }}>
       {[teamA, teamB].map((team, ti) => {
-        const isResult = !!result && !!team && result === team.name;
+        const isResult = !!result && !!team && (result === team.name || (team.regionSeed && result === team.regionSeed));
         return (
           <Box key={ti} sx={{
             display: "flex", alignItems: "center", gap: 0.5, px: 0.75, py: 0.25, minWidth: 140, minHeight: 22,
@@ -48,9 +48,13 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
               <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isResult ? 700 : 400, flexGrow: 1 }}>{team.name}</Typography>
               {isResult && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
               <Box sx={{ display: "flex", gap: 0.25 }}>
-                {selected.map((s, i) => allPicks[s.key]?.[gameId] === team.name ? (
-                  <Box key={i} sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: USER_COLORS[i], flexShrink: 0 }} title={s.label} />
-                ) : null)}
+                {selected.map((s, i) => {
+                  const pick = allPicks[s.key]?.[gameId];
+                  const matches = pick && team && (pick === team.name || (team.regionSeed && pick === team.regionSeed));
+                  return matches ? (
+                    <Box key={i} sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: USER_COLORS[i], flexShrink: 0 }} title={s.label} />
+                  ) : null;
+                })}
               </Box>
             </>) : (
               <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
@@ -67,12 +71,14 @@ function getTeamForGame(region: Region, round: number, gameIndex: number, picks:
     const pair = SEED_ORDER_PAIRS[gameIndex];
     let teamA = region.teams.find(t => t.seed === pair[0]);
     let teamB = region.teams.find(t => t.seed === pair[1]);
+    if (teamA) teamA = { ...teamA, regionSeed: toRegionSeed(region.name, teamA.seed) };
+    if (teamB) teamB = { ...teamB, regionSeed: toRegionSeed(region.name, teamB.seed) };
     if (firstFour) {
       for (const ff of firstFour) {
         if (ff.region !== region.name || (ff.seed !== pair[0] && ff.seed !== pair[1])) continue;
         const gid = ffGameId(ff);
         const resolved = results?.[gid];
-        const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}` };
+        const placeholder: Team = { seed: ff.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: toRegionSeed(region.name, ff.seed) };
         if (ff.seed === pair[0]) teamA = placeholder; else teamB = placeholder;
       }
     }
@@ -80,19 +86,47 @@ function getTeamForGame(region: Region, round: number, gameIndex: number, picks:
   }
   const prevA = picks[`${region.name}-${round - 1}-${gameIndex * 2}`];
   const prevB = picks[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
-  const findTeamByName = (name: string): Team | undefined =>
-    region.teams.find(t => t.name === name) ||
-    (firstFour && firstFour.find(ff => ff.region === region.name && (ff.teamA === name || ff.teamB === name))
-      ? { seed: firstFour.find(ff => ff.region === region.name && (ff.teamA === name || ff.teamB === name))!.seed, name }
-      : undefined);
+  const resolveTeam = (val: string): Team | undefined => {
+    const parsed = parseRegionSeed(val);
+    if (parsed) {
+      if (firstFour) {
+        const ff = firstFour.find(f => f.region === parsed.region && f.seed === parsed.seed);
+        if (ff) {
+          const resolved = results?.[ffGameId(ff)];
+          return { seed: parsed.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: val };
+        }
+      }
+      const t = region.teams.find(t => t.seed === parsed.seed);
+      if (t) return { ...t, regionSeed: val };
+    }
+    const direct = region.teams.find(t => t.name === val);
+    if (direct) return { ...direct, regionSeed: toRegionSeed(region.name, direct.seed) };
+    return undefined;
+  };
   return {
-    teamA: prevA ? findTeamByName(prevA) : undefined,
-    teamB: prevB ? findTeamByName(prevB) : undefined,
+    teamA: prevA ? resolveTeam(prevA) : undefined,
+    teamB: prevB ? resolveTeam(prevB) : undefined,
   };
 }
 
-function findTeam(regions: Region[], name: string): Team | undefined {
-  for (const r of regions) { const t = r.teams.find(t => t.name === name); if (t) return t; }
+function findTeam(regions: Region[], nameOrRS: string, firstFour?: FirstFourGame[], results?: Record<string, string>): Team | undefined {
+  const parsed = parseRegionSeed(nameOrRS);
+  if (parsed) {
+    const region = regions.find(r => r.name === parsed.region);
+    if (region) {
+      if (firstFour) {
+        const ff = firstFour.find(f => f.region === parsed.region && f.seed === parsed.seed);
+        if (ff) {
+          const resolved = results?.[ffGameId(ff)];
+          return { seed: parsed.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: nameOrRS };
+        }
+      }
+      const t = region.teams.find(t => t.seed === parsed.seed);
+      if (t) return { ...t, regionSeed: nameOrRS };
+    }
+  }
+  for (const r of regions) { const t = r.teams.find(t => t.name === nameOrRS); if (t) return { ...t, regionSeed: toRegionSeed(r.name, t.seed) }; }
+  return undefined;
 }
 
 function OverlayRegion({ region, allPicks, selected, results, firstFour, direction }: {
@@ -152,9 +186,9 @@ function OverlayRegion({ region, allPicks, selected, results, firstFour, directi
   );
 }
 
-function OverlayFinalFour({ regions, allPicks, selected, results }: {
+function OverlayFinalFour({ regions, allPicks, selected, results, firstFour }: {
   regions: Region[]; allPicks: PicksMap; selected: { key: string; label: string }[];
-  results?: Record<string, string>;
+  results?: Record<string, string>; firstFour?: FirstFourGame[];
 }) {
   const resolvePicks = results || {};
   const eastW = resolvePicks[`${regions[0].name}-3-0`];
@@ -165,16 +199,16 @@ function OverlayFinalFour({ regions, allPicks, selected, results }: {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 170 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.main" }}>Final Four</Typography>
-      <OverlayMatchup teamA={eastW ? findTeam(regions, eastW) : undefined} teamB={westW ? findTeam(regions, westW) : undefined} gameId="ff-4-0" allPicks={allPicks} selected={selected} result={results?.["ff-4-0"]} />
+      <OverlayMatchup teamA={eastW ? findTeam(regions, eastW, firstFour, results) : undefined} teamB={westW ? findTeam(regions, westW, firstFour, results) : undefined} gameId="ff-4-0" allPicks={allPicks} selected={selected} result={results?.["ff-4-0"]} />
       <Box sx={{ my: 1 }}>
         <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 700, color: "primary.main", mb: 0.5 }}>Championship</Typography>
         <OverlayMatchup
-          teamA={resolvePicks["ff-4-0"] ? findTeam(regions, resolvePicks["ff-4-0"]) : undefined}
-          teamB={resolvePicks["ff-4-1"] ? findTeam(regions, resolvePicks["ff-4-1"]) : undefined}
+          teamA={resolvePicks["ff-4-0"] ? findTeam(regions, resolvePicks["ff-4-0"], firstFour, results) : undefined}
+          teamB={resolvePicks["ff-4-1"] ? findTeam(regions, resolvePicks["ff-4-1"], firstFour, results) : undefined}
           gameId="ff-5-0" allPicks={allPicks} selected={selected} result={results?.["ff-5-0"]}
         />
       </Box>
-      <OverlayMatchup teamA={southW ? findTeam(regions, southW) : undefined} teamB={midwestW ? findTeam(regions, midwestW) : undefined} gameId="ff-4-1" allPicks={allPicks} selected={selected} result={results?.["ff-4-1"]} />
+      <OverlayMatchup teamA={southW ? findTeam(regions, southW, firstFour, results) : undefined} teamB={midwestW ? findTeam(regions, midwestW, firstFour, results) : undefined} gameId="ff-4-1" allPicks={allPicks} selected={selected} result={results?.["ff-4-1"]} />
     </Box>
   );
 }
@@ -255,7 +289,7 @@ export default function ComparePage() {
             <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
               <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
                 <OverlayRegion region={regions[0]} allPicks={allPicks} selected={activeSelected} results={results} firstFour={firstFour} direction="left" />
-                <OverlayFinalFour regions={regions} allPicks={allPicks} selected={activeSelected} results={results} />
+                <OverlayFinalFour regions={regions} allPicks={allPicks} selected={activeSelected} results={results} firstFour={firstFour} />
                 <OverlayRegion region={regions[1]} allPicks={allPicks} selected={activeSelected} results={results} firstFour={firstFour} direction="right" />
               </Box>
             </Box>

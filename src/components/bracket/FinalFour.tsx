@@ -2,7 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
-import { getTeamLogoUrl, ffGameId } from "@/lib/bracketData";
+import { getTeamLogoUrl, ffGameId, parseRegionSeed, toRegionSeed, resolveRegionSeed } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -16,21 +16,38 @@ interface Props {
   firstFour?: FirstFourGame[];
 }
 
-function findTeam(regions: Region[], name: string, firstFour?: FirstFourGame[], results?: Record<string, string>): Team | undefined {
-  for (const r of regions) {
-    const t = r.teams.find((t) => t.name === name);
-    if (t) return t;
+function findTeam(regions: Region[], nameOrRS: string, firstFour?: FirstFourGame[], results?: Record<string, string>): Team | undefined {
+  // Try parsing as region-seed first
+  const parsed = parseRegionSeed(nameOrRS);
+  if (parsed) {
+    const region = regions.find(r => r.name === parsed.region);
+    if (region) {
+      if (firstFour) {
+        const ff = firstFour.find(f => f.region === parsed.region && f.seed === parsed.seed);
+        if (ff) {
+          const resolved = results?.[ffGameId(ff)];
+          return { seed: parsed.seed, name: resolved || `${ff.teamA}/${ff.teamB}`, regionSeed: nameOrRS };
+        }
+      }
+      const t = region.teams.find(t => t.seed === parsed.seed);
+      if (t) return { ...t, regionSeed: nameOrRS };
+    }
   }
-  if (name.includes("/") && firstFour) {
-    const ff = firstFour.find((f) => `${f.teamA}/${f.teamB}` === name);
+  // Fallback: name-based lookup (for legacy data)
+  for (const r of regions) {
+    const t = r.teams.find((t) => t.name === nameOrRS);
+    if (t) return { ...t, regionSeed: toRegionSeed(r.name, t.seed) };
+  }
+  if (nameOrRS.includes("/") && firstFour) {
+    const ff = firstFour.find((f) => `${f.teamA}/${f.teamB}` === nameOrRS);
     if (ff) {
       const resolved = results?.[ffGameId(ff)];
-      return { seed: ff.seed, name: resolved || name };
+      return { seed: ff.seed, name: resolved || nameOrRS, regionSeed: toRegionSeed(ff.region, ff.seed) };
     }
   }
   if (firstFour) {
-    const ff = firstFour.find((f) => f.teamA === name || f.teamB === name);
-    if (ff) return { seed: ff.seed, name };
+    const ff = firstFour.find((f) => f.teamA === nameOrRS || f.teamB === nameOrRS);
+    if (ff) return { seed: ff.seed, name: nameOrRS, regionSeed: toRegionSeed(ff.region, ff.seed) };
   }
   return undefined;
 }
@@ -88,13 +105,14 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         />
         {picks["ff-5-0"] && (() => {
           const champTeam = findTeam(regions, picks["ff-5-0"], firstFour, results);
-          const logo = getTeamLogoUrl(picks["ff-5-0"]);
+          const champName = champTeam?.name || resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results);
+          const logo = getTeamLogoUrl(champName);
           return (
             <Box sx={{ mt: 1.5, mb: 0.5, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1.5, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,111,0,0.15))", border: "2px solid rgba(255,215,0,0.5)" }}>
               <Typography sx={{ fontSize: "1.5rem", lineHeight: 1 }}>🏆</Typography>
               {logo && <Box component="img" src={logo} alt="" sx={{ width: 48, height: 48, objectFit: "contain" }} />}
               <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: "#FFD700", fontSize: "1.1rem", lineHeight: 1.2 }}>
-                {picks["ff-5-0"]}
+                {champName}
               </Typography>
               {champTeam && (
                 <Typography variant="caption" sx={{ color: "#aaa", fontSize: "0.7rem" }}>

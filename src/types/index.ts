@@ -10,6 +10,7 @@ export interface Team {
   seed: number;
   name: string;
   logo?: string;
+  regionSeed?: string; // e.g. "East-1" — unique identifier within a tournament
 }
 
 export interface Region {
