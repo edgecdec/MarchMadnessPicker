@@ -4,7 +4,6 @@ import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogCo
 import PrintIcon from "@mui/icons-material/Print";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
-import FirstFour from "./FirstFour";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed } from "@/lib/bracketData";
@@ -47,23 +46,6 @@ function getNextGameId(gameId: string): string | null {
 function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: string): Record<string, string> {
   const updated = { ...picks };
   const parts = gameId.split("-");
-
-  // First Four picks: cascade into the R64 slot and beyond
-  if (parts[0] === "ff" && parts[1] === "play") {
-    const ffRegion = parts[2];
-    // Clear R64 slot and all downstream in that region
-    for (let r = 0; r <= 3; r++) {
-      const gamesInRound = 8 / Math.pow(2, r);
-      for (let i = 0; i < gamesInRound; i++) {
-        const gid = `${ffRegion}-${r}-${i}`;
-        if (updated[gid] === oldWinner) delete updated[gid];
-      }
-    }
-    for (const gid of ["ff-4-0", "ff-4-1", "ff-5-0"]) {
-      if (updated[gid] === oldWinner) delete updated[gid];
-    }
-    return updated;
-  }
 
   const region = parts[0];
   const round = parseInt(parts[1]);
@@ -183,10 +165,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         // Determine region-seed identifier for this team
         const parts = gameId.split("-");
         let regionSeed: string;
-        if (parts[0] === "ff" && parts[1] === "play") {
-          // First Four play-in: store team name (both teams share same region-seed)
-          regionSeed = team.name;
-        } else if (parts[0] === "ff") {
+        if (parts[0] === "ff") {
           // Final Four / Championship: team's region-seed was propagated from earlier picks
           // Find the team's region from bracket data
           const regionName = getTeamRegion(team.name, regions);
@@ -342,11 +321,6 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
           sx={{ width: 120 }}
         />
       </Box>
-
-      {/* First Four play-in games */}
-      {firstFour && firstFour.length > 0 && (
-        <Box className="no-print"><FirstFour games={firstFour} picks={picks} results={results} onPick={handlePick} locked={locked} /></Box>
-      )}
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
       <Box ref={bracketRef} className="bracket-print-container">
