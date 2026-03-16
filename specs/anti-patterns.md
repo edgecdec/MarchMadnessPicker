@@ -30,3 +30,10 @@ These are mistakes Ralph has made before. Read this every loop.
 - After changing DB schema, verify existing data still works
 - SQLite ALTER TABLE is limited — use migration pattern in db.ts initDb()
 - Always check if the migration already ran (try/catch the ALTER)
+
+## bugs.md and PLAN.md Handling
+- ALWAYS read bugs.md and PLAN.md before editing them — another agent or human may have made changes
+- When fixing a bug, DELETE only that specific bug line — do not rewrite the entire file
+- When adding a bug you discovered, APPEND it — do not touch existing entries
+- Never re-add a bug that was already deleted/fixed
+- If you're unsure whether a bug is still valid, check the code first before removing it
