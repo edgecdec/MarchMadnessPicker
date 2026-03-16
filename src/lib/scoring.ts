@@ -4,14 +4,16 @@ const DEFAULT_POINTS = [1, 2, 4, 8, 16, 32];
 
 // Check if a pick matches a result, accounting for First Four combined names
 // A pick of "TeamA/TeamB" matches a result of either "TeamA" or "TeamB"
-function pickMatches(pick: string, result: string): boolean {
+function pickMatches(pick: string | undefined, result: string): boolean {
+  if (!pick) return false;
   if (pick === result) return true;
   if (pick.includes("/")) return pick.split("/").includes(result);
   return false;
 }
 
 // Resolve a pick: if it's a combined FF name and the result is known, return the actual team name
-function resolvePick(pick: string, gameId: string, results: Record<string, string>): string {
+function resolvePick(pick: string | undefined, gameId: string, results: Record<string, string>): string | undefined {
+  if (!pick) return pick;
   const result = results[gameId];
   if (result && pick.includes("/") && pick.split("/").includes(result)) return result;
   return pick;
