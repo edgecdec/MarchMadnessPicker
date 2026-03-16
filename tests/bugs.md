@@ -1,6 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulator crashes when clicking a team**: On the /simulate page, clicking a team to set a hypothetical result throws "TypeError: can't access property 'includes', s is undefined". A variable is undefined when it should be a string — likely a game ID, team name, or results key that's not being found. Check the simulator's click handler and the scoring/results logic it calls. The variable `s` in the minified code is probably a string that should contain a game result or team name but is undefined because the game hasn't been resolved yet or the data structure doesn't match what the code expects.
 
 - **First Four teams cannot advance past early rounds**: When a user picks a First Four combined entry (e.g. "NC State/Texas") to win in R64, that pick cannot be advanced to R32, Sweet 16, or beyond. The cascade/propagation logic likely doesn't recognize the "TeamA/TeamB" format as a valid team for later rounds. Fix: when a First Four slot is picked to advance, the pick should propagate through all subsequent rounds just like any other team. The combined label should work as a team identifier throughout the bracket until the First Four game resolves and gets replaced with the actual winner.
 
