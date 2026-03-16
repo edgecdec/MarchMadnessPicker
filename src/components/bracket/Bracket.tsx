@@ -6,7 +6,7 @@ import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
-import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed } from "@/lib/bracketData";
+import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed, getTeamLogoUrl, parseRegionSeed } from "@/lib/bracketData";
 import { autofillBracket } from "@/lib/autofill";
 
 interface Props {
@@ -330,21 +330,38 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         )}
       </Box>
 
-      {/* Tiebreaker question */}
-      <Box className="no-print" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Tiebreaker: Predict the total combined score of the Championship Game
-        </Typography>
-        <TextField
-          type="number"
-          size="small"
-          value={tiebreaker}
-          onChange={(e) => !locked && setTiebreaker(e.target.value)}
-          disabled={locked}
-          placeholder="e.g. 145"
-          inputProps={{ min: 0, max: 500, "aria-label": "Tiebreaker score prediction" }}
-          sx={{ width: 120 }}
-        />
+      {/* Tiebreaker question + Champion display */}
+      <Box className="no-print" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+        {picks["ff-5-0"] && (() => {
+          const champName = resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results);
+          const logo = getTeamLogoUrl(champName);
+          const parsed = parseRegionSeed(picks["ff-5-0"]);
+          return (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+              <Typography sx={{ fontSize: "1rem", lineHeight: 1 }}>🏆</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: "#FFD700" }}>Champion:</Typography>
+              {logo && <Box component="img" src={logo} alt="" sx={{ width: 20, height: 20, objectFit: "contain" }} />}
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {champName}{parsed ? ` (${parsed.seed})` : ""}
+              </Typography>
+            </Box>
+          );
+        })()}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            Tiebreaker: Predict the total combined score of the Championship Game
+          </Typography>
+          <TextField
+            type="number"
+            size="small"
+            value={tiebreaker}
+            onChange={(e) => !locked && setTiebreaker(e.target.value)}
+            disabled={locked}
+            placeholder="e.g. 145"
+            inputProps={{ min: 0, max: 500, "aria-label": "Tiebreaker score prediction" }}
+            sx={{ width: 120 }}
+          />
+        </Box>
       </Box>
 
       {/* Bracket grid: two panes with Final Four overlapping the seam */}

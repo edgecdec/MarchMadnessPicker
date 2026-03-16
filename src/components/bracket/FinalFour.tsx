@@ -2,7 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
-import { getTeamLogoUrl, ffGameId, parseRegionSeed, toRegionSeed, resolveRegionSeed } from "@/lib/bracketData";
+import { ffGameId, parseRegionSeed, toRegionSeed } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -110,28 +110,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
             eliminated={eliminated}
           />
         </Box>
-        {picks["ff-5-0"] && (() => {
-          const champTeam = findTeam(regions, picks["ff-5-0"], firstFour, results);
-          const champName = champTeam?.name || resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results);
-          const logo = getTeamLogoUrl(champName);
-          return (
-            <Box sx={{ mt: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25, p: 0.75, borderRadius: 1, border: "1px solid rgba(255,215,0,0.3)" }}>
-              <Typography sx={{ fontSize: "1rem", lineHeight: 1 }}>🏆</Typography>
-              {logo && <Box component="img" src={logo} alt="" sx={{ width: 24, height: 24, objectFit: "contain" }} />}
-              <Typography variant="body2" align="center" sx={{ fontWeight: 700, color: "#FFD700", fontSize: "0.7rem", lineHeight: 1.2 }}>
-                {champName}
-              </Typography>
-              {champTeam && (
-                <Typography variant="caption" sx={{ color: "#aaa", fontSize: "0.7rem" }}>
-                  ({champTeam.seed}) seed
-                </Typography>
-              )}
-              <Typography variant="caption" sx={{ color: "#FFD700", fontWeight: 600, fontSize: "0.55rem", letterSpacing: 0.5, textTransform: "uppercase" }}>
-                Champion
-              </Typography>
-            </Box>
-          );
-        })()}
+
       </Box>
       <Box sx={ffWrap}>
         <Matchup
