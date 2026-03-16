@@ -72,11 +72,11 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const champTeamA = ff0Winner ? findTeam(regions, ff0Winner, firstFour, results) : undefined;
   const champTeamB = ff1Winner ? findTeam(regions, ff1Winner, firstFour, results) : undefined;
 
-  const ffWrap = { p: 0.75, borderRadius: 1.5, border: "2px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", transform: "scale(1.06)", transformOrigin: "center" } as const;
-  const champWrap = { p: 1, borderRadius: 2, border: "2px solid rgba(255,215,0,0.45)", background: "linear-gradient(135deg, rgba(255,215,0,0.07), rgba(255,111,0,0.07))", transform: "scale(1.12)", transformOrigin: "center" } as const;
+  const ffWrap = { p: 0.5, borderRadius: 1, border: "1px solid rgba(255,255,255,0.12)" } as const;
+  const champWrap = { p: 0.5, borderRadius: 1, border: "1px solid rgba(255,215,0,0.3)" } as const;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 180 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5, minWidth: 160 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.main" }}>
         Final Four
       </Typography>
@@ -93,8 +93,8 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           eliminated={eliminated}
         />
       </Box>
-      <Box sx={{ my: 1 }}>
-        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 800, color: "#FFD700", mb: 0.5, letterSpacing: 0.5, fontSize: "0.8rem" }}>
+      <Box sx={{ my: 0.5 }}>
+        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 700, color: "#FFD700", mb: 0.5, fontSize: "0.7rem" }}>
           Championship
         </Typography>
         <Box sx={champWrap}>
@@ -115,10 +115,10 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           const champName = champTeam?.name || resolveRegionSeed(picks["ff-5-0"], regions, firstFour, results);
           const logo = getTeamLogoUrl(champName);
           return (
-            <Box sx={{ mt: 1.5, mb: 0.5, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1.5, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,111,0,0.15))", border: "2px solid rgba(255,215,0,0.5)" }}>
-              <Typography sx={{ fontSize: "1.5rem", lineHeight: 1 }}>🏆</Typography>
-              {logo && <Box component="img" src={logo} alt="" sx={{ width: 48, height: 48, objectFit: "contain" }} />}
-              <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: "#FFD700", fontSize: "1.1rem", lineHeight: 1.2 }}>
+            <Box sx={{ mt: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25, p: 0.75, borderRadius: 1, border: "1px solid rgba(255,215,0,0.3)" }}>
+              <Typography sx={{ fontSize: "1rem", lineHeight: 1 }}>🏆</Typography>
+              {logo && <Box component="img" src={logo} alt="" sx={{ width: 24, height: 24, objectFit: "contain" }} />}
+              <Typography variant="body2" align="center" sx={{ fontWeight: 700, color: "#FFD700", fontSize: "0.7rem", lineHeight: 1.2 }}>
                 {champName}
               </Typography>
               {champTeam && (
@@ -126,7 +126,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
                   ({champTeam.seed}) seed
                 </Typography>
               )}
-              <Typography variant="caption" sx={{ color: "#FFD700", fontWeight: 600, fontSize: "0.65rem", letterSpacing: 1, textTransform: "uppercase" }}>
+              <Typography variant="caption" sx={{ color: "#FFD700", fontWeight: 600, fontSize: "0.55rem", letterSpacing: 0.5, textTransform: "uppercase" }}>
                 Champion
               </Typography>
             </Box>
