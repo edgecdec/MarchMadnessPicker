@@ -323,7 +323,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       </Box>
 
       {/* Top half: East (left-to-right) | Final Four | West (right-to-left) */}
-      <Box ref={bracketRef} className="bracket-print-container">
+      <Box ref={bracketRef} className="bracket-print-container" sx={{ mx: "auto", width: "fit-content", maxWidth: "100%" }}>
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
