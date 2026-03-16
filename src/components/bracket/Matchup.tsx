@@ -1,7 +1,7 @@
 "use client";
 import { Box, Typography, Paper, Tooltip } from "@mui/material";
 import { Team, GameScore } from "@/types";
-import { getTeamLogoUrl, SEED_WIN_RATES } from "@/lib/bracketData";
+import { getTeamLogoUrl, getTeamAbbreviation, SEED_WIN_RATES } from "@/lib/bracketData";
 
 function getSeedMatchupTip(teamA?: Team, teamB?: Team): string | null {
   if (!teamA || !teamB) return null;
@@ -85,6 +85,7 @@ function TeamSlot({
         borderLeft: `1px solid ${regionColor || "#444"}`,
         borderRight: `1px solid ${regionColor || "#444"}`,
         minWidth: 120,
+        maxWidth: 170,
         minHeight: { xs: 32, sm: "auto" },
         opacity: isEliminated ? 0.35 : 1,
         "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
@@ -108,15 +109,16 @@ function TeamSlot({
           </Typography>
           {isFirstFourPlaceholder ? (
             <Box sx={{ display: "flex", gap: 0.25, flexGrow: 1, overflow: "hidden" }}>
-              {team.name.split("/").map((name) => {
+              {team.name.split("/").map((name, idx, arr) => {
                 const logo = getTeamLogoUrl(name);
+                const abbr = getTeamAbbreviation(name);
                 return (
                   <Box
                     key={name}
                     sx={{ display: "flex", alignItems: "center", gap: 0.25, overflow: "hidden" }}
                   >
                     {logo && <Box component="img" src={logo} alt="" sx={{ width: 14, height: 14, objectFit: "contain", flexShrink: 0 }} />}
-                    <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem" }}>{name}</Typography>
+                    <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem" }}>{abbr}{idx < arr.length - 1 ? "/" : ""}</Typography>
                   </Box>
                 );
               })}

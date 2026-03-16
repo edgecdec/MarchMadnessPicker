@@ -62,6 +62,20 @@ export function getTeamLogoUrl(teamName: string): string | undefined {
   return id ? `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png` : undefined;
 }
 
+const TEAM_ABBREVIATIONS: Record<string, string> = {
+  "Lehigh": "LEH", "Prairie View": "PV", "NC State": "NCSU", "Texas": "TEX",
+  "Howard": "HOW", "UMBC": "UMBC", "SMU": "SMU", "Miami OH": "M-OH",
+  "Alabama St.": "ALST", "Robert Morris": "RMU", "Norfolk St.": "NFST",
+  "Tennessee St.": "TNST", "SIU Edwardsville": "SIUE", "SIUE": "SIUE",
+  "Wright St.": "WRST", "Hofstra": "HOF", "Santa Clara": "SCU",
+  "Long Island": "LIU", "Queens": "QU", "Idaho": "IDHO", "Penn": "PENN",
+  "Furman": "FUR", "Siena": "SIEN", "CA Baptist": "CBU", "N Dakota St.": "NDSU",
+};
+
+export function getTeamAbbreviation(teamName: string): string {
+  return TEAM_ABBREVIATIONS[teamName] || teamName.slice(0, 4).toUpperCase();
+}
+
 // Generate a unique game ID for a First Four play-in game
 export function ffGameId(game: { region: string; seed: number; slot: number }): string {
   return `ff-play-${game.region}-${game.seed}-${game.slot}`;
