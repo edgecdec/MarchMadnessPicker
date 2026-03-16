@@ -1,8 +1,8 @@
 "use client";
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
-import { Team, Region, GameScore } from "@/types";
-import { getTeamLogoUrl } from "@/lib/bracketData";
+import { Team, Region, GameScore, FirstFourGame } from "@/types";
+import { getTeamLogoUrl, ffGameId } from "@/lib/bracketData";
 
 interface Props {
   regions: Region[];
@@ -13,17 +13,29 @@ interface Props {
   locked?: boolean;
   distribution?: Record<string, Record<string, number>>;
   eliminated?: Set<string>;
+  firstFour?: FirstFourGame[];
 }
 
-function findTeam(regions: Region[], name: string): Team | undefined {
+function findTeam(regions: Region[], name: string, firstFour?: FirstFourGame[], results?: Record<string, string>): Team | undefined {
   for (const r of regions) {
     const t = r.teams.find((t) => t.name === name);
     if (t) return t;
   }
+  if (name.includes("/") && firstFour) {
+    const ff = firstFour.find((f) => `${f.teamA}/${f.teamB}` === name);
+    if (ff) {
+      const resolved = results?.[ffGameId(ff)];
+      return { seed: ff.seed, name: resolved || name };
+    }
+  }
+  if (firstFour) {
+    const ff = firstFour.find((f) => f.teamA === name || f.teamB === name);
+    if (ff) return { seed: ff.seed, name };
+  }
   return undefined;
 }
 
-export default function FinalFour({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated }: Props) {
+export default function FinalFour({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour }: Props) {
   // FF game 0: East winner vs West winner (top half)
   // FF game 1: South winner vs Midwest winner (bottom half)
   // Championship: FF0 winner vs FF1 winner
@@ -32,16 +44,16 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const southWinner = picks[`${regions[2].name}-3-0`];
   const midwestWinner = picks[`${regions[3].name}-3-0`];
 
-  const ff0TeamA = eastWinner ? findTeam(regions, eastWinner) : undefined;
-  const ff0TeamB = westWinner ? findTeam(regions, westWinner) : undefined;
-  const ff1TeamA = southWinner ? findTeam(regions, southWinner) : undefined;
-  const ff1TeamB = midwestWinner ? findTeam(regions, midwestWinner) : undefined;
+  const ff0TeamA = eastWinner ? findTeam(regions, eastWinner, firstFour, results) : undefined;
+  const ff0TeamB = westWinner ? findTeam(regions, westWinner, firstFour, results) : undefined;
+  const ff1TeamA = southWinner ? findTeam(regions, southWinner, firstFour, results) : undefined;
+  const ff1TeamB = midwestWinner ? findTeam(regions, midwestWinner, firstFour, results) : undefined;
 
   const ff0Winner = picks["ff-4-0"];
   const ff1Winner = picks["ff-4-1"];
 
-  const champTeamA = ff0Winner ? findTeam(regions, ff0Winner) : undefined;
-  const champTeamB = ff1Winner ? findTeam(regions, ff1Winner) : undefined;
+  const champTeamA = ff0Winner ? findTeam(regions, ff0Winner, firstFour, results) : undefined;
+  const champTeamB = ff1Winner ? findTeam(regions, ff1Winner, firstFour, results) : undefined;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 160 }}>
@@ -75,7 +87,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           eliminated={eliminated}
         />
         {picks["ff-5-0"] && (() => {
-          const champTeam = findTeam(regions, picks["ff-5-0"]);
+          const champTeam = findTeam(regions, picks["ff-5-0"], firstFour, results);
           const logo = getTeamLogoUrl(picks["ff-5-0"]);
           return (
             <Box sx={{ mt: 1.5, mb: 0.5, display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1.5, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,111,0,0.15))", border: "2px solid rgba(255,215,0,0.5)" }}>

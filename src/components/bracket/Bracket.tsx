@@ -342,7 +342,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
           <RegionBracket region={regions[0]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="left" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
-          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} />
+          <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
           <RegionBracket region={regions[1]} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} direction="right" distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
         </Box>
       </Box>

@@ -229,7 +229,7 @@ export default function SimulatePage() {
               <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
                   <RegionBracket region={regions[0]} picks={merged} results={results} onPick={pickHypo} direction="left" firstFour={firstFour} />
-                  <FinalFour regions={regions} picks={merged} results={results} onPick={pickHypo} />
+                  <FinalFour regions={regions} picks={merged} results={results} onPick={pickHypo} firstFour={firstFour} />
                   <RegionBracket region={regions[1]} picks={merged} results={results} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
