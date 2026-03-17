@@ -11,12 +11,14 @@ import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
+import { useMonteCarlo } from "@/hooks/useMonteCarlo";
 import { api } from "@/lib/api";
 import { scorePicks } from "@/lib/scoring";
 import { ScoringSettings, Region, Team, FirstFourGame } from "@/types";
 import { toRegionSeed, getTeamRegion } from "@/lib/bracketData";
 import RegionBracket from "@/components/bracket/RegionBracket";
 import FinalFour from "@/components/bracket/FinalFour";
+import MonteCarloTable from "@/components/bracket/MonteCarloTable";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 
@@ -74,6 +76,18 @@ export default function SimulatePage() {
   // merged = actual results + hypothetical picks; used as "picks" for the bracket components
   // so teams propagate forward through the bracket correctly
   const merged = useMemo(() => ({ ...results, ...hypo }), [results, hypo]);
+
+  const mcEntries = useMemo(() =>
+    (data?.entries || []).map((e) => ({
+      key: `${e.username}|${e.bracket_name}`,
+      picks: e.picks,
+    })),
+    [data],
+  );
+
+  const { mcResults, progress: mcProgress, running: mcRunning } = useMonteCarlo(
+    mcEntries, results, hypo, regions, data?.scoring,
+  );
 
   const baseRanked = useMemo(() => {
     if (!data) return [];
@@ -259,6 +273,9 @@ export default function SimulatePage() {
             {isWide && (
               <Box sx={{ width: 340, flexShrink: 0 }}>
                 {leaderboardPanel}
+                <Box sx={{ mt: 2 }}>
+                  <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} />
+                </Box>
               </Box>
             )}
           </Box>
@@ -277,6 +294,9 @@ export default function SimulatePage() {
             <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
           </Box>
           {leaderboardPanel}
+          <Box sx={{ mt: 2 }}>
+            <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} />
+          </Box>
         </Box>
       </Drawer>
     </>

@@ -3,6 +3,7 @@
 Tasks ordered by priority. Agent picks the top incomplete one.
 
 ## Tasks
+- [ ] Add Monte Carlo simulation to /simulate page: See @specs/simulator.md for full spec. On page load, run 1000 simulations using historical seed win rates to determine each bracket's avg score, avg place, and win %. Show results in a sortable table. Recalculate when user sets hypothetical results. All client-side, non-blocking with progress indicator. Reuse existing scorePicks() and seed stats data.
 - [x] Rework /simulate page: use full Bracket component instead of game list. Clicks set hypothetical results. Live leaderboard sidebar re-sorts as user clicks. Group selector at top.
 - [x] Replace /compare with overlay comparison: ONE bracket showing multiple users' picks with colored indicators per user. Dropdown to select users (up to 4). Remove old side-by-side page.
 - [x] Auto-fill incomplete brackets at lock time using Smart autofill for empty slots.
