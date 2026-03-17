@@ -172,14 +172,14 @@ export default function WhoPickedPage() {
                 {["ff-4-0", "ff-4-1", "ff-5-0"].map((gid) => {
                   const gp = games[gid];
                   if (!gp || !matchesSearch(gp)) return null;
-                  return <GameCard key={gid} gameId={gid} gamePicks={gp} totalBrackets={totalBrackets} regionColor="#FFD700" teamA={undefined} teamB={undefined} />;
+                  return <GameCard key={gid} gameId={gid} gamePicks={gp} totalBrackets={totalBrackets} regionColor="#FFB300" teamA={undefined} teamB={undefined} />;
                 })}
               </AccordionDetails>
             </Accordion>
 
             {/* Regions */}
             {regions.map((region) => {
-              const regionColor = REGION_COLORS[region.name] || "#888";
+              const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
               return (
                 <Accordion key={region.name} defaultExpanded={false}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>

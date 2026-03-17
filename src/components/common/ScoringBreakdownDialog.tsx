@@ -45,7 +45,7 @@ export default function ScoringBreakdownDialog({ open, onClose, username, bracke
             </TableHead>
             <TableBody>
               {decided.map((d) => (
-                <TableRow key={d.gameId} sx={{ bgcolor: d.correct ? "success.main" : "error.main", "& td": { color: "#fff" } }}>
+                <TableRow key={d.gameId} sx={{ bgcolor: d.correct ? "success.main" : "error.main", "& td": { color: "common.white" } }}>
                   <TableCell>{getRoundName(d.round)}</TableCell>
                   <TableCell>{d.pick}</TableCell>
                   <TableCell>{d.correct ? "✓" : d.result}</TableCell>

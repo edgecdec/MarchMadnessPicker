@@ -26,7 +26,7 @@ export default function FirstFour({ games, picks, results, onPick, locked }: Pro
           const gid = ffGameId(g);
           const winner = picks[gid];
           const result = results?.[gid];
-          const regionColor = REGION_COLORS[g.region] || "#888";
+          const regionColor = REGION_COLORS[g.region] || "#9e9e9e";
 
           return (
             <Paper key={gid} variant="outlined" sx={{ p: 1, minWidth: 160, borderColor: regionColor }}>
@@ -49,10 +49,10 @@ export default function FirstFour({ games, picks, results, onPick, locked }: Pro
                       cursor: locked ? "default" : "pointer", background: bg,
                       border: `1px solid ${regionColor}`, borderTop: "none",
                       "&:first-of-type": { borderTop: `1px solid ${regionColor}` },
-                      "&:hover": !locked ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
+                      "&:hover": !locked ? { background: isWinner ? bg : "action.hover" } : {},
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
+                    <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
                       {g.seed}
                     </Typography>
                     {logo && <Box component="img" src={logo} alt="" sx={{ width: 16, height: 16, objectFit: "contain" }} />}

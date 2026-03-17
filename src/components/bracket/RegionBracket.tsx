@@ -88,7 +88,7 @@ function getTeamForGame(
 export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution, eliminated, firstFour }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
-  const regionColor = REGION_COLORS[region.name] || "#888";
+  const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
 
   const renderRound = (round: number) => {
     const count = gamesPerRound[round];

@@ -8,14 +8,14 @@ export default function LiveScores() {
   if (games.length === 0) return null;
 
   return (
-    <Paper className="no-print" sx={{ p: 1.5, mb: 2, background: "rgba(255,255,255,0.03)" }}>
+    <Paper className="no-print" sx={{ p: 1.5, mb: 2, bgcolor: "action.hover" }}>
       <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main", mb: 1, display: "block" }}>
         🏀 Live Scores
       </Typography>
       <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5 }}>
         {games.map((g) => (
-          <Paper key={g.id} sx={{ p: 1, minWidth: 160, flexShrink: 0, background: "rgba(255,255,255,0.05)" }}>
-            <Typography variant="caption" sx={{ fontSize: "0.6rem", color: g.state === "in" ? "#4caf50" : "#999", display: "block", mb: 0.5 }}>
+          <Paper key={g.id} sx={{ p: 1, minWidth: 160, flexShrink: 0, bgcolor: "action.hover" }}>
+            <Typography variant="caption" sx={{ fontSize: "0.6rem", color: g.state === "in" ? "success.main" : "text.disabled", display: "block", mb: 0.5 }}>
               {g.state === "in" ? `🔴 ${g.detail}` : g.detail}
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>

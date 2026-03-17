@@ -28,7 +28,7 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
   allPicks: PicksMap; selected: { key: string; label: string }[];
   result?: string; regionColor?: string;
 }) {
-  const border = regionColor || "#444";
+  const border = regionColor || "#9e9e9e";
   return (
     <Box sx={{ my: 0.25 }}>
       {[teamA, teamB].map((team, ti) => {
@@ -43,10 +43,10 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
             background: isResult ? "rgba(76,175,80,0.12)" : "transparent",
           }}>
             {team ? (<>
-              <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>{team.seed}</Typography>
+              <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>{team.seed}</Typography>
               {(() => { const logo = getTeamLogoUrl(team.name); return logo ? <Box component="img" src={logo} alt="" sx={{ width: 14, height: 14, objectFit: "contain", flexShrink: 0 }} /> : null; })()}
               <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isResult ? 700 : 400, flexGrow: 1 }}>{team.name}</Typography>
-              {isResult && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
+              {isResult && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
               <Box sx={{ display: "flex", gap: 0.25 }}>
                 {selected.map((s, i) => {
                   const pick = allPicks[s.key]?.[gameId];
@@ -57,7 +57,7 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
                 })}
               </Box>
             </>) : (
-              <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
+              <Typography variant="body2" sx={{ color: "text.disabled", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
             )}
           </Box>
         );
@@ -133,7 +133,7 @@ function OverlayRegion({ region, allPicks, selected, results, firstFour, directi
   region: Region; allPicks: PicksMap; selected: { key: string; label: string }[];
   results?: Record<string, string>; firstFour?: FirstFourGame[]; direction: "left" | "right";
 }) {
-  const regionColor = REGION_COLORS[region.name] || "#888";
+  const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
   const gamesPerRound = [8, 4, 2, 1];
   // Use results for team resolution so the bracket structure is consistent
   const resolvePicks = results || {};
@@ -280,7 +280,7 @@ export default function ComparePage() {
         {activeSelected.length > 0 && (
           <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
             {activeSelected.map((s, i) => (
-              <Chip key={i} size="small" label={s.label} sx={{ bgcolor: USER_COLORS[i], color: "#fff", fontWeight: 600 }} />
+              <Chip key={i} size="small" label={s.label} sx={{ bgcolor: USER_COLORS[i], color: "common.white", fontWeight: 600 }} />
             ))}
           </Box>
         )}

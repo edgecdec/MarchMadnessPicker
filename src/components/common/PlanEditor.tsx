@@ -101,15 +101,15 @@ export default function PlanEditor() {
               gap: 0.5,
               p: 0.5,
               borderRadius: 1,
-              background: task.done ? "rgba(76,175,80,0.08)" : "rgba(255,255,255,0.03)",
+              background: task.done ? "rgba(76,175,80,0.08)" : "transparent",
               opacity: task.done ? 0.6 : 1,
               cursor: "grab",
-              "&:hover": { background: "rgba(255,255,255,0.06)" },
+              "&:hover": { bgcolor: "action.hover" },
               "&:active": { cursor: "grabbing" },
             }}
           >
-            <DragIndicatorIcon sx={{ color: "#555", fontSize: 18 }} />
-            <Typography variant="caption" sx={{ color: "#666", minWidth: 20 }}>#{i + 1}</Typography>
+            <DragIndicatorIcon sx={{ color: "text.disabled", fontSize: 18 }} />
+            <Typography variant="caption" sx={{ color: "text.secondary", minWidth: 20 }}>#{i + 1}</Typography>
             <Checkbox size="small" checked={task.done} onChange={() => toggleDone(i)} sx={{ p: 0.25 }} />
             <TextField
               size="small"
@@ -119,7 +119,7 @@ export default function PlanEditor() {
               variant="standard"
               InputProps={{ disableUnderline: true, sx: { fontSize: "0.85rem", textDecoration: task.done ? "line-through" : "none" } }}
             />
-            <IconButton size="small" onClick={() => deleteTask(i)} sx={{ color: "#666" }}>
+            <IconButton size="small" onClick={() => deleteTask(i)} sx={{ color: "text.secondary" }}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>

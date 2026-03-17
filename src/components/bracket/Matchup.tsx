@@ -80,14 +80,13 @@ function TeamSlot({
         py: { xs: 0.75, sm: 0.25 },
         cursor: locked || !team ? "default" : "pointer",
         background: bg,
-        borderTop: position === "top" ? `1px solid ${regionColor || "#444"}` : "none",
-        borderBottom: `1px solid ${regionColor || "#444"}`,
-        borderLeft: `1px solid ${regionColor || "#444"}`,
-        borderRight: `1px solid ${regionColor || "#444"}`,
+        border: 1,
+        borderColor: regionColor || "divider",
+        borderTop: position === "top" ? 1 : 0,
         width: 155,
         minHeight: { xs: 32, sm: "auto" },
         opacity: isEliminated ? 0.35 : 1,
-        "&:hover": !locked && team ? { background: isWinner ? bg : "rgba(255,255,255,0.08)" } : {},
+        "&:hover": !locked && team ? { background: isWinner ? bg : "action.hover" } : {},
         transition: "background 0.2s ease, opacity 0.2s ease, transform 0.2s ease",
         transform: isWinner ? "scale(1.02)" : "scale(1)",
       }}
@@ -103,7 +102,7 @@ function TeamSlot({
             animation: "pickFadeIn 0.25s ease-out",
           }}
         >
-          <Typography variant="caption" sx={{ color: "#999", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
+          <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
             {team.seed}
           </Typography>
           {isFirstFourPlaceholder ? (
@@ -132,24 +131,24 @@ function TeamSlot({
               </Typography>
             </>
           )}
-          {isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
-          {isWrong && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#f44336" }}>✗</Typography>}
-          {isActualWinner && !isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "#4caf50" }}>✓</Typography>}
+          {isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
+          {isWrong && <Typography component="span" sx={{ fontSize: "0.6rem", color: "error.main" }}>✗</Typography>}
+          {isActualWinner && !isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
           {score && (
-            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.65rem", color: isLive ? "#4caf50" : "#aaa", ml: 0.5 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.65rem", color: isLive ? "success.main" : "text.secondary", ml: 0.5 }}>
               {score}
             </Typography>
           )}
           {pct !== undefined && (
             <Tooltip title={`${pct}% of players picked ${team.name}`} arrow>
-              <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "#888", ml: 0.5 }}>
+              <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.disabled", ml: 0.5 }}>
                 {pct}%
               </Typography>
             </Tooltip>
           )}
         </Box>
       ) : (
-        <Typography variant="body2" sx={{ color: "#555", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
+        <Typography variant="body2" sx={{ color: "text.disabled", fontSize: "0.7rem", fontStyle: "italic" }}>—</Typography>
       )}
     </Box>
   );
@@ -173,7 +172,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
   const content = (
     <Paper elevation={0} sx={{ background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25 }}>
       {gameScore?.detail && (
-        <Typography variant="caption" sx={{ fontSize: "0.55rem", color: isLive ? "#4caf50" : "#666", display: "block", textAlign: "center" }}>
+        <Typography variant="caption" sx={{ fontSize: "0.55rem", color: isLive ? "success.main" : "text.secondary", display: "block", textAlign: "center" }}>
           {isLive ? `🔴 ${gameScore.detail}` : gameScore.state === "post" ? gameScore.detail : ""}
         </Typography>
       )}
