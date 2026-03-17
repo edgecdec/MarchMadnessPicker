@@ -1,9 +1,10 @@
 "use client";
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
-import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Menu, MenuItem, Tooltip } from "@mui/material";
+import { Box, Button, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Menu, MenuItem, Tooltip, useMediaQuery } from "@mui/material";
 import PrintIcon from "@mui/icons-material/Print";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
+import MobileBracket from "./MobileBracket";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed, getTeamLogoUrl, parseRegionSeed } from "@/lib/bracketData";
@@ -83,6 +84,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
   const savedTiebreakerRef = useRef<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
+  const isMobile = useMediaQuery("(max-width:767px)");
 
   // Sync internal state when switching brackets
   useEffect(() => {
@@ -367,8 +369,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         </Box>
       </Box>
 
-      {/* Bracket grid: two panes with Final Four overlapping the seam */}
+      {/* Bracket grid: mobile tabs or desktop layout */}
       <Box ref={bracketRef} className="bracket-print-container" sx={{ mx: "auto", width: "fit-content", maxWidth: "100%", position: "relative" }}>
+      {isMobile ? (
+        <MobileBracket
+          regions={regions} picks={picks} results={results}
+          gameScores={gameScores} onPick={handlePick} locked={locked}
+          distribution={distribution} eliminated={eliminated} firstFour={firstFour}
+        />
+      ) : (
+      <>
       {/* Top half: East | spacer | West */}
       <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", overflow: "hidden" }}>
         <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
@@ -391,6 +401,8 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10, bgcolor: "background.paper", borderRadius: 3, p: 1 }}>
         <FinalFour regions={regions} picks={picks} results={results} gameScores={gameScores} onPick={handlePick} locked={locked} distribution={distribution} eliminated={eliminated} firstFour={firstFour} />
       </Box>
+      </>
+      )}
       </Box>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
