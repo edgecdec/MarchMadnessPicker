@@ -19,7 +19,7 @@ interface Props {
 }
 
 const ROUND_NAMES = ["Round of 64", "Round of 32", "Sweet 16", "Elite 8"];
-const TAB_LABELS = ["R64 & R32", "Sweet 16 & Elite 8", "Final Four"];
+const TAB_LABELS = ["R64 → R32", "S16 → E8", "Final Four"];
 const TAB_ROUNDS: number[][] = [[0, 1], [2, 3]];
 
 function getTeamForGame(
@@ -64,37 +64,117 @@ function getTeamForGame(
   return { teamA: prevA ? resolveTeam(prevA) : undefined, teamB: prevB ? resolveTeam(prevB) : undefined };
 }
 
-export default function MobileBracket({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour }: Props) {
-  const [tab, setTab] = useState(0);
+function MatchupPair({
+  region, leftRound, rightRound, pairIndex, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour, color,
+}: {
+  region: Region; leftRound: number; rightRound: number; pairIndex: number;
+  picks: Record<string, string>; results?: Record<string, string>;
+  gameScores?: Record<string, GameScore>;
+  onPick: (gameId: string, team: Team) => void;
+  locked?: boolean; distribution?: Record<string, Record<string, number>>;
+  eliminated?: Set<string>; firstFour?: FirstFourGame[]; color: string;
+}) {
+  const leftIdx0 = pairIndex * 2;
+  const leftIdx1 = pairIndex * 2 + 1;
+  const leftId0 = `${region.name}-${leftRound}-${leftIdx0}`;
+  const leftId1 = `${region.name}-${leftRound}-${leftIdx1}`;
+  const rightId = `${region.name}-${rightRound}-${pairIndex}`;
+  const left0 = getTeamForGame(region, leftRound, leftIdx0, picks, firstFour, results);
+  const left1 = getTeamForGame(region, leftRound, leftIdx1, picks, firstFour, results);
+  const right = getTeamForGame(region, rightRound, pairIndex, picks, firstFour, results);
 
-  const renderRegionRound = (region: Region, round: number) => {
-    const count = 8 / Math.pow(2, round);
-    const color = REGION_COLORS[region.name] || "text.secondary";
-    return (
-      <Box key={`${region.name}-${round}`} sx={{ mb: 2 }}>
-        <Typography variant="caption" sx={{ fontWeight: 700, color, display: "block", mb: 0.5 }}>
-          {region.name} — {ROUND_NAMES[round]}
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-          {Array.from({ length: count }, (_, i) => {
-            const gameId = `${region.name}-${round}-${i}`;
-            const { teamA, teamB } = getTeamForGame(region, round, i, picks, firstFour, results);
-            return (
-              <Matchup
-                key={gameId}
-                teamA={teamA} teamB={teamB}
-                winner={picks[gameId]} result={results?.[gameId]}
-                gameScore={gameScores?.[gameId]}
-                onPick={(team) => onPick(gameId, team)}
-                locked={locked} distribution={distribution?.[gameId]}
-                regionColor={color} eliminated={eliminated}
-              />
-            );
-          })}
+  return (
+    <Box sx={{ display: "flex", alignItems: "stretch", mb: 1.5 }}>
+      {/* Left: two feeder games stacked */}
+      <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flexShrink: 0 }}>
+        <Box sx={{ mb: 0.5 }}>
+          <Matchup
+            teamA={left0.teamA} teamB={left0.teamB}
+            winner={picks[leftId0]} result={results?.[leftId0]}
+            gameScore={gameScores?.[leftId0]}
+            onPick={(team) => onPick(leftId0, team)}
+            locked={locked} distribution={distribution?.[leftId0]}
+            regionColor={color} eliminated={eliminated}
+          />
+        </Box>
+        <Box>
+          <Matchup
+            teamA={left1.teamA} teamB={left1.teamB}
+            winner={picks[leftId1]} result={results?.[leftId1]}
+            gameScore={gameScores?.[leftId1]}
+            onPick={(team) => onPick(leftId1, team)}
+            locked={locked} distribution={distribution?.[leftId1]}
+            regionColor={color} eliminated={eliminated}
+          />
         </Box>
       </Box>
-    );
-  };
+
+      {/* Connector */}
+      <Box sx={{ width: 12, flexShrink: 0, position: "relative" }}>
+        <Box sx={{
+          position: "absolute",
+          top: "25%", bottom: "25%",
+          left: 0, right: 0,
+          borderTop: 1, borderBottom: 1, borderRight: 1,
+          borderColor: "divider",
+        }} />
+      </Box>
+
+      {/* Right: one game centered */}
+      <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+        <Matchup
+          teamA={right.teamA} teamB={right.teamB}
+          winner={picks[rightId]} result={results?.[rightId]}
+          gameScore={gameScores?.[rightId]}
+          onPick={(team) => onPick(rightId, team)}
+          locked={locked} distribution={distribution?.[rightId]}
+          regionColor={color} eliminated={eliminated}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+function RegionPairedRounds({
+  region, leftRound, rightRound, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour,
+}: {
+  region: Region; leftRound: number; rightRound: number;
+  picks: Record<string, string>; results?: Record<string, string>;
+  gameScores?: Record<string, GameScore>;
+  onPick: (gameId: string, team: Team) => void;
+  locked?: boolean; distribution?: Record<string, Record<string, number>>;
+  eliminated?: Set<string>; firstFour?: FirstFourGame[];
+}) {
+  const color = REGION_COLORS[region.name] || "text.secondary";
+  const rightCount = 8 / Math.pow(2, rightRound);
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Box sx={{ display: "flex", gap: 0, mb: 0.5 }}>
+        <Typography variant="caption" sx={{ fontWeight: 700, color, width: 155, textAlign: "center", fontSize: "0.6rem" }}>
+          {region.name} — {ROUND_NAMES[leftRound]}
+        </Typography>
+        <Box sx={{ width: 12 }} />
+        <Typography variant="caption" sx={{ fontWeight: 700, color, width: 155, textAlign: "center", fontSize: "0.6rem" }}>
+          {ROUND_NAMES[rightRound]}
+        </Typography>
+      </Box>
+      <Box sx={{ overflow: "auto" }}>
+        {Array.from({ length: rightCount }, (_, i) => (
+          <MatchupPair
+            key={i} region={region} leftRound={leftRound} rightRound={rightRound}
+            pairIndex={i} picks={picks} results={results} gameScores={gameScores}
+            onPick={onPick} locked={locked} distribution={distribution}
+            eliminated={eliminated} firstFour={firstFour} color={color}
+          />
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+export default function MobileBracket({ regions, picks, results, gameScores, onPick, locked, distribution, eliminated, firstFour }: Props) {
+  const [tab, setTab] = useState(0);
 
   return (
     <Box>
@@ -102,9 +182,15 @@ export default function MobileBracket({ regions, picks, results, gameScores, onP
         {TAB_LABELS.map((label) => <Tab key={label} label={label} sx={{ fontSize: "0.7rem", minHeight: 40, px: 0.5 }} />)}
       </Tabs>
       {tab < 2 ? (
-        TAB_ROUNDS[tab].map((round) =>
-          regions.map((region) => renderRegionRound(region, round))
-        )
+        regions.map((region) => (
+          <RegionPairedRounds
+            key={region.name} region={region}
+            leftRound={TAB_ROUNDS[tab][0]} rightRound={TAB_ROUNDS[tab][1]}
+            picks={picks} results={results} gameScores={gameScores}
+            onPick={onPick} locked={locked} distribution={distribution}
+            eliminated={eliminated} firstFour={firstFour}
+          />
+        ))
       ) : (
         <FinalFour
           regions={regions} picks={picks} results={results}
