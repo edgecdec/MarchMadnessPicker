@@ -7,8 +7,6 @@
 
 
 
-- **Limit username and bracket name to 32 characters**: Add max length validation (32 chars) for usernames on register and bracket names on create/rename. Also add a sensible password max length (128 chars). Write a migration script to truncate any existing usernames or bracket names longer than 32 chars by chopping off the end. Run on server via SSH.
-
 - **Final Four component doesn't respect light mode in export**: The Final Four section in the bracket PNG export still renders with dark mode colors even when the user is in light mode. MUI should handle this but the Final Four component likely has hardcoded dark colors (e.g. explicit color values instead of theme-aware ones). Fix: replace any hardcoded color values in the FinalFour component with MUI theme tokens.
 
 - **Audit all components for dark/light mode support**: Go through every component and check for hardcoded colors that don't respond to the theme toggle. Common culprits: inline sx styles with explicit hex colors, background colors, border colors, text colors. Replace with theme-aware values (e.g. `text.primary`, `background.paper`, `divider`). Ensure the bracket, leaderboard, groups, dashboard, and all dialogs look correct in both modes.
