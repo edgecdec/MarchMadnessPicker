@@ -82,11 +82,11 @@ export default function LeaderboardPage() {
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                     <TableCell>{i + 1}</TableCell>
-                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
+                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
                     <TableCell
-                      onMouseEnter={(e) => { if (entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
+                      onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ cursor: entry.ffPicks ? "default" : undefined }}
+                      sx={{ cursor: locked && entry.ffPicks ? "default" : undefined }}
                     >{entry.bracket_name || "—"}</TableCell>
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
                       <TableCell key={r} align="right">{s}</TableCell>

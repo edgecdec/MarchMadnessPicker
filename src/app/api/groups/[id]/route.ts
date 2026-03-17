@@ -4,6 +4,7 @@ import { getUser } from "@/lib/auth";
 import { scorePicks, maxPossibleRemaining, getEliminatedTeams } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 import { resolveRegionSeed } from "@/lib/bracketData";
+import { isTournamentLocked } from "@/lib/lockUtils";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(groupId) as any;
   if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
 
-  const tournament = db.prepare("SELECT results_data, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
+  const tournament = db.prepare("SELECT results_data, bracket_data, lock_time FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
 
   const results = JSON.parse(tournament.results_data || "{}");
@@ -62,9 +63,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .sort((a, b) => b.score - a.score);
 
   const topScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+  const locked = isTournamentLocked(tournament.lock_time);
   const leaderboardWithElim = leaderboard.map((e) => ({
     ...e,
     eliminated: (e.score + e.maxRemaining) < topScore,
+    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false }),
   }));
 
   return NextResponse.json({

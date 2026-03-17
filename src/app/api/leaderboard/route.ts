@@ -4,13 +4,14 @@ import { scorePicks, maxPossibleRemaining, scorePicksByRound, getEliminatedTeams
 import { DEFAULT_SCORING, BracketData } from "@/types";
 import { autoFillIncompleteBrackets } from "@/lib/autoFillAtLock";
 import { resolveRegionSeed } from "@/lib/bracketData";
+import { isTournamentLocked } from "@/lib/lockUtils";
 
 export async function GET(req: NextRequest) {
   const tournamentId = req.nextUrl.searchParams.get("tournament_id");
   if (!tournamentId) return NextResponse.json({ error: "tournament_id required" }, { status: 400 });
 
   const db = getDb();
-  const tournament = db.prepare("SELECT results_data, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
+  const tournament = db.prepare("SELECT results_data, bracket_data, lock_time FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
 
   // Auto-fill incomplete brackets if lock time has passed
@@ -60,10 +61,13 @@ export async function GET(req: NextRequest) {
   const topScore = entries.length > 0 ? entries[0].score : 0;
 
   // Best possible finish: count players whose current score already exceeds this player's max possible
+  const locked = isTournamentLocked(tournament.lock_time);
   const leaderboard = entries.map((e) => ({
     ...e,
     bestPossibleFinish: entries.filter((o) => o.score > e.maxPossible).length + 1,
     eliminated: e.maxPossible < topScore,
+    // Hide other users' pick details before lock
+    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false }),
   }));
 
   return NextResponse.json({ leaderboard, scoring_settings: settings });

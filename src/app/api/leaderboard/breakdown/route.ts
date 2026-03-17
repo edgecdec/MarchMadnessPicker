@@ -3,6 +3,8 @@ import { getDb } from "@/lib/db";
 import { scorePicksDetailed } from "@/lib/scoring";
 import { DEFAULT_SCORING } from "@/types";
 import { resolveRegionSeed } from "@/lib/bracketData";
+import { getUser } from "@/lib/auth";
+import { isTournamentLocked } from "@/lib/lockUtils";
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -12,8 +14,14 @@ export async function GET(req: NextRequest) {
   if (!tournamentId || !username) return NextResponse.json({ error: "tournament_id and username required" }, { status: 400 });
 
   const db = getDb();
-  const tournament = db.prepare("SELECT results_data, bracket_data FROM tournaments WHERE id = ?").get(tournamentId) as any;
+  const tournament = db.prepare("SELECT results_data, bracket_data, lock_time FROM tournaments WHERE id = ?").get(tournamentId) as any;
   if (!tournament) return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
+
+  const currentUser = await getUser();
+  const isOwner = currentUser?.username === username;
+  if (!isOwner && !isTournamentLocked(tournament.lock_time)) {
+    return NextResponse.json({ error: "Picks are hidden until lock time" }, { status: 403 });
+  }
 
   const user = db.prepare("SELECT id FROM users WHERE username = ?").get(username) as any;
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
