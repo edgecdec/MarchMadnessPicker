@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const eliminated = getEliminatedTeams(results, bracket.regions);
 
   const members = db.prepare(`
-    SELECT u.username, p.id as pick_id, p.picks_data, p.bracket_name, p.tiebreaker
+    SELECT u.id as user_id, u.username, p.id as pick_id, p.picks_data, p.bracket_name, p.tiebreaker
     FROM group_members gm
     JOIN users u ON gm.user_id = u.id
     LEFT JOIN picks p ON p.user_id = u.id AND p.tournament_id = ?
@@ -49,6 +49,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
       return {
         username: m.username,
+        user_id: m.user_id,
         pick_id: m.pick_id || null,
         bracket_name: m.bracket_name || null,
         score: m.picks_data ? scorePicks(picks, results, scoring, bracket.regions) : 0,

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { useAuth } from "@/hooks/useAuth";
@@ -235,26 +236,71 @@ export default function GroupsPage() {
                               <TableCell align="right">{entry.has_picks ? "✅" : "⏳ No picks"}</TableCell>
                               {canEdit && entry.pick_id && (
                                 <TableCell align="right">
-                                  <Tooltip title="Remove bracket from group">
-                                    <IconButton size="small" color="error" onClick={async () => {
-                                      if (!confirm(`Remove ${entry.username}'s bracket "${entry.bracket_name}" from this group?`)) return;
-                                      try {
-                                        await api.groups.removeBracket(entry.pick_id, g.id);
-                                        const d = await api.groups.leaderboard(g.id, tournament!.id);
-                                        setLeaderboard(d.leaderboard);
-                                        setSnackSeverity("success");
-                                        setSnack("Bracket removed from group");
-                                      } catch (e: any) {
-                                        setSnackSeverity("error");
-                                        setSnack(e.message || "Failed to remove bracket");
-                                      }
-                                    }}>
-                                      <RemoveCircleOutlineIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
+                                  <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
+                                    <Tooltip title="Remove bracket from group">
+                                      <IconButton size="small" color="error" onClick={async () => {
+                                        if (!confirm(`Remove ${entry.username}'s bracket "${entry.bracket_name}" from this group?`)) return;
+                                        try {
+                                          await api.groups.removeBracket(entry.pick_id, g.id);
+                                          const d = await api.groups.leaderboard(g.id, tournament!.id);
+                                          setLeaderboard(d.leaderboard);
+                                          setSnackSeverity("success");
+                                          setSnack("Bracket removed from group");
+                                        } catch (e: any) {
+                                          setSnackSeverity("error");
+                                          setSnack(e.message || "Failed to remove bracket");
+                                        }
+                                      }}>
+                                        <RemoveCircleOutlineIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                    {entry.user_id !== user.id && (
+                                      <Tooltip title="Remove member from group">
+                                        <IconButton size="small" color="error" onClick={async () => {
+                                          if (!confirm(`Remove ${entry.username} from this group? This will also remove their bracket assignments.`)) return;
+                                          try {
+                                            await api.groups.removeMember(entry.user_id, g.id);
+                                            const d = await api.groups.leaderboard(g.id, tournament!.id);
+                                            setLeaderboard(d.leaderboard);
+                                            loadGroups();
+                                            setSnackSeverity("success");
+                                            setSnack("Member removed from group");
+                                          } catch (e: any) {
+                                            setSnackSeverity("error");
+                                            setSnack(e.message || "Failed to remove member");
+                                          }
+                                        }}>
+                                          <PersonRemoveIcon fontSize="small" />
+                                        </IconButton>
+                                      </Tooltip>
+                                    )}
+                                  </Box>
                                 </TableCell>
                               )}
-                              {canEdit && !entry.pick_id && <TableCell />}
+                              {canEdit && !entry.pick_id && (
+                                <TableCell align="right">
+                                  {entry.user_id !== user.id && (
+                                    <Tooltip title="Remove member from group">
+                                      <IconButton size="small" color="error" onClick={async () => {
+                                        if (!confirm(`Remove ${entry.username} from this group?`)) return;
+                                        try {
+                                          await api.groups.removeMember(entry.user_id, g.id);
+                                          const d = await api.groups.leaderboard(g.id, tournament!.id);
+                                          setLeaderboard(d.leaderboard);
+                                          loadGroups();
+                                          setSnackSeverity("success");
+                                          setSnack("Member removed from group");
+                                        } catch (e: any) {
+                                          setSnackSeverity("error");
+                                          setSnack(e.message || "Failed to remove member");
+                                        }
+                                      }}>
+                                        <PersonRemoveIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                </TableCell>
+                              )}
                             </TableRow>
                           ))}
                         </TableBody>

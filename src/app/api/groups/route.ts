@@ -143,6 +143,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "remove_member") {
+    const { user_id: targetUserId, group_id } = data;
+    if (!targetUserId || !group_id) return NextResponse.json({ error: "user_id and group_id required" }, { status: 400 });
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    if (group.created_by === targetUserId) return NextResponse.json({ error: "Cannot remove the group creator" }, { status: 400 });
+    const isEveryone = group.id === "everyone";
+    if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can remove members from this group" }, { status: 403 });
+    if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can remove members" }, { status: 403 });
+    db.prepare("DELETE FROM bracket_group_assignments WHERE group_id = ? AND pick_id IN (SELECT id FROM picks WHERE user_id = ?)").run(group_id, targetUserId);
+    db.prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?").run(group_id, targetUserId);
+    return NextResponse.json({ ok: true });
+  }
+
   if (action === "remove_bracket") {
     const { pick_id, group_id } = data;
     if (!pick_id || !group_id) return NextResponse.json({ error: "pick_id and group_id required" }, { status: 400 });
