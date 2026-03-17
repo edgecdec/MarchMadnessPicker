@@ -86,6 +86,8 @@ export const api = {
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "remove_bracket", pick_id: pickId, group_id: groupId }) }),
     removeMember: (userId: string, groupId: string) =>
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "remove_member", user_id: userId, group_id: groupId }) }),
+    deleteGroup: (groupId: string) =>
+      request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_group", group_id: groupId }) }),
     messages: (groupId: string, before?: string) => {
       const params = before ? `?before=${before}` : "";
       return request<{ messages: GroupMessage[] }>(`/api/groups/${groupId}/messages${params}`);

@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip } from "@mui/material";
+import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -28,6 +29,8 @@ export default function GroupsPage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [snack, setSnack] = useState("");
   const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
+  const [deleteGroup, setDeleteGroup] = useState<{ id: string; name: string } | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const { userBrackets } = useTournament();
 
   const loadGroups = () => {
@@ -128,6 +131,13 @@ export default function GroupsPage() {
                       <IconButton size="small" onClick={() => copyLink(g.invite_code)} title="Copy invite link">
                         <ContentCopyIcon fontSize="small" />
                       </IconButton>
+                      {isCreator && g.id !== "everyone" && (
+                        <Tooltip title="Delete group">
+                          <IconButton size="small" color="error" onClick={() => { setDeleteGroup({ id: g.id, name: g.name }); setDeleteConfirmText(""); }}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
                     </Box>
                   </Box>
 
@@ -312,6 +322,34 @@ export default function GroupsPage() {
             })}
           </Box>
         )}
+
+        <Dialog open={!!deleteGroup} onClose={() => setDeleteGroup(null)}>
+          <DialogTitle>Delete Group</DialogTitle>
+          <DialogContent>
+            <Typography sx={{ mb: 2 }}>
+              This will permanently delete <strong>{deleteGroup?.name}</strong> and remove all members and bracket assignments. This cannot be undone.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Type the group name to confirm:
+            </Typography>
+            <TextField size="small" fullWidth value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder={deleteGroup?.name} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteGroup(null)}>Cancel</Button>
+            <Button color="error" variant="contained" disabled={deleteConfirmText !== deleteGroup?.name} onClick={async () => {
+              try {
+                await api.groups.deleteGroup(deleteGroup!.id);
+                setDeleteGroup(null);
+                setSnackSeverity("success");
+                setSnack("Group deleted");
+                loadGroups();
+              } catch (e: any) {
+                setSnackSeverity("error");
+                setSnack(e.message || "Failed to delete group");
+              }
+            }}>Delete</Button>
+          </DialogActions>
+        </Dialog>
 
         <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack("")}>
           <Alert severity={snackSeverity} onClose={() => setSnack("")}>{snack}</Alert>

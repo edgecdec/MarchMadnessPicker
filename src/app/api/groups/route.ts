@@ -169,5 +169,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "delete_group") {
+    const group = db.prepare("SELECT * FROM groups WHERE id = ?").get(data.group_id) as any;
+    if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    if (group.id === "everyone") return NextResponse.json({ error: "Cannot delete the Everyone group" }, { status: 403 });
+    if (group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can delete this group" }, { status: 403 });
+    db.prepare("DELETE FROM group_messages WHERE group_id = ?").run(data.group_id);
+    db.prepare("DELETE FROM bracket_group_assignments WHERE group_id = ?").run(data.group_id);
+    db.prepare("DELETE FROM group_members WHERE group_id = ?").run(data.group_id);
+    db.prepare("DELETE FROM groups WHERE id = ?").run(data.group_id);
+    return NextResponse.json({ ok: true });
+  }
+
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }
