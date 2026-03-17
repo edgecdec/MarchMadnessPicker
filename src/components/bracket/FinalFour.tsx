@@ -75,15 +75,16 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const ffWrap = {
     p: 1,
     borderRadius: 2,
-    border: "1.5px solid rgba(144,202,249,0.35)",
-    background: "linear-gradient(135deg, rgba(144,202,249,0.06) 0%, rgba(144,202,249,0.02) 100%)",
+    border: "1.5px solid",
+    borderColor: "divider",
+    bgcolor: "action.hover",
   } as const;
   const champWrap = {
     p: 1.5,
     borderRadius: 2,
-    border: "2px solid rgba(255,215,0,0.5)",
-    background: "linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.02) 100%)",
-    boxShadow: "0 0 12px rgba(255,215,0,0.15)",
+    border: "2px solid",
+    borderColor: "warning.main",
+    bgcolor: "action.hover",
   } as const;
 
   return (
@@ -105,7 +106,7 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         />
       </Box>
       <Box sx={{ my: 0.5 }}>
-        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 800, color: "#FFD700", mb: 0.75, fontSize: "0.8rem", letterSpacing: 1, textTransform: "uppercase" }}>
+        <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 800, color: "warning.main", mb: 0.75, fontSize: "0.8rem", letterSpacing: 1, textTransform: "uppercase" }}>
           🏆 Championship
         </Typography>
         <Box sx={champWrap}>

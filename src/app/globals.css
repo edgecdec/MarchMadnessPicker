@@ -1,4 +1,4 @@
-.bracket-export, .bracket-export * { color: #222 !important; }
+.bracket-export, .bracket-export * { color: #222 !important; background-image: none !important; }
 
 @page { size: landscape; margin: 0.25in; }
 @media print {
