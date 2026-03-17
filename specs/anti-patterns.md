@@ -37,3 +37,11 @@ These are mistakes Ralph has made before. Read this every loop.
 - When adding a bug you discovered, APPEND it — do not touch existing entries
 - Never re-add a bug that was already deleted/fixed
 - If you're unsure whether a bug is still valid, check the code first before removing it
+
+## Dark/Light Mode
+- NEVER use hardcoded hex colors in components (e.g. `color: "#fff"`, `background: "#1e1e1e"`)
+- ALWAYS use MUI theme tokens: `text.primary`, `text.secondary`, `background.default`, `background.paper`, `divider`, `primary.main`, `action.hover`, etc.
+- For custom colors that need to differ between modes, use `theme.palette.mode === 'dark' ? darkValue : lightValue` or define them in the theme's palette
+- When creating new components, test them in BOTH dark and light mode before committing
+- The bracket export must also respect the current theme — don't hardcode export colors separately
+- Common mistakes: hardcoded `#fff`/`#000` text, hardcoded `rgba()` backgrounds, hardcoded border colors, inline `sx` styles with literal color values
