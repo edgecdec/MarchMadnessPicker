@@ -146,7 +146,7 @@ export default function GroupsPage() {
                           Max {g.max_brackets} bracket{g.max_brackets !== 1 ? "s" : ""} per member
                         </Typography>
                       )}
-                      {g.submissions_locked && (
+                      {!!g.submissions_locked && (
                         <Chip icon={<LockIcon />} label="Submissions locked by group admin" color="warning" size="small" sx={{ mb: 1 }} />
                       )}
                       {canEdit && (
