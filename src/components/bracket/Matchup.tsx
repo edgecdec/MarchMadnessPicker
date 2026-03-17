@@ -82,7 +82,7 @@ function TeamSlot({
         background: bg,
         border: 1,
         borderColor: regionColor || "divider",
-        borderTop: position === "top" ? 1 : 0,
+        borderTopWidth: position === "top" ? 1 : 0,
         width: 155,
         minHeight: { xs: 32, sm: "auto" },
         opacity: isEliminated ? 0.35 : 1,
