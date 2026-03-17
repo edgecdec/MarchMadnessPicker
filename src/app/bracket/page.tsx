@@ -69,8 +69,7 @@ export default function BracketPage() {
       await api.tournaments.renameBracket(tournament.id, activeBracket, name);
       setRenameOpen(false);
       setRenameName("");
-      refreshBrackets();
-      setTimeout(() => switchBracket(name), 200);
+      switchBracket(name);
     } catch {}
   };
 
