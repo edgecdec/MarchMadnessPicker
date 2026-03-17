@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
     if (!username || !password || password.length < 4) {
       return NextResponse.json({ error: "Username and password (4+ chars) required" }, { status: 400 });
     }
+    if (username.length > 32) return NextResponse.json({ error: "Username max 32 characters" }, { status: 400 });
+    if (password.length > 128) return NextResponse.json({ error: "Password max 128 characters" }, { status: 400 });
     const existing = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
     if (existing) return NextResponse.json({ error: "Username taken" }, { status: 409 });
 

@@ -152,7 +152,7 @@ export default function BracketPage() {
       <Dialog open={newOpen} onClose={() => setNewOpen(false)}>
         <DialogTitle>Create New Bracket</DialogTitle>
         <DialogContent>
-          <TextField autoFocus fullWidth label="Bracket Name" value={newName} onChange={(e) => setNewName(e.target.value)} sx={{ mt: 1 }} onKeyDown={(e) => e.key === "Enter" && handleCreateBracket()} />
+          <TextField autoFocus fullWidth label="Bracket Name" value={newName} onChange={(e) => setNewName(e.target.value)} sx={{ mt: 1 }} onKeyDown={(e) => e.key === "Enter" && handleCreateBracket()} inputProps={{ maxLength: 32 }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewOpen(false)}>Cancel</Button>
@@ -164,7 +164,7 @@ export default function BracketPage() {
       <Dialog open={renameOpen} onClose={() => setRenameOpen(false)}>
         <DialogTitle>Rename Bracket</DialogTitle>
         <DialogContent>
-          <TextField autoFocus fullWidth label="New Name" value={renameName} onChange={(e) => setRenameName(e.target.value)} sx={{ mt: 1 }} onKeyDown={(e) => e.key === "Enter" && handleRename()} />
+          <TextField autoFocus fullWidth label="New Name" value={renameName} onChange={(e) => setRenameName(e.target.value)} sx={{ mt: 1 }} onKeyDown={(e) => e.key === "Enter" && handleRename()} inputProps={{ maxLength: 32 }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRenameOpen(false)}>Cancel</Button>

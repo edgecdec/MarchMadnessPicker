@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     if (action === "rename_bracket") {
       const { new_name } = body;
       if (!new_name) return NextResponse.json({ error: "new_name required" }, { status: 400 });
+      if (new_name.length > 32) return NextResponse.json({ error: "Bracket name max 32 characters" }, { status: 400 });
       const existing = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
         .get(user.id, tournament_id, new_name);
       if (existing) return NextResponse.json({ error: "A bracket with that name already exists" }, { status: 409 });
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest) {
     if (!picks_data) {
       return NextResponse.json({ error: "picks_data required" }, { status: 400 });
     }
+    if (bracket_name.length > 32) return NextResponse.json({ error: "Bracket name max 32 characters" }, { status: 400 });
 
     if (tournament.lock_time && new Date(tournament.lock_time) < new Date()) {
       return NextResponse.json({ error: "Picks are locked" }, { status: 403 });

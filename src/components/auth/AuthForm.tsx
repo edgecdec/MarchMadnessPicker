@@ -28,9 +28,9 @@ export default function AuthForm() {
           <Tab label="Login" />
           <Tab label="Register" />
         </Tabs>
-        <TextField fullWidth label="Username" value={username} onChange={e => setUsername(e.target.value)} sx={{ mb: 2 }} />
+        <TextField fullWidth label="Username" value={username} onChange={e => setUsername(e.target.value)} sx={{ mb: 2 }} inputProps={{ maxLength: 32 }} />
         <TextField fullWidth label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} sx={{ mb: 2 }}
-          onKeyDown={e => e.key === "Enter" && submit()} />
+          onKeyDown={e => e.key === "Enter" && submit()} inputProps={{ maxLength: 128 }} />
         {error && <Typography color="error" variant="body2" sx={{ mb: 1 }}>{error}</Typography>}
         <Button fullWidth variant="contained" onClick={submit}>{tab === 0 ? "Login" : "Register"}</Button>
       </Paper>
