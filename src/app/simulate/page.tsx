@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   Container, Typography, Box, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Select, MenuItem, FormControl,
   InputLabel, Button, Chip, Drawer, useMediaQuery, useTheme, IconButton,
+  Menu,
 } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -15,7 +16,7 @@ import { useMonteCarlo } from "@/hooks/useMonteCarlo";
 import { api } from "@/lib/api";
 import { scorePicks } from "@/lib/scoring";
 import { ScoringSettings, Region, Team, FirstFourGame } from "@/types";
-import { toRegionSeed, getTeamRegion } from "@/lib/bracketData";
+import { toRegionSeed, getTeamRegion, parseRegionSeed } from "@/lib/bracketData";
 import RegionBracket from "@/components/bracket/RegionBracket";
 import FinalFour from "@/components/bracket/FinalFour";
 import MonteCarloTable from "@/components/bracket/MonteCarloTable";
@@ -42,6 +43,59 @@ function allGameIds(regions: Region[]): string[] {
   return ids;
 }
 
+const SEED_PAIRS: [number, number][] = [
+  [1, 16], [8, 9], [5, 12], [4, 13], [6, 11], [3, 14], [7, 10], [2, 15],
+];
+
+/** Build hypothetical results where the higher seed always wins unresolved games */
+function chalkFill(regions: Region[], results: Record<string, string>): Record<string, string> {
+  const h: Record<string, string> = {};
+  const m = () => ({ ...results, ...h });
+  for (const r of regions) {
+    // Round 0: seeds are known
+    for (let i = 0; i < 8; i++) {
+      const gid = `${r.name}-0-${i}`;
+      if (results[gid]) continue;
+      const [sA, sB] = SEED_PAIRS[i];
+      h[gid] = toRegionSeed(r.name, Math.min(sA, sB));
+    }
+    // Rounds 1-3
+    for (let round = 1; round < 4; round++) {
+      const count = 8 / Math.pow(2, round);
+      for (let i = 0; i < count; i++) {
+        const gid = `${r.name}-${round}-${i}`;
+        if (results[gid]) continue;
+        const a = m()[`${r.name}-${round - 1}-${i * 2}`];
+        const b = m()[`${r.name}-${round - 1}-${i * 2 + 1}`];
+        if (!a || !b) continue;
+        const pA = parseRegionSeed(a), pB = parseRegionSeed(b);
+        h[gid] = (pA && pB) ? (pA.seed <= pB.seed ? a : b) : a;
+      }
+    }
+  }
+  // Final Four
+  const ffPairs: [string, string, string][] = regions.length >= 4 ? [
+    ["ff-4-0", `${regions[0].name}-3-0`, `${regions[1].name}-3-0`],
+    ["ff-4-1", `${regions[2].name}-3-0`, `${regions[3].name}-3-0`],
+  ] : [];
+  for (const [gid, fA, fB] of ffPairs) {
+    if (results[gid]) continue;
+    const a = m()[fA], b = m()[fB];
+    if (!a || !b) continue;
+    const pA = parseRegionSeed(a), pB = parseRegionSeed(b);
+    h[gid] = (pA && pB) ? (pA.seed <= pB.seed ? a : b) : a;
+  }
+  // Championship
+  if (!results["ff-5-0"]) {
+    const a = m()["ff-4-0"], b = m()["ff-4-1"];
+    if (a && b) {
+      const pA = parseRegionSeed(a), pB = parseRegionSeed(b);
+      h["ff-5-0"] = (pA && pB) ? (pA.seed <= pB.seed ? a : b) : a;
+    }
+  }
+  return h;
+}
+
 export default function SimulatePage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, loading: tournLoading } = useTournament();
@@ -55,6 +109,7 @@ export default function SimulatePage() {
   } | null>(null);
   const [hypo, setHypo] = useState<Record<string, string>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [picksAnchor, setPicksAnchor] = useState<null | HTMLElement>(null);
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -161,6 +216,29 @@ export default function SimulatePage() {
     });
   }, [regions, results]);
 
+  // Current user's brackets in this group
+  const myBrackets = useMemo(() =>
+    (data?.entries || []).filter((e) => e.username === user?.username),
+    [data, user],
+  );
+
+  const fillChalk = useCallback(() => {
+    if (!regions.length) return;
+    setHypo(chalkFill(regions, results));
+  }, [regions, results]);
+
+  const fillMyPicks = useCallback((entry: SimEntry) => {
+    if (!regions.length) return;
+    // Only set picks for games not already in actual results
+    const h: Record<string, string> = {};
+    const ids = allGameIds(regions);
+    for (const id of ids) {
+      if (!results[id] && entry.picks[id]) h[id] = entry.picks[id];
+    }
+    setHypo(h);
+    setPicksAnchor(null);
+  }, [regions, results]);
+
   if (authLoading || tournLoading) return null;
   if (!user) return <AuthForm />;
 
@@ -252,6 +330,25 @@ export default function SimulatePage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   <Box sx={{ width: 12, height: 12, bgcolor: "rgba(255,111,0,0.25)", border: "1px solid #ff6f00", borderRadius: 0.5 }} />
                   <Typography variant="caption">Hypothetical</Typography>
+                </Box>
+                {/* Autofill buttons */}
+                <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
+                  <Button size="small" variant="outlined" onClick={fillChalk}>Top Seeds</Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={myBrackets.length === 0}
+                    onClick={(e) => myBrackets.length === 1 ? fillMyPicks(myBrackets[0]) : setPicksAnchor(e.currentTarget)}
+                  >
+                    My Picks
+                  </Button>
+                  <Menu anchorEl={picksAnchor} open={Boolean(picksAnchor)} onClose={() => setPicksAnchor(null)}>
+                    {myBrackets.map((b) => (
+                      <MenuItem key={b.bracket_name} onClick={() => fillMyPicks(b)}>
+                        {b.bracket_name || "Default"}
+                      </MenuItem>
+                    ))}
+                  </Menu>
                 </Box>
               </Box>
 
