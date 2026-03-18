@@ -21,6 +21,7 @@ interface Props {
   distribution?: Record<string, Record<string, number>>;
   bracketName?: string;
   initialTiebreaker?: number | null;
+  initialVersion?: number;
   onSaved?: () => void;
 }
 
@@ -71,7 +72,7 @@ function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: 
   return updated;
 }
 
-export default function Bracket({ regions, firstFour, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, onSaved }: Props) {
+export default function Bracket({ regions, firstFour, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, initialVersion, onSaved }: Props) {
   const [picks, setPicks] = useState<Record<string, string>>(initialPicks || {});
   const [tiebreaker, setTiebreaker] = useState<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
   const [saving, setSaving] = useState(false);
@@ -83,6 +84,8 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [autofillAnchor, setAutofillAnchor] = useState<null | HTMLElement>(null);
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
   const savedTiebreakerRef = useRef<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
+  const versionRef = useRef<number>(initialVersion ?? 1);
+  const [versionConflict, setVersionConflict] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
   const isMobile = useMediaQuery("(max-width:767px)");
 
@@ -90,7 +93,9 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   useEffect(() => {
     setPicks(initialPicks || {});
     savedPicksRef.current = JSON.stringify(initialPicks || {});
-  }, [initialPicks, bracketName]);
+    versionRef.current = initialVersion ?? 1;
+    setVersionConflict(false);
+  }, [initialPicks, bracketName, initialVersion]);
 
   useEffect(() => {
     setTiebreaker(initialTiebreaker != null ? String(initialTiebreaker) : "");
@@ -136,7 +141,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
 
   // Autosave with 2-second debounce
   useEffect(() => {
-    if (locked || !tournamentId) return;
+    if (locked || !tournamentId || versionConflict) return;
     const picksJson = JSON.stringify(picks);
     if (picksJson === savedPicksRef.current && tiebreaker === savedTiebreakerRef.current) return;
     // Don't autosave empty brackets (no picks made yet)
@@ -148,9 +153,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         const res = await fetch("/api/picks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null }),
+          body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null, version: versionRef.current }),
         });
+        if (res.status === 409) {
+          setVersionConflict(true);
+          setAutoSaveStatus("unsaved");
+          return;
+        }
         if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (data.version) versionRef.current = data.version;
         savedPicksRef.current = picksJson;
         savedTiebreakerRef.current = tiebreaker;
         setAutoSaveStatus("saved");
@@ -160,7 +172,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       }
     }, 2000);
     return () => clearTimeout(timer);
-  }, [picks, tiebreaker, locked, tournamentId, bracketName]);
+  }, [picks, tiebreaker, locked, tournamentId, bracketName, versionConflict]);
 
   // Calculate score
   const score = results ? scorePicks(picks, results) : 0;
@@ -226,10 +238,12 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null }),
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: picks, bracket_name: bracketName, tiebreaker: tiebreaker ? Number(tiebreaker) : null, version: versionRef.current }),
       });
       const data = await res.json();
+      if (res.status === 409) { setVersionConflict(true); setSaving(false); return; }
       if (!res.ok) throw new Error(data.error);
+      if (data.version) versionRef.current = data.version;
       savedPicksRef.current = JSON.stringify(picks);
       savedTiebreakerRef.current = tiebreaker;
       setAutoSaveStatus("saved");
@@ -249,10 +263,12 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tournament_id: tournamentId, picks_data: {}, bracket_name: bracketName }),
+        body: JSON.stringify({ tournament_id: tournamentId, picks_data: {}, bracket_name: bracketName, version: versionRef.current }),
       });
       const data = await res.json();
+      if (res.status === 409) { setVersionConflict(true); setSaving(false); return; }
       if (!res.ok) throw new Error(data.error);
+      if (data.version) versionRef.current = data.version;
       setPicks({});
       savedPicksRef.current = JSON.stringify({});
       setAutoSaveStatus("idle");
@@ -448,6 +464,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         <DialogActions>
           <Button onClick={() => setResetOpen(false)}>Cancel</Button>
           <Button onClick={handleReset} color="error">Reset</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={versionConflict}>
+        <DialogTitle>Bracket Modified</DialogTitle>
+        <DialogContent>
+          <DialogContentText>This bracket was modified in another tab. Reload to get the latest version.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => window.location.reload()} variant="contained">Reload</Button>
         </DialogActions>
       </Dialog>
 

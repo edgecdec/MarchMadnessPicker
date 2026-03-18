@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   let userPicks: any = null;
   let userBrackets: any[] = [];
   let userTiebreaker: number | null = null;
+  let userVersion: number = 1;
 
   if (user && tournamentId) {
     // List all brackets for this user/tournament
@@ -25,16 +26,17 @@ export async function GET(req: NextRequest) {
     const name = bracketName || (userBrackets[0]?.bracket_name ?? null);
     if (name) {
       const row = db.prepare(
-        "SELECT picks_data, tiebreaker FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?"
+        "SELECT picks_data, tiebreaker, version FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?"
       ).get(user.id, tournamentId, name) as any;
       if (row) {
         userPicks = JSON.parse(row.picks_data);
         userTiebreaker = row.tiebreaker ?? null;
+        userVersion = row.version ?? 1;
       }
     }
   }
 
-  return NextResponse.json({ tournaments, userPicks, userBrackets, userTiebreaker });
+  return NextResponse.json({ tournaments, userPicks, userBrackets, userTiebreaker, userVersion });
 }
 
 export async function POST(req: NextRequest) {
@@ -45,6 +47,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { tournament_id, picks_data, bracket_name = "My Bracket", action } = body;
     const tiebreaker = body.tiebreaker !== undefined ? body.tiebreaker : undefined;
+    const clientVersion = body.version != null ? Number(body.version) : null;
 
     if (!tournament_id) {
       return NextResponse.json({ error: "tournament_id required" }, { status: 400 });
@@ -106,17 +109,26 @@ export async function POST(req: NextRequest) {
 
     const pickId = uuid();
     const tiebreakerVal = tiebreaker != null ? Number(tiebreaker) : null;
+
+    // Optimistic locking: if client sends a version, reject if it doesn't match
+    const currentPick = db.prepare("SELECT version FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
+      .get(user.id, tournament_id, bracket_name) as any;
+    if (currentPick && clientVersion != null && currentPick.version !== clientVersion) {
+      return NextResponse.json({ error: "Bracket was modified in another tab. Please reload.", code: "VERSION_CONFLICT" }, { status: 409 });
+    }
+    const nextVersion = (currentPick?.version ?? 0) + 1;
+
     db.prepare(`
-      INSERT INTO picks (id, user_id, tournament_id, bracket_name, picks_data, tiebreaker) VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(user_id, tournament_id, bracket_name) DO UPDATE SET picks_data = ?, tiebreaker = ?, submitted_at = datetime('now')
-    `).run(pickId, user.id, tournament_id, bracket_name, JSON.stringify(picks_data), tiebreakerVal, JSON.stringify(picks_data), tiebreakerVal);
+      INSERT INTO picks (id, user_id, tournament_id, bracket_name, picks_data, tiebreaker, version) VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, tournament_id, bracket_name) DO UPDATE SET picks_data = ?, tiebreaker = ?, submitted_at = datetime('now'), version = ?
+    `).run(pickId, user.id, tournament_id, bracket_name, JSON.stringify(picks_data), tiebreakerVal, nextVersion, JSON.stringify(picks_data), tiebreakerVal, nextVersion);
 
     // Auto-assign to Everyone group
     const savedPick = db.prepare("SELECT id FROM picks WHERE user_id = ? AND tournament_id = ? AND bracket_name = ?")
       .get(user.id, tournament_id, bracket_name) as any;
     if (savedPick) autoAssignBracketToEveryone(db, savedPick.id);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, version: nextVersion });
   } catch (err: any) {
     console.error("POST /api/picks error:", err);
     return NextResponse.json({ error: err?.message || "Internal server error" }, { status: 500 });

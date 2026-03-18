@@ -96,6 +96,7 @@ function initDb(db: Database.Database) {
   try { db.exec("ALTER TABLE picks ADD COLUMN tiebreaker INTEGER DEFAULT NULL"); } catch {}
   try { db.exec("ALTER TABLE tournaments ADD COLUMN results_updated_at TEXT DEFAULT NULL"); } catch {}
   try { db.exec("ALTER TABLE groups ADD COLUMN submissions_locked INTEGER DEFAULT 0"); } catch {}
+  try { db.exec("ALTER TABLE picks ADD COLUMN version INTEGER NOT NULL DEFAULT 1"); } catch {}
 
   // Migrate unique constraint: recreate picks table if old constraint exists
   try {
