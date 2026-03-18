@@ -38,12 +38,12 @@ export default function MonteCarloTable({
       {running && <LinearProgress variant="determinate" value={progress / 10} sx={{ mb: 1 }} />}
       {results.length > 0 && (
         <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-          <Table size="small" stickyHeader sx={{ tableLayout: "fixed" }}>
+          <Table size="small" stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 0.5, px: 1, maxWidth: 100, width: 100 }}>Player</TableCell>
+                <TableCell sx={{ py: 0.5, px: 1, width: "40%" }}>Player</TableCell>
                 {(["avgScore", "avgPlace", "winPct"] as SortKey[]).map((k) => (
-                  <TableCell key={k} align="right" sx={{ py: 0.5, px: 1 }}>
+                  <TableCell key={k} align="right" sx={{ py: 0.5, px: 1, width: "20%" }}>
                     <TableSortLabel
                       active={sortBy === k}
                       direction={sortBy === k ? (asc ? "asc" : "desc") : "desc"}
@@ -60,9 +60,9 @@ export default function MonteCarloTable({
                 const isMe = currentUser && r.key.startsWith(currentUser + "|");
                 return (
                   <TableRow key={r.key} sx={isMe ? { bgcolor: "action.selected" } : undefined}>
-                    <TableCell sx={{ py: 0.25, px: 1, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.key.replace("|", " — ").replace(" — null", "")}>
+                    <TableCell sx={{ py: 0.25, px: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.key.replace("|", " — ").replace(" — null", "")}>
                       <Typography variant="body2" noWrap sx={{ fontSize: "0.75rem" }}>
-                        {(() => { const s = r.key.replace("|", " — ").replace(" — null", ""); return s.length > 12 ? s.slice(0, 12) + "…" : s; })()}
+                        {r.key.replace("|", " — ").replace(" — null", "")}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ py: 0.25, px: 1 }}>{r.avgScore}</TableCell>
