@@ -62,6 +62,17 @@ export function useTournament() {
           loading: false,
         });
       });
+      // Fire auto-sync in background; refresh results if anything updated
+      api.autoSync?.()?.then((r) => {
+        if (r && r.updated > 0) {
+          api.tournaments.list().then(({ tournaments }) => {
+            const fresh = tournaments[0];
+            if (!fresh) return;
+            const res = typeof fresh.results_data === "string" ? JSON.parse(fresh.results_data as string) : (fresh.results_data || {});
+            setState((s) => ({ ...s, results: res }));
+          });
+        }
+      });
     }).catch(() => setState((s) => ({ ...s, loading: false })));
   }, []);
 

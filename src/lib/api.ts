@@ -123,6 +123,10 @@ export const api = {
       request<{ ok: boolean }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "admin_add_to_group", user_id: userId, group_id: groupId, pick_ids: pickIds }) }),
   },
 
+  // Auto-sync
+  autoSync: () =>
+    request<{ ok: boolean; updated: number; skipped?: boolean }>("/api/auto-sync", { method: "POST" }).catch(() => null),
+
   // Stats
   stats: {
     get: (tournamentId: string) =>
