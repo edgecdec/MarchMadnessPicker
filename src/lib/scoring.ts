@@ -3,6 +3,11 @@ import { parseRegionSeed } from "@/lib/bracketData";
 
 const DEFAULT_POINTS = [1, 2, 4, 8, 16, 32];
 
+// First Four play-in games are not pickable — exclude from scoring
+function isFirstFour(gameId: string): boolean {
+  return gameId.startsWith("ff-play-");
+}
+
 // Check if a pick matches a result
 // Both should be region-seed identifiers (e.g. "East-1") for bracket games,
 // or team names for First Four play-in games.
@@ -38,6 +43,7 @@ export function scorePicks(
 
   let score = 0;
   for (const [gameId, winner] of Object.entries(results)) {
+    if (isFirstFour(gameId)) continue;
     if (!pickMatches(picks[gameId], winner)) continue;
 
     const round = parseInt(gameId.split("-")[1]) || 0;
@@ -133,6 +139,7 @@ export function scorePicksByRound(
   }
 
   for (const [gameId, winner] of Object.entries(results)) {
+    if (isFirstFour(gameId)) continue;
     if (!pickMatches(picks[gameId], winner)) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
     if (round >= 0 && round < 6) {
@@ -155,6 +162,7 @@ export function maxPossibleScore(results: Record<string, string>, settings?: Sco
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
   // Base points only (upset bonus is variable, can't predict max)
   return Object.keys(results).reduce((total, gameId) => {
+    if (isFirstFour(gameId)) return total;
     const round = parseInt(gameId.split("-")[1]) || 0;
     return total + (pts[round] || 0);
   }, 0);
