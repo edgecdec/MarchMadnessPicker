@@ -1,4 +1,7 @@
-.bracket-export, .bracket-export * { color: #222 !important; background-image: none !important; }
+.bracket-export, .bracket-export * { color: #222 !important; background-image: none !important; border-color: #ccc !important; }
+.bracket-export { background-color: #fff !important; }
+.bracket-export .MuiPaper-root { background-color: #fff !important; }
+.bracket-export .MuiSvgIcon-root { color: #555 !important; }
 
 @page { size: landscape; margin: 0.25in; }
 @media print {
