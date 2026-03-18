@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulator: add "Top Seeds" and "My Picks" autofill buttons for hypothetical results**: Add buttons above the bracket: "Top Seeds" fills all remaining unresolved games with the higher seed winning (chalk). "My Picks" fills remaining games with the current user's bracket picks — if the user has multiple brackets in the selected group, show a dropdown to pick which bracket to use. These set hypothetical results on the simulator bracket and trigger a recalculation of the Monte Carlo stats.
-
 - **Admin: add users and brackets to groups**: On the admin page, add a section where an admin can: (1) select a group from a dropdown, (2) search/select a user by username, (3) if the user isn't already a member, add them to the group, (4) see that user's brackets and select which one(s) to enter into the group. This lets admins force people into groups without needing the invite link flow. API: add an admin endpoint that adds a user to a group and assigns a bracket, bypassing the normal join/invite flow.
 
 - **Bracket export should always use light mode**: Regardless of the user's current theme, the PNG export should always render with light mode colors (white background, dark text). Force the export renderer to use light theme so exports are always readable when shared/printed.
