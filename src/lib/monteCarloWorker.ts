@@ -177,7 +177,7 @@ self.onmessage = (e: MessageEvent<SimRequest>) => {
       key: ent.key,
       avgScore: Math.round((t.score / totalSims) * 10) / 10,
       avgPlace: Math.round((t.rank / totalSims) * 10) / 10,
-      winPct: Math.round((t.wins / totalSims) * 100),
+      winPct: Math.round((t.wins / totalSims) * 1000) / 10,
     };
   });
   out.sort((a, b) => b.winPct - a.winPct || a.avgPlace - b.avgPlace || b.avgScore - a.avgScore);

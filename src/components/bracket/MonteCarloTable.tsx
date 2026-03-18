@@ -9,26 +9,40 @@ import { MCResult } from "@/hooks/useMonteCarlo";
 type SortKey = "winPct" | "avgPlace" | "avgScore";
 
 export default function MonteCarloTable({
-  results, progress, running, currentUser,
+  results, progress, running, currentUser, hidden,
 }: {
   results: MCResult[];
   progress: number;
   running: boolean;
   currentUser?: string;
+  hidden?: boolean;
 }) {
   const [sortBy, setSortBy] = useState<SortKey>("winPct");
   const [asc, setAsc] = useState(false);
 
   const sorted = [...results].sort((a, b) => {
     const dir = asc ? 1 : -1;
-    const diff = sortBy === "avgPlace" ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy];
-    return diff * dir || b.winPct - a.winPct || a.avgPlace - b.avgPlace || b.avgScore - a.avgScore;
+    const diff = sortBy === "avgPlace" ? a[sortBy] - b[sortBy] : a[sortBy] - b[sortBy];
+    return (diff * dir) || b.winPct - a.winPct || a.avgPlace - b.avgPlace || b.avgScore - a.avgScore;
   });
 
   const handleSort = (key: SortKey) => {
     if (sortBy === key) setAsc(!asc);
     else { setSortBy(key); setAsc(key === "avgPlace"); }
   };
+
+  if (hidden) {
+    return (
+      <Box>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+          🎲 Monte Carlo
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Simulation results available after brackets lock.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -65,9 +79,9 @@ export default function MonteCarloTable({
                         {r.key.replace("|", " — ").replace(" — null", "")}
                       </Typography>
                     </TableCell>
-                    <TableCell align="right" sx={{ py: 0.25, px: 1 }}>{r.avgScore}</TableCell>
-                    <TableCell align="right" sx={{ py: 0.25, px: 1 }}>{r.avgPlace}</TableCell>
-                    <TableCell align="right" sx={{ py: 0.25, px: 1, fontWeight: 700 }}>{r.winPct}%</TableCell>
+                    <TableCell align="right" sx={{ py: 0.25, px: 1 }}>{r.avgScore.toFixed(1)}</TableCell>
+                    <TableCell align="right" sx={{ py: 0.25, px: 1 }}>{r.avgPlace.toFixed(1)}</TableCell>
+                    <TableCell align="right" sx={{ py: 0.25, px: 1, fontWeight: 700 }}>{r.winPct.toFixed(1)}%</TableCell>
                   </TableRow>
                 );
               })}

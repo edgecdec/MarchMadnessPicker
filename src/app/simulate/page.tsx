@@ -21,6 +21,7 @@ import FinalFour from "@/components/bracket/FinalFour";
 import MonteCarloTable from "@/components/bracket/MonteCarloTable";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
+import { isTournamentLocked } from "@/lib/lockUtils";
 
 interface SimEntry {
   username: string;
@@ -163,6 +164,9 @@ export default function SimulatePage() {
   if (authLoading || tournLoading) return null;
   if (!user) return <AuthForm />;
 
+  const locked = isTournamentLocked(tournament?.lock_time ?? null);
+  const hideMC = !locked && !user.is_admin;
+
   const hypoCount = Object.keys(hypo).length;
 
   const leaderboardPanel = data && (
@@ -274,7 +278,7 @@ export default function SimulatePage() {
               <Box sx={{ width: 340, flexShrink: 0 }}>
                 {leaderboardPanel}
                 <Box sx={{ mt: 2 }}>
-                  <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} />
+                  <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} />
                 </Box>
               </Box>
             )}
@@ -295,7 +299,7 @@ export default function SimulatePage() {
           </Box>
           {leaderboardPanel}
           <Box sx={{ mt: 2 }}>
-            <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} />
+            <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} />
           </Box>
         </Box>
       </Drawer>
