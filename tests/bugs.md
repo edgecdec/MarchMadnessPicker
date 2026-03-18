@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Admin: add users and brackets to groups**: On the admin page, add a section where an admin can: (1) select a group from a dropdown, (2) search/select a user by username, (3) if the user isn't already a member, add them to the group, (4) see that user's brackets and select which one(s) to enter into the group. This lets admins force people into groups without needing the invite link flow. API: add an admin endpoint that adds a user to a group and assigns a bracket, bypassing the normal join/invite flow.
-
 - **Bracket export should always use light mode**: Regardless of the user's current theme, the PNG export should always render with light mode colors (white background, dark text). Force the export renderer to use light theme so exports are always readable when shared/printed.
 
 - **Investigate autosave race condition with multiple browser tabs**: If the same user has the same bracket open in two browsers/tabs, autosave from both could race — one tab saves, then the other saves stale data on top of it, losing picks. Think through the best solution: options include (1) last-write-wins with a timestamp check (reject saves older than the last save), (2) optimistic locking with a version counter on the bracket row, (3) showing a warning "bracket was modified in another tab" and prompting to reload. Pick the simplest approach that prevents data loss and implement it.
