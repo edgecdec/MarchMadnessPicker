@@ -115,6 +115,12 @@ export const api = {
       request<{ ok: boolean }>("/api/admin/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tasks }) }),
     syncResults: () =>
       request<{ ok: boolean; updated: number; matched: string[]; unmatched: string[]; totalResults: number }>("/api/admin/sync-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }),
+    searchUsers: (query: string) =>
+      request<{ users: { id: string; username: string }[] }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search_users", query }) }),
+    getUserBrackets: (userId: string) =>
+      request<{ brackets: { id: string; bracket_name: string; tournament_id: string }[] }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "get_user_brackets", user_id: userId }) }),
+    addToGroup: (userId: string, groupId: string, pickIds?: string[]) =>
+      request<{ ok: boolean }>("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "admin_add_to_group", user_id: userId, group_id: groupId, pick_ids: pickIds }) }),
   },
 
   // Stats
