@@ -14,7 +14,7 @@ export default function LiveScores() {
       </Typography>
       <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5 }}>
         {games.map((g) => (
-          <Paper key={g.id} sx={{ p: 1, minWidth: 160, flexShrink: 0, bgcolor: "action.hover" }}>
+          <Paper key={g.id} component="a" href={`https://www.espn.com/mens-college-basketball/game/_/gameId/${g.id}`} target="_blank" rel="noopener noreferrer" sx={{ p: 1, minWidth: 160, flexShrink: 0, bgcolor: "action.hover", textDecoration: "none", color: "inherit", "&:hover": { bgcolor: "action.selected" } }}>
             <Typography variant="caption" sx={{ fontSize: "0.6rem", color: g.state === "in" ? "success.main" : "text.disabled", display: "block", mb: 0.5 }}>
               {g.state === "in" ? `🔴 ${g.detail}` : g.detail}
             </Typography>
