@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   const allPicks = db.prepare(`
     SELECT p.picks_data, p.bracket_name, p.tiebreaker, u.username
     FROM picks p JOIN users u ON p.user_id = u.id
-    WHERE p.tournament_id = ?
+    WHERE p.tournament_id = ? AND u.is_hidden = 0
   `).all(tournamentId) as any[];
 
   const entries = allPicks

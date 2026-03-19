@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ distribution: {} });
   }
 
-  const rows = db.prepare("SELECT picks_data FROM picks WHERE tournament_id = ?").all(tournamentId) as { picks_data: string }[];
+  const rows = db.prepare("SELECT p.picks_data FROM picks p JOIN users u ON p.user_id = u.id WHERE p.tournament_id = ? AND u.is_hidden = 0").all(tournamentId) as { picks_data: string }[];
 
   const counts: Record<string, Record<string, number>> = {};
   for (const row of rows) {

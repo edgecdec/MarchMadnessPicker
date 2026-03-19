@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     JOIN users u ON gm.user_id = u.id
     LEFT JOIN picks p ON p.user_id = u.id AND p.tournament_id = ?
     LEFT JOIN bracket_group_assignments bga ON bga.pick_id = p.id AND bga.group_id = ?
-    WHERE gm.group_id = ? AND (p.id IS NULL OR bga.pick_id IS NOT NULL)
+    WHERE gm.group_id = ? AND (p.id IS NULL OR bga.pick_id IS NOT NULL) AND u.is_hidden = 0
   `).all(tournamentId, groupId, groupId) as any[];
 
   const leaderboard = members

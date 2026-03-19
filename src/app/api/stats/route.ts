@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   for (const r of regions) for (const t of r.teams) seedMap[t.name] = t.seed;
 
   const rows = db.prepare(
-    "SELECT p.picks_data, p.bracket_name, u.username FROM picks p JOIN users u ON p.user_id = u.id WHERE p.tournament_id = ?",
+    "SELECT p.picks_data, p.bracket_name, u.username FROM picks p JOIN users u ON p.user_id = u.id WHERE p.tournament_id = ? AND u.is_hidden = 0",
   ).all(tournamentId) as { picks_data: string; bracket_name: string; username: string }[];
 
   // Champion picks (ff-5-0)
