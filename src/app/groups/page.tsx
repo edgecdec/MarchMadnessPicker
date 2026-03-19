@@ -243,7 +243,7 @@ export default function GroupsPage() {
                               <TableCell>{entry.bracket_name || "—"}</TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
                               <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
-                              <TableCell align="right">{entry.has_picks ? "✅" : "⏳ No picks"}</TableCell>
+                              <TableCell align="right">{entry.pick_count >= 63 ? "✅" : entry.pick_count === 0 ? "⏳ No picks" : `⏳ ${63 - entry.pick_count} missing`}</TableCell>
                               {canEdit && entry.pick_id && (
                                 <TableCell align="right">
                                   <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>

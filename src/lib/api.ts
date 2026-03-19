@@ -77,7 +77,7 @@ export const api = {
     toggleSubmissionsLock: (groupId: string) =>
       request<{ ok: boolean; submissions_locked: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "toggle_submissions_lock", group_id: groupId }) }),
     leaderboard: (groupId: string, tournamentId: string) =>
-      request<{ group: Group; leaderboard: (LeaderboardEntry & { has_picks: boolean })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
+      request<{ group: Group; leaderboard: (LeaderboardEntry & { pick_count: number })[] }>(`/api/groups/${groupId}?tournament_id=${tournamentId}`),
     assignBracket: (pickId: string, groupId: string) =>
       request<{ ok: boolean }>("/api/groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assign_bracket", pick_id: pickId, group_id: groupId }) }),
     unassignBracket: (pickId: string, groupId: string) =>

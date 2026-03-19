@@ -54,7 +54,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         bracket_name: m.bracket_name || null,
         score: m.picks_data ? scorePicks(picks, results, scoring, bracket.regions) : 0,
         maxRemaining: m.picks_data ? maxPossibleRemaining(picks, results, scoring, bracket.regions) : 0,
-        has_picks: !!m.picks_data,
+        pick_count: m.picks_data ? Object.keys(picks).filter(k => !k.startsWith('ff-play-')).length : 0,
         tiebreaker: m.tiebreaker ?? null,
         championPick,
         busted: championPick ? eliminated.has(championPick) || (championPickRS ? eliminated.has(championPickRS) : false) : false,
