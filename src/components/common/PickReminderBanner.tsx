@@ -21,7 +21,7 @@ export default function PickReminderBanner({ lockTime, picks, bracketName }: Pro
   const ms = new Date(lockTime).getTime() - now;
   if (ms <= 0 || ms > 86400000) return null; // only show within 24h
 
-  const pickCount = Object.keys(picks).filter((k) => !k.startsWith("ff-")).length;
+  const pickCount = Object.keys(picks).filter((k) => !k.startsWith("ff-play-")).length;
   if (pickCount >= TOTAL_GAMES) return null;
 
   const remaining = TOTAL_GAMES - pickCount;
