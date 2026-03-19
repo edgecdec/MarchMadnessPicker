@@ -12,11 +12,13 @@ import LiveScores from "@/components/bracket/LiveScores";
 import AuthForm from "@/components/auth/AuthForm";
 import CountdownTimer from "@/components/common/CountdownTimer";
 import PickReminderBanner from "@/components/common/PickReminderBanner";
+import { useGameScores } from "@/hooks/useGameScores";
 import { api } from "@/lib/api";
 
 export default function BracketPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, regions, firstFour, results, userPicks, userBrackets, activeBracket, userTiebreaker, userVersion, loading: tournLoading, switchBracket, refreshBrackets } = useTournament();
+  const gameScores = useGameScores(regions, firstFour, results);
   const [distribution, setDistribution] = useState<Record<string, Record<string, number>>>({});
   const [newOpen, setNewOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -138,6 +140,7 @@ export default function BracketPage() {
             tournamentId={tournament.id}
             initialPicks={userPicks}
             results={results}
+            gameScores={gameScores}
             locked={locked}
             distribution={distribution}
             bracketName={activeBracket || undefined}

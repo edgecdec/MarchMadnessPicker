@@ -7,6 +7,7 @@ import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import Bracket from "@/components/bracket/Bracket";
+import { useGameScores } from "@/hooks/useGameScores";
 import Link from "next/link";
 
 export default function ViewBracketPage() {
@@ -14,6 +15,7 @@ export default function ViewBracketPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
+  const gameScores = useGameScores(regions, firstFour, results);
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
   const [brackets, setBrackets] = useState<{ id: string; bracket_name: string }[]>([]);
   const [error, setError] = useState("");
@@ -58,7 +60,7 @@ export default function ViewBracketPage() {
           </Box>
         )}
         {!loading && !error && !showList && viewPicks && regions && (
-          <Bracket regions={regions} firstFour={firstFour} initialPicks={viewPicks} results={results} locked />
+          <Bracket regions={regions} firstFour={firstFour} initialPicks={viewPicks} results={results} gameScores={gameScores} locked />
         )}
       </Container>
     </>

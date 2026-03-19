@@ -6,11 +6,13 @@ import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import Bracket from "@/components/bracket/Bracket";
+import { useGameScores } from "@/hooks/useGameScores";
 
 export default function ViewSingleBracketPage() {
   const { username, bracketName } = useParams<{ username: string; bracketName: string }>();
   const decodedName = decodeURIComponent(bracketName);
   const { tournament, regions, firstFour, results, loading: tournLoading } = useTournament();
+  const gameScores = useGameScores(regions, firstFour, results);
   const [viewPicks, setViewPicks] = useState<Record<string, string> | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function ViewSingleBracketPage() {
           <Typography color="text.secondary">Bracket not found.</Typography>
         )}
         {!loading && !error && viewPicks && regions && (
-          <Bracket regions={regions} firstFour={firstFour} initialPicks={viewPicks} results={results} locked />
+          <Bracket regions={regions} firstFour={firstFour} initialPicks={viewPicks} results={results} gameScores={gameScores} locked />
         )}
       </Container>
     </>
