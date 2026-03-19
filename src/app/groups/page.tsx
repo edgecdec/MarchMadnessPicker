@@ -236,9 +236,12 @@ export default function GroupsPage() {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {leaderboard.map((entry, i) => (
+                          {leaderboard.map((entry, i) => {
+                            const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
+                            const tied = leaderboard.filter((e) => e.score === entry.score).length > 1;
+                            return (
                             <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
-                              <TableCell>{i + 1}</TableCell>
+                              <TableCell>{tied ? `T-${rank}` : rank}</TableCell>
                               <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
                               <TableCell>{entry.bracket_name || "—"}</TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
@@ -312,7 +315,7 @@ export default function GroupsPage() {
                                 </TableCell>
                               )}
                             </TableRow>
-                          ))}
+                          );})}
                         </TableBody>
                       </Table>
                     </TableContainer>

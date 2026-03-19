@@ -49,6 +49,13 @@ export default function LeaderboardPage() {
 
   const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
 
+  // Compute tied ranks: same score = same rank, displayed as "T-X" when tied
+  const ranks = leaderboard.map((entry, i) => {
+    const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
+    const tied = leaderboard.filter((e) => e.score === entry.score).length > 1;
+    return tied ? `T-${rank}` : `${rank}`;
+  });
+
   return (
     <>
       <Navbar />
@@ -81,7 +88,7 @@ export default function LeaderboardPage() {
               <TableBody>
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
-                    <TableCell>{i + 1}</TableCell>
+                    <TableCell>{ranks[i]}</TableCell>
                     <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
