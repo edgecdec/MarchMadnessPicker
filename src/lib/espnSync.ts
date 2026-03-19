@@ -32,6 +32,7 @@ const ESPN_NAME_ALIASES: Record<string, string> = {
   "uconn": "UConn",
   "loyola chicago": "Loyola Chicago",
   "murray st": "Murray St.",
+  "hawai'i": "Hawaii",
 };
 
 function buildTeamNameMap(bracketData: BracketData): Record<string, string> {
@@ -49,6 +50,11 @@ function matchEspnName(espnName: string, ourTeams: Record<string, string>): stri
   if (ourTeams[noDots]) return ourTeams[noDots];
   for (const key of Object.keys(ourTeams)) {
     if (key.replace(/\./g, "") === noDots) return ourTeams[key];
+  }
+  // Fallback: strip apostrophes, accents, and special chars then compare
+  const stripped = lower.replace(/[''`.\-]/g, "");
+  for (const key of Object.keys(ourTeams)) {
+    if (key.replace(/[''`.\-]/g, "") === stripped) return ourTeams[key];
   }
   return null;
 }
