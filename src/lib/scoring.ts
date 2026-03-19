@@ -175,16 +175,16 @@ export function maxPossibleRemaining(
   picks: Record<string, string>,
   results: Record<string, string>,
   settings?: ScoringSettings,
+  regions?: Region[],
 ): number {
   const pts = settings?.pointsPerRound ?? DEFAULT_POINTS;
-  const winners = new Set(Object.values(results));
+  const eliminated = getEliminatedTeams(results, regions);
   let remaining = 0;
   for (const [gameId, pickedTeam] of Object.entries(picks)) {
+    if (!isScorableGame(gameId)) continue;
     if (results[gameId]) continue;
     const round = parseInt(gameId.split("-")[1]) || 0;
-    // R64 teams are always still alive if game undecided; later rounds require a prior win
-    const alive = round === 0 || winners.has(pickedTeam);
-    if (alive) {
+    if (!eliminated.has(pickedTeam)) {
       remaining += pts[round] || 0;
     }
   }

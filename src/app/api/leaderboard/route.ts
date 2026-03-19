@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     .map((p) => {
       const picks = JSON.parse(p.picks_data);
       const score = scorePicks(picks, results, settings, bracket.regions);
-      const maxRemaining = maxPossibleRemaining(picks, results, settings);
+      const maxRemaining = maxPossibleRemaining(picks, results, settings, bracket.regions);
       const championPickRS = picks["ff-5-0"] || null;
       const championPick = championPickRS ? resolveRegionSeed(championPickRS, bracket.regions, bracket.first_four, results) : null;
       const ffPicks: Record<string, string> = {};
