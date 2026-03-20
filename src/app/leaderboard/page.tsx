@@ -162,48 +162,52 @@ export default function LeaderboardPage() {
             <Table size="small" sx={{ tableLayout: "fixed" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.7rem" }}>#</TableCell>
-                  <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 200, minWidth: 200, px: 0.5, fontSize: "0.7rem" }}>Player</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>#</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 200, minWidth: 200, px: 0.5, fontSize: "0.8rem" }}>Player</TableCell>
                   {ROUND_LABELS.map((l) => (
-                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.7rem" }}>{l}</TableCell>
+                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>{l}</TableCell>
                   ))}
-                  <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.7rem" }}>Tot</TableCell>
-                  {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.7rem" }}>Bon</TableCell>}
-                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.7rem" }}>Max</TableCell>
-                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.7rem" }}>Best</TableCell>
-                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.7rem" }}>TB</TableCell>}
+                  <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Tot</TableCell>
+                  {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>Bon</TableCell>}
+                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Max</TableCell>
+                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Best</TableCell>
+                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>TB</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
-                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.7rem" }}>{ranks[i]}</TableCell>
+                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>{ranks[i]}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
                       sx={{ position: "sticky", left: 28, zIndex: 1, bgcolor: "background.paper", width: 200, minWidth: 200, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
-                        <Box sx={{ overflow: "hidden", width: 190, maxWidth: 190 }}>
-                          <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.7rem", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>{entry.username}</Link>
-                          {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.55rem", display: "block", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.1 }}>{entry.bracket_name}</Box>}
+                        <Box sx={{ display: "flex", alignItems: "center", width: 190, maxWidth: 190 }}>
+                          <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
+                            <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.8rem" }}>{entry.username.length > 10 ? entry.username.slice(0, 10) + "…" : entry.username}</Link>
+                            {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.8rem" }}>{" - "}{entry.bracket_name.length > 10 ? entry.bracket_name.slice(0, 10) + "…" : entry.bracket_name}</Box>}
+                          </Box>
+                          <Box component="span" sx={{ flexShrink: 0, ml: 0.5, fontSize: "0.8rem" }}>
+                            {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span>💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span>🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span>🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span>🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span>😱</span></Tooltip> : null; })()}
+                          </Box>
                         </Box>
                       </Tooltip>
-                      {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span> 😱</span></Tooltip> : null; })()}
                     </TableCell>
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
-                      <TableCell key={r} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
+                      <TableCell key={r} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
                     ))}
-                    <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
-                    {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.75rem" }}>{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
-                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.75rem" }}>{(() => {
+                    <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
+                    {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem" }}>{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
+                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
                       if (trueMax[key] != null) return trueMax[key];
                       if (entry.picks && trueMaxComputing) return "⏳";
                       return entry.score + (entry.maxRemaining ?? 0);
                     })()}</TableCell>
-                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.75rem" }}>{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
-                    {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.75rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
+                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
+                    {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
