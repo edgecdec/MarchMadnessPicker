@@ -13,7 +13,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Leaderboard: ~~shorten username and bracket name display. Make username column sticky on horizontal scroll.~~ Make total score column sticky after username.
 - [x] Leaderboard: Add a "Bonus" column showing upset bonus points earned.
 - [x] Leaderboard: Make round-by-round scores clickable to show that round's picks (same as total score click).
-- [ ] Leaderboard: tiebreaker column should be visible without scrolling — reduce column widths to fit.
+- [x] Leaderboard: tiebreaker column should be visible without scrolling — reduce column widths to fit.
 - [x] Add Monte Carlo simulation to /simulate page: See @specs/simulator.md for full spec. On page load, run 1000 simulations using historical seed win rates to determine each bracket's avg score, avg place, and win %. Show results in a sortable table. Recalculate when user sets hypothetical results. All client-side, non-blocking with progress indicator. Reuse existing scorePicks() and seed stats data.
 - [x] Rework /simulate page: use full Bracket component instead of game list. Clicks set hypothetical results. Live leaderboard sidebar re-sorts as user clicks. Group selector at top.
 - [x] Replace /compare with overlay comparison: ONE bracket showing multiple users' picks with colored indicators per user. Dropdown to select users (up to 4). Remove old side-by-side page.
