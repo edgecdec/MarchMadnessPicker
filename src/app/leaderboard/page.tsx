@@ -150,7 +150,7 @@ export default function LeaderboardPage() {
                   {ROUND_LABELS.map((l) => (
                     <TableCell key={l} align="right">{l}</TableCell>
                   ))}
-                  <TableCell align="right">Total</TableCell>
+                  <TableCell align="right" sx={{ position: "sticky", left: 120, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider" }}>Total</TableCell>
                   <TableCell align="right">Max Possible</TableCell>
                   <TableCell align="right">Best Finish</TableCell>
                   {locked && <TableCell align="right">Tiebreaker</TableCell>}
@@ -176,7 +176,7 @@ export default function LeaderboardPage() {
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
                       <TableCell key={r} align="right">{s}</TableCell>
                     ))}
-                    <TableCell align="right" sx={{ fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
+                    <TableCell align="right" sx={{ position: "sticky", left: 120, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     <TableCell align="right">{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
                       if (trueMax[key] != null) return trueMax[key];
