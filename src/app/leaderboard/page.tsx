@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Tooltip, Popover, Box } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
@@ -105,6 +105,22 @@ export default function LeaderboardPage() {
 
   const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
 
+  // Compute unique correct picks: games where exactly one bracket got it right
+  const uniquePicks = useMemo(() => {
+    if (!locked || !results) return {};
+    const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+    const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g));
+    const map: Record<string, string[]> = {}; // key -> team names
+    for (const g of decided) {
+      const correct = leaderboard.filter(e => e.picks?.[g] === results[g]);
+      if (correct.length === 1) {
+        const key = `${correct[0].username}|${correct[0].bracket_name || ""}`;
+        (map[key] ??= []).push(results[g]);
+      }
+    }
+    return map;
+  }, [locked, results, leaderboard]);
+
   // Compute tied ranks: same score = same rank, displayed as "T-X" when tied
   const ranks = leaderboard.map((entry, i) => {
     const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
@@ -145,7 +161,7 @@ export default function LeaderboardPage() {
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                     <TableCell>{ranks[i]}</TableCell>
-                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}</TableCell>
+                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span> 😱</span></Tooltip> : null; })()}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
