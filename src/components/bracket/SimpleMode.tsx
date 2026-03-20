@@ -17,6 +17,7 @@ interface SimpleModeProps {
   locked?: boolean;
   tiebreaker?: string;
   onTiebreakerChange?: (value: string) => void;
+  onSave?: () => Promise<boolean>;
 }
 
 function resolveTeamsForGame(
@@ -180,7 +181,7 @@ function TeamCard({
   );
 }
 
-export default function SimpleMode({ open, onClose, regions, firstFour, picks, onPicksChange, results, locked, tiebreaker, onTiebreakerChange }: SimpleModeProps) {
+export default function SimpleMode({ open, onClose, regions, firstFour, picks, onPicksChange, results, locked, tiebreaker, onTiebreakerChange, onSave }: SimpleModeProps) {
   const gameOrder = useMemo(() => buildGameOrder(regions), [regions]);
   const [currentStep, setCurrentStep] = useState(() => {
     const order = buildGameOrder(regions);
@@ -189,6 +190,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
   });
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     return () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); };
@@ -198,6 +200,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
   const pickedCount = gameOrder.filter((gid) => picks[gid] || results?.[gid]).length;
   const allPicked = pickedCount === totalGames;
   const [showTiebreaker, setShowTiebreaker] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
   useEffect(() => {
     if (allPicked) setShowTiebreaker(true);
@@ -284,13 +287,52 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
 
   const currentBlocked = !teamA || !teamB;
 
+  const resolveName = useCallback((rs: string): { name: string; seed: number; region?: string } => {
+    const parsed = parseRegionSeed(rs);
+    if (parsed) {
+      const region = regions.find(r => r.name === parsed.region);
+      const team = region?.teams.find(t => t.seed === parsed.seed);
+      return { name: team?.name || rs, seed: parsed.seed, region: parsed.region };
+    }
+    return { name: rs, seed: 0 };
+  }, [regions]);
+
+  const reviewData = useMemo(() => {
+    const regionWinners = regions.map(r => {
+      const pick = picks[`${r.name}-3-0`];
+      return { region: r.name, ...(pick ? resolveName(pick) : { name: "—", seed: 0 }) };
+    });
+    const ff0 = picks["ff-4-0"];
+    const ff1 = picks["ff-4-1"];
+    const champ = picks["ff-5-0"];
+    return {
+      regionWinners,
+      ffWinners: [ff0 ? resolveName(ff0) : null, ff1 ? resolveName(ff1) : null],
+      champion: champ ? resolveName(champ) : null,
+    };
+  }, [regions, picks, resolveName]);
+
+  const handleSaveBracket = useCallback(async () => {
+    if (!onSave) return;
+    setSaving(true);
+    const ok = await onSave();
+    setSaving(false);
+    if (ok) onClose();
+  }, [onSave, onClose]);
+
+  const activeView = showReview ? "review" : showTiebreaker ? "tiebreaker" : "game";
+
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "background.default" }}>
         {/* Top bar */}
         <Box sx={{ display: "flex", alignItems: "center", px: 2, py: 1, borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}>
           <Box sx={{ flex: 1 }}>
-            {showTiebreaker ? (
+            {activeView === "review" ? (
+              <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
+                Review Your Bracket
+              </Typography>
+            ) : activeView === "tiebreaker" ? (
               <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
                 Tiebreaker
               </Typography>
@@ -314,8 +356,36 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
         <LinearProgress variant="determinate" value={(pickedCount / totalGames) * 100} sx={{ flexShrink: 0 }} />
 
         {/* Content */}
-        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 2, sm: 4 } }}>
-          {showTiebreaker ? (
+        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 2, sm: 4 }, overflow: "auto" }}>
+          {activeView === "review" ? (
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, maxWidth: 480, width: "100%" }}>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>🏆 Bracket Summary</Typography>
+              {/* Region winners */}
+              <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
+                {reviewData.regionWinners.map(rw => (
+                  <Box key={rw.region} sx={{ display: "flex", alignItems: "center", gap: 1, p: 1.5, borderRadius: 1, bgcolor: "background.paper", border: 1, borderColor: "divider" }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: REGION_COLORS[rw.region!] || "text.secondary", flexShrink: 0 }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ minWidth: 70 }}>{rw.region}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, flex: 1 }}>
+                      {rw.seed ? `(${rw.seed}) ` : ""}{rw.name}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+              {/* Final Four + Champion */}
+              <Box sx={{ width: "100%", p: 2, borderRadius: 2, bgcolor: "background.paper", border: 2, borderColor: "primary.main", textAlign: "center" }}>
+                <Typography variant="caption" color="text.secondary">Champion</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  {reviewData.champion ? `(${reviewData.champion.seed}) ${reviewData.champion.name}` : "—"}
+                </Typography>
+              </Box>
+              {tiebreaker && (
+                <Typography variant="body2" color="text.secondary">
+                  Tiebreaker: {tiebreaker} points
+                </Typography>
+              )}
+            </Box>
+          ) : activeView === "tiebreaker" ? (
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, maxWidth: 400, width: "100%" }}>
               <Typography variant="h5" sx={{ fontWeight: 700, textAlign: "center" }}>
                 🏆 All 63 games picked!
@@ -363,13 +433,22 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
 
         {/* Bottom navigation */}
         <Box sx={{ display: "flex", justifyContent: "space-between", px: 2, py: 1.5, borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-          {showTiebreaker ? (
+          {activeView === "review" ? (
+            <>
+              <Button onClick={() => setShowReview(false)}>
+                ← Back to tiebreaker
+              </Button>
+              <Button variant="contained" onClick={handleSaveBracket} disabled={saving || !onSave}>
+                {saving ? "Saving…" : "Save Bracket"}
+              </Button>
+            </>
+          ) : activeView === "tiebreaker" ? (
             <>
               <Button onClick={() => setShowTiebreaker(false)}>
                 ← Back to bracket
               </Button>
-              <Button variant="contained" onClick={onClose}>
-                Done
+              <Button variant="contained" onClick={() => setShowReview(true)}>
+                Review →
               </Button>
             </>
           ) : (
