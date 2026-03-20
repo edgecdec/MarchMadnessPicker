@@ -4,37 +4,24 @@ import { SEED_ORDER_PAIRS, toRegionSeed } from "@/lib/bracketData";
 
 const ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
 
-const ESPN_NAME_ALIASES: Record<string, string> = {
-  "st john's": "St. Johns",
-  "st. john's": "St. Johns",
-  "saint mary's": "Saint Marys",
-  "st. mary's": "Saint Marys",
-  "mississippi st": "Mississippi St.",
-  "michigan st": "Michigan St.",
-  "iowa st": "Iowa St.",
-  "boise st": "Boise St.",
-  "colorado st": "Colorado St.",
-  "san diego st": "San Diego St.",
-  "oklahoma st": "Oklahoma St.",
-  "kansas st": "Kansas St.",
-  "ohio st": "Ohio St.",
-  "florida st": "Florida St.",
-  "penn st": "Penn St.",
-  "arizona st": "Arizona St.",
-  "oregon st": "Oregon St.",
-  "nc state": "NC State",
-  "ole miss": "Ole Miss",
-  "uc san diego": "UC San Diego",
-  "siu edwardsville": "SIU Edwardsville",
-  "siue": "SIUE",
-  "alabama st": "Alabama St.",
-  "texas a&m": "Texas A&M",
-  "uconn": "UConn",
-  "loyola chicago": "Loyola Chicago",
-  "murray st": "Murray St.",
-  "hawai'i": "Hawaii",
-};
+// Build map from ESPN team ID → our team name
+function buildEspnIdMap(bracketData: BracketData): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const r of bracketData.regions) {
+    for (const t of r.teams) {
+      if (t.espnId != null) map[String(t.espnId)] = t.name;
+    }
+  }
+  if (bracketData.first_four) {
+    for (const ff of bracketData.first_four) {
+      if ((ff as any).espnIdA != null) map[String((ff as any).espnIdA)] = ff.teamA;
+      if ((ff as any).espnIdB != null) map[String((ff as any).espnIdB)] = ff.teamB;
+    }
+  }
+  return map;
+}
 
+// Fallback name matching for teams without espnId
 function buildTeamNameMap(bracketData: BracketData): Record<string, string> {
   const allTeams: string[] = [];
   for (const r of bracketData.regions) for (const t of r.teams) allTeams.push(t.name);
@@ -42,17 +29,14 @@ function buildTeamNameMap(bracketData: BracketData): Record<string, string> {
   return Object.fromEntries(allTeams.map(n => [n.toLowerCase(), n]));
 }
 
-function matchEspnName(espnName: string, ourTeams: Record<string, string>): string | null {
-  const lower = espnName.toLowerCase();
-  if (ourTeams[lower]) return ourTeams[lower];
-  if (ESPN_NAME_ALIASES[lower]) return ESPN_NAME_ALIASES[lower];
-  const noDots = lower.replace(/\./g, "");
-  if (ourTeams[noDots]) return ourTeams[noDots];
-  for (const key of Object.keys(ourTeams)) {
-    if (key.replace(/\./g, "") === noDots) return ourTeams[key];
-  }
-  // Fallback: strip apostrophes, accents, and special chars then compare
-  const stripped = lower.replace(/[''`.\-]/g, "");
+function matchEspnTeam(competitor: any, espnIdMap: Record<string, string>, ourTeams: Record<string, string>): string | null {
+  // Primary: match by ESPN team ID
+  const id = String(competitor.team?.id);
+  if (espnIdMap[id]) return espnIdMap[id];
+  // Fallback: name matching for backward compatibility
+  const name = (competitor.team?.shortDisplayName || "").toLowerCase();
+  if (ourTeams[name]) return ourTeams[name];
+  const stripped = name.replace(/[''`.\-]/g, "");
   for (const key of Object.keys(ourTeams)) {
     if (key.replace(/[''`.\-]/g, "") === stripped) return ourTeams[key];
   }
@@ -136,6 +120,7 @@ export async function syncEspnResults(daysBack: number = 2): Promise<{ updated: 
 
     const bracketData: BracketData = JSON.parse(tournament.bracket_data);
     const results: Record<string, string> = JSON.parse(tournament.results_data || "{}");
+    const espnIdMap = buildEspnIdMap(bracketData);
     const ourTeams = buildTeamNameMap(bracketData);
     const gameTeams = buildGameTeams(bracketData, results);
 
@@ -180,8 +165,8 @@ export async function syncEspnResults(daysBack: number = 2): Promise<{ updated: 
       const loserComp = competitors.find((c: any) => !c.winner);
       if (!winnerComp || !loserComp) continue;
 
-      const winnerName = matchEspnName(winnerComp.team.shortDisplayName, ourTeams);
-      const loserName = matchEspnName(loserComp.team.shortDisplayName, ourTeams);
+      const winnerName = matchEspnTeam(winnerComp, espnIdMap, ourTeams);
+      const loserName = matchEspnTeam(loserComp, espnIdMap, ourTeams);
       if (!winnerName || !loserName) {
         unmatched.push(`${winnerComp.team.shortDisplayName} vs ${loserComp.team.shortDisplayName}`);
         continue;

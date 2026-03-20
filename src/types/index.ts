@@ -10,6 +10,7 @@ export interface Team {
   seed: number;
   name: string;
   logo?: string;
+  espnId?: number;
   regionSeed?: string; // e.g. "East-1" — unique identifier within a tournament
 }
 
@@ -33,6 +34,8 @@ export interface FirstFourGame {
   slot: number;         // R64 matchup index this feeds into
   teamA: string;
   teamB: string;
+  espnIdA?: number;
+  espnIdB?: number;
 }
 
 export interface BracketData {
