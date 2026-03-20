@@ -4,12 +4,14 @@ import {
   Container, Typography, Box, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Select, MenuItem, FormControl,
   InputLabel, Button, Chip, Drawer, useMediaQuery, useTheme, IconButton,
-  Menu,
+  Menu, Collapse,
 } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { useMonteCarlo } from "@/hooks/useMonteCarlo";
@@ -110,6 +112,10 @@ export default function SimulatePage() {
   const [hypo, setHypo] = useState<Record<string, string>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [picksAnchor, setPicksAnchor] = useState<null | HTMLElement>(null);
+  const [lbOpen, setLbOpen] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sim-lb-open") !== "0" : true);
+  const [mcOpen, setMcOpen] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sim-mc-open") !== "0" : true);
+  const toggleLb = () => setLbOpen((v) => { sessionStorage.setItem("sim-lb-open", v ? "0" : "1"); return !v; });
+  const toggleMc = () => setMcOpen((v) => { sessionStorage.setItem("sim-mc-open", v ? "0" : "1"); return !v; });
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -277,13 +283,17 @@ export default function SimulatePage() {
 
   const leaderboardPanel = data && (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          Leaderboard {hypoCount > 0 && <Chip label={`${hypoCount} hypothetical`} size="small" color="warning" variant="outlined" sx={{ ml: 1 }} />}
-        </Typography>
-        {hypoCount > 0 && <Button size="small" variant="outlined" onClick={() => setHypo({})}>Reset</Button>}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, cursor: "pointer" }} onClick={toggleLb}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+            Leaderboard {hypoCount > 0 && <Chip label={`${hypoCount} hypothetical`} size="small" color="warning" variant="outlined" sx={{ ml: 1 }} />}
+          </Typography>
+          {lbOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+        </Box>
+        {hypoCount > 0 && <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); setHypo({}); }}>Reset</Button>}
       </Box>
-      <TableContainer component={Paper} sx={{ maxHeight: "calc(100vh - 200px)", overflow: "auto" }}>
+      <Collapse in={lbOpen}>
+        <TableContainer component={Paper} sx={{ maxHeight: "calc(100vh - 200px)", overflow: "auto" }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -327,6 +337,7 @@ export default function SimulatePage() {
           </TableBody>
         </Table>
       </TableContainer>
+      </Collapse>
     </Box>
   );
 
@@ -414,7 +425,7 @@ export default function SimulatePage() {
               <Box sx={{ width: 340, flexShrink: 0 }}>
                 {leaderboardPanel}
                 <Box sx={{ mt: 2 }}>
-                  <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} />
+                  <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} open={mcOpen} onToggle={toggleMc} />
                 </Box>
               </Box>
             )}
@@ -435,7 +446,7 @@ export default function SimulatePage() {
           </Box>
           {leaderboardPanel}
           <Box sx={{ mt: 2 }}>
-            <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} />
+            <MonteCarloTable results={mcResults} progress={mcProgress} running={mcRunning} currentUser={user?.username} hidden={hideMC} open={mcOpen} onToggle={toggleMc} />
           </Box>
         </Box>
       </Drawer>

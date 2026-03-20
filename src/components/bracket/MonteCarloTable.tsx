@@ -2,20 +2,24 @@
 import { useState } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, LinearProgress, TableSortLabel,
+  TableHead, TableRow, Paper, LinearProgress, TableSortLabel, Collapse,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { MCResult } from "@/hooks/useMonteCarlo";
 
 type SortKey = "winPct" | "avgPlace" | "avgScore";
 
 export default function MonteCarloTable({
-  results, progress, running, currentUser, hidden,
+  results, progress, running, currentUser, hidden, open, onToggle,
 }: {
   results: MCResult[];
   progress: number;
   running: boolean;
   currentUser?: string;
   hidden?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
 }) {
   const [sortBy, setSortBy] = useState<SortKey>("winPct");
   const [asc, setAsc] = useState(false);
@@ -44,13 +48,22 @@ export default function MonteCarloTable({
     );
   }
 
+  const collapsible = open !== undefined && onToggle;
+
   return (
     <Box>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-        🎲 Monte Carlo ({running ? `${progress}/10000` : "10000 sims"})
-      </Typography>
+      <Box
+        sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5, ...(collapsible ? { cursor: "pointer" } : {}) }}
+        onClick={collapsible ? onToggle : undefined}
+      >
+        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+          🎲 Monte Carlo ({running ? `${progress}/10000` : "10000 sims"})
+        </Typography>
+        {collapsible && (open ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />)}
+      </Box>
       {running && <LinearProgress variant="determinate" value={progress / 100} sx={{ mb: 1 }} />}
-      {results.length > 0 && (
+      <Collapse in={open ?? true}>
+        {results.length > 0 && (
         <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
           <Table size="small" stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
             <TableHead>
@@ -89,6 +102,7 @@ export default function MonteCarloTable({
           </Table>
         </TableContainer>
       )}
+      </Collapse>
     </Box>
   );
 }
