@@ -31,7 +31,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Group creator can remove brackets from their group.
 - [x] Group admin can lock/unlock bracket submissions independently of tournament lock time.
 - [x] Simple Mode (1/12): Extract `cascadeClear` from Bracket.tsx into a shared utility in `src/lib/bracketUtils.ts` so both Bracket and SimpleMode can reuse it.
-- [ ] Simple Mode (2/12): Build `buildGameOrder(regions)` function that returns the ordered list of 63 game IDs (R64→R32→S16→E8→FF→Championship, grouped by region within each round). Add to `src/lib/bracketUtils.ts`.
+- [x] Simple Mode (2/12): Build `buildGameOrder(regions)` function that returns the ordered list of 63 game IDs (R64→R32→S16→E8→FF→Championship, grouped by region within each round). Add to `src/lib/bracketUtils.ts`.
 - [ ] Simple Mode (3/12): Create `src/components/bracket/SimpleMode.tsx` component shell — full-screen modal overlay with step navigation state, exit button, and basic layout structure.
 - [ ] Simple Mode (4/12): Build matchup card UI for single game display — two team cards (logo, name, seed, region color accent), tap to pick. Auto-advance after 300ms highlight.
 - [ ] Simple Mode (5/12): Wire pick handling into SimpleMode — selecting a team updates picks state, changing a previous pick triggers cascadeClear on downstream games, currentStep adjusts to first unpicked game.
