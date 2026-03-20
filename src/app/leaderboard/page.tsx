@@ -145,8 +145,8 @@ export default function LeaderboardPage() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper" }}>Rank</TableCell>
-                  <TableCell sx={{ position: "sticky", left: 48, zIndex: 3, bgcolor: "background.paper" }}>Player</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 40, px: 0.5 }}>Rank</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 40, zIndex: 3, bgcolor: "background.paper", width: 80, px: 0.5 }}>Player</TableCell>
                   {ROUND_LABELS.map((l) => (
                     <TableCell key={l} align="right">{l}</TableCell>
                   ))}
@@ -159,16 +159,16 @@ export default function LeaderboardPage() {
               <TableBody>
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
-                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper" }}>{ranks[i]}</TableCell>
+                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper", width: 40, px: 0.5 }}>{ranks[i]}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ position: "sticky", left: 48, zIndex: 1, bgcolor: "background.paper", maxWidth: 90, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5 }}
+                      sx={{ position: "sticky", left: 40, zIndex: 1, bgcolor: "background.paper", width: 80, maxWidth: 80, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
-                        <Box sx={{ overflow: "hidden", maxWidth: 80 }}>
-                          <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.75rem", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>{entry.username}</Link>
-                          {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.6rem", display: "block", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>{entry.bracket_name}</Box>}
+                        <Box sx={{ overflow: "hidden", width: 72, maxWidth: 72 }}>
+                          <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.7rem", display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>{entry.username}</Link>
+                          {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.55rem", display: "block", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.1 }}>{entry.bracket_name}</Box>}
                         </Box>
                       </Tooltip>
                       {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span> 😱</span></Tooltip> : null; })()}
