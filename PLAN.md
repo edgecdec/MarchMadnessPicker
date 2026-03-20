@@ -34,7 +34,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simple Mode (2/12): Build `buildGameOrder(regions)` function that returns the ordered list of 63 game IDs (R64→R32→S16→E8→FF→Championship, grouped by region within each round). Add to `src/lib/bracketUtils.ts`.
 - [x] Simple Mode (3/12): Create `src/components/bracket/SimpleMode.tsx` component shell — full-screen modal overlay with step navigation state, exit button, and basic layout structure.
 - [x] Simple Mode (4/12): Build matchup card UI for single game display — two team cards (logo, name, seed, region color accent), tap to pick. Auto-advance after 300ms highlight.
-- [ ] Simple Mode (5/12): Wire pick handling into SimpleMode — selecting a team updates picks state, changing a previous pick triggers cascadeClear on downstream games, currentStep adjusts to first unpicked game.
+- [x] Simple Mode (5/12): Wire pick handling into SimpleMode — selecting a team updates picks state, changing a previous pick triggers cascadeClear on downstream games, currentStep adjusts to first unpicked game.
 - [ ] Simple Mode (6/12): Add progress bar and labels — "Game N of 63" counter, region name, round name in the top bar.
 - [ ] Simple Mode (7/12): Add back/skip navigation — "← Back" returns to previous picked game, "Skip →" advances to next resolvable game, show message when no more games can be shown due to skipped dependencies.
 - [ ] Simple Mode (8/12): Add tiebreaker prompt — after all 63 games are picked, show tiebreaker score input ("Predict the total combined score of the championship game").
