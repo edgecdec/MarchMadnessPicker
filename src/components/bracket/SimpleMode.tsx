@@ -3,7 +3,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Box, IconButton, Typography, LinearProgress, Button, Dialog } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Region, Team, FirstFourGame } from "@/types";
-import { buildGameOrder } from "@/lib/bracketUtils";
+import { buildGameOrder, cascadeClear } from "@/lib/bracketUtils";
 import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, toRegionSeed, parseRegionSeed, ffGameId } from "@/lib/bracketData";
 
 interface SimpleModeProps {
@@ -239,17 +239,22 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
     setSelectedTeam(pickValue);
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
     advanceTimer.current = setTimeout(() => {
-      onPicksChange({ ...picks, [currentGameId]: pickValue });
+      const oldWinner = picks[currentGameId];
+      let newPicks = { ...picks, [currentGameId]: pickValue };
+      // If changing a previous pick, cascade clear downstream
+      if (oldWinner && oldWinner !== pickValue) {
+        newPicks = cascadeClear(newPicks, currentGameId, oldWinner);
+        newPicks[currentGameId] = pickValue;
+      }
+      onPicksChange(newPicks);
       setSelectedTeam(null);
-      // Advance to next unpicked game
-      for (let i = currentStep + 1; i < totalGames; i++) {
-        if (!picks[gameOrder[i]] && !results?.[gameOrder[i]] && gameOrder[i] !== currentGameId) {
-          setCurrentStep(i);
-          return;
-        }
+      // Jump to first unpicked game (globally, not just forward)
+      const firstUnpicked = gameOrder.findIndex((gid) => !newPicks[gid] && !results?.[gid]);
+      if (firstUnpicked >= 0) {
+        setCurrentStep(firstUnpicked);
       }
     }, 300);
-  }, [locked, results, currentGameId, picks, onPicksChange, currentStep, totalGames, gameOrder]);
+  }, [locked, results, currentGameId, picks, onPicksChange, gameOrder]);
 
   const teamMatch = (team: Team | undefined, value?: string | null) => {
     if (!team || !value) return false;
