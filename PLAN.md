@@ -9,7 +9,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simulation: switching groups should preserve any hypothetical results the user already set on the bracket.
 - [x] Simulation: show live scores for in-progress games and add an "If Current Results Hold" button that auto-fills hypothetical results based on which team is currently winning.
 - [x] Simulation: use the same mobile bracket layout (round tabs) as the main bracket page when on small screens.
-- [ ] Leaderboard: add emoji indicators — 🔥N for hot streaks (5+ correct in a row), 🤡 if entire Final Four eliminated without any correct, 😱 if only person to get a specific pick correct.
+- [ ] Leaderboard: add emoji indicators — ~~🔥N for hot streaks (done)~~, 🤡 if entire Final Four eliminated without any correct, 😱 if only person to get a specific pick correct.
 - [ ] Leaderboard: shorten username and bracket name display. Make username column sticky on horizontal scroll. Make total score column sticky after username. Add a "Bonus" column showing upset bonus points earned. Make round-by-round scores clickable to show that round's picks (same as total score click).
 - [ ] Leaderboard: tiebreaker column should be visible without scrolling — reduce column widths to fit.
 - [x] Add Monte Carlo simulation to /simulate page: See @specs/simulator.md for full spec. On page load, run 1000 simulations using historical seed win rates to determine each bracket's avg score, avg place, and win %. Show results in a sortable table. Recalculate when user sets hypothetical results. All client-side, non-blocking with progress indicator. Reuse existing scorePicks() and seed stats data.
