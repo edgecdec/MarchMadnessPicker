@@ -313,7 +313,7 @@ export default function SimulatePage() {
               const rank = i === 0 || e.score !== simRanked[i - 1].score ? i + 1 : simRanked.findIndex((s) => s.score === e.score) + 1;
               const tied = simRanked.filter((s) => s.score === e.score).length > 1;
               return (
-                <TableRow key={e.key} sx={{ transition: "background 0.3s" }}>
+                <TableRow key={e.key} sx={{ transition: "background 0.3s", ...(user && e.username === user.username ? { bgcolor: "action.selected" } : {}) }}>
                   <TableCell sx={{ py: 0.25, px: 1 }}>{tied ? `T-${rank}` : rank}</TableCell>
                   <TableCell sx={{ py: 0.25, px: 1 }}>
                     <Typography variant="body2" noWrap sx={{ fontSize: "0.75rem", maxWidth: 120 }}>
