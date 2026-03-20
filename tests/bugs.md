@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulation page should be locked for non-admins until brackets lock**: Show "Available after brackets lock" for non-admin users.
-
 - **Monte Carlo should run 10000 simulations, update every 1000**: See @specs/simulator.md.
 
 - **Simulator doesn't cascade-clear hypothetical results**: Changing an earlier round should remove the eliminated team from all later rounds, same as bracket edit page.
