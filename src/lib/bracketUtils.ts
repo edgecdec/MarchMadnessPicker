@@ -1,3 +1,23 @@
+import { Region } from "@/types";
+
+/**
+ * Build the ordered list of 63 game IDs for step-by-step bracket filling.
+ * Order: R64→R32→S16→E8 (grouped by region within each round), then FF→Championship.
+ */
+export function buildGameOrder(regions: Region[]): string[] {
+  const games: string[] = [];
+  for (let round = 0; round <= 3; round++) {
+    const count = 8 / Math.pow(2, round);
+    for (const region of regions) {
+      for (let i = 0; i < count; i++) {
+        games.push(`${region.name}-${round}-${i}`);
+      }
+    }
+  }
+  games.push("ff-4-0", "ff-4-1", "ff-5-0");
+  return games;
+}
+
 /**
  * Clear all downstream picks that depend on a team that was just un-picked.
  * Shared between Bracket and SimpleMode components.
