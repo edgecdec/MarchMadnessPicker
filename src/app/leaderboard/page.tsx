@@ -40,6 +40,7 @@ export default function LeaderboardPage() {
   const [trueMaxComputing, setTrueMaxComputing] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownData, setBreakdownData] = useState<{ username: string; bracketName?: string | null; details: PickDetail[] }>({ username: "", details: [] });
+  const [breakdownRound, setBreakdownRound] = useState<number | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
   const [popoverEntry, setPopoverEntry] = useState<LeaderboardEntry | null>(null);
 
@@ -84,11 +85,12 @@ export default function LeaderboardPage() {
     setTimeout(computeNext, 0);
   }, [leaderboard, regions, results, scoringSettings]);
 
-  const openBreakdown = async (entry: LeaderboardEntry) => {
+  const openBreakdown = async (entry: LeaderboardEntry, round?: number) => {
     if (!tournament) return;
     try {
       const { details } = await api.leaderboard.breakdown(tournament.id, entry.username, entry.bracket_name);
       setBreakdownData({ username: entry.username, bracketName: entry.bracket_name, details });
+      setBreakdownRound(round ?? null);
       setBreakdownOpen(true);
     } catch {}
   };
@@ -190,7 +192,7 @@ export default function LeaderboardPage() {
                       {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span> 😱</span></Tooltip> : null; })()}
                     </TableCell>
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
-                      <TableCell key={r} align="right">{s}</TableCell>
+                      <TableCell key={r} align="right" sx={{ cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
                     ))}
                     <TableCell align="right" sx={{ position: "sticky", left: 120, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     {hasUpsetBonus && <TableCell align="right">{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
@@ -210,10 +212,11 @@ export default function LeaderboardPage() {
         )}
         <ScoringBreakdownDialog
           open={breakdownOpen}
-          onClose={() => setBreakdownOpen(false)}
+          onClose={() => { setBreakdownOpen(false); setBreakdownRound(null); }}
           username={breakdownData.username}
           bracketName={breakdownData.bracketName}
           details={breakdownData.details}
+          filterRound={breakdownRound}
         />
         <Popover
           open={!!popoverAnchor && !!popoverEntry}

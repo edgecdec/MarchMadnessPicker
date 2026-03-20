@@ -10,10 +10,11 @@ interface Props {
   username: string;
   bracketName?: string | null;
   details: PickDetail[];
+  filterRound?: number | null;
 }
 
-export default function ScoringBreakdownDialog({ open, onClose, username, bracketName, details }: Props) {
-  const decided = details.filter((d) => d.result !== null);
+export default function ScoringBreakdownDialog({ open, onClose, username, bracketName, details, filterRound }: Props) {
+  const decided = details.filter((d) => d.result !== null && (filterRound == null || d.round === filterRound));
   const correct = decided.filter((d) => d.correct);
   const totalBase = correct.reduce((s, d) => s + d.basePoints, 0);
   const totalBonus = correct.reduce((s, d) => s + d.upsetBonus, 0);
@@ -21,7 +22,7 @@ export default function ScoringBreakdownDialog({ open, onClose, username, bracke
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span>{username}{bracketName ? ` — ${bracketName}` : ""}</span>
+        <span>{username}{bracketName ? ` — ${bracketName}` : ""}{filterRound != null ? ` — ${getRoundName(filterRound)}` : ""}</span>
         <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
       </DialogTitle>
       <DialogContent>
