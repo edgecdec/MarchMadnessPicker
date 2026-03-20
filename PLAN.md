@@ -41,7 +41,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simple Mode (9/12): Add review screen — after tiebreaker, show completed bracket summary with "Save Bracket" button that calls the existing savePicks API and exits Simple Mode.
 - [x] Simple Mode (10/12): Add mini bracket preview — collapsible thumbnail in the corner showing region winners + FF, using existing MiniBracket component. Hidden by default with a toggle.
 - [x] Simple Mode (11/12): Add "Fill Step-by-Step" entry point button on the bracket page (next to autofill). Only shown when bracket is unlocked and has empty picks.
-- [ ] Simple Mode (12/12): Mobile styling — ensure matchup cards stack vertically on small screens, progress bar and navigation are touch-friendly, mini bracket preview is hidden by default on mobile.
+- [x] Simple Mode (12/12): Mobile styling — ensure matchup cards stack vertically on small screens, progress bar and navigation are touch-friendly, mini bracket preview is hidden by default on mobile.
 
 ## Completed
 - [x] Multiple brackets per user, custom names, enter into multiple groups
