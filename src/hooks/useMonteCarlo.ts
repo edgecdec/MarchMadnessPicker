@@ -40,12 +40,9 @@ export function useMonteCarlo(
     const worker = new Worker(new URL("../lib/monteCarloWorker.ts", import.meta.url));
     workerRef.current = worker;
     worker.onmessage = (e) => {
-      if (e.data.type === "progress") setProgress(e.data.progress);
-      else if (e.data.type === "done") {
-        setMcResults(e.data.results);
-        setProgress(10000);
-        setRunning(false);
-      }
+      if (e.data.results) setMcResults(e.data.results);
+      setProgress(e.data.progress ?? 0);
+      if (e.data.type === "done") setRunning(false);
     };
     worker.postMessage({
       entries: entries.map((e) => ({ key: e.key, picks: e.picks })),

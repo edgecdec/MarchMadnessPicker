@@ -167,19 +167,18 @@ self.onmessage = (e: MessageEvent<SimRequest>) => {
     }
 
     if ((s + 1) % BATCH === 0) {
-      (self as unknown as Worker).postMessage({ type: "progress", progress: s + 1 } as SimResult);
+      const n = s + 1;
+      const partial = entries.map((ent) => {
+        const t = totals[ent.key];
+        return {
+          key: ent.key,
+          avgScore: Math.round((t.score / n) * 10) / 10,
+          avgPlace: Math.round((t.rank / n) * 10) / 10,
+          winPct: Math.round((t.wins / n) * 1000) / 10,
+        };
+      });
+      partial.sort((a, b) => b.winPct - a.winPct || a.avgPlace - b.avgPlace || b.avgScore - a.avgScore);
+      (self as unknown as Worker).postMessage({ type: n >= totalSims ? "done" : "progress", progress: n, results: partial } as SimResult);
     }
   }
-
-  const out = entries.map((ent) => {
-    const t = totals[ent.key];
-    return {
-      key: ent.key,
-      avgScore: Math.round((t.score / totalSims) * 10) / 10,
-      avgPlace: Math.round((t.rank / totalSims) * 10) / 10,
-      winPct: Math.round((t.wins / totalSims) * 1000) / 10,
-    };
-  });
-  out.sort((a, b) => b.winPct - a.winPct || a.avgPlace - b.avgPlace || b.avgScore - a.avgScore);
-  (self as unknown as Worker).postMessage({ type: "done", results: out } as SimResult);
 };
