@@ -85,26 +85,6 @@ export default function LeaderboardPage() {
     setTimeout(computeNext, 0);
   }, [leaderboard, regions, results, scoringSettings]);
 
-  const openBreakdown = async (entry: LeaderboardEntry, round?: number) => {
-    if (!tournament) return;
-    try {
-      const { details } = await api.leaderboard.breakdown(tournament.id, entry.username, entry.bracket_name);
-      setBreakdownData({ username: entry.username, bracketName: entry.bracket_name, details });
-      setBreakdownRound(round ?? null);
-      setBreakdownOpen(true);
-    } catch {}
-  };
-
-  if (authLoading || tournLoading) return null;
-  if (!user) return <AuthForm />;
-
-  const userBestRank = leaderboard.length > 0
-    ? leaderboard.findIndex((e) => e.username === user?.username)
-    : -1;
-  const percentile = userBestRank >= 0 && leaderboard.length > 1
-    ? Math.round(((leaderboard.length - 1 - userBestRank) / (leaderboard.length - 1)) * 100)
-    : null;
-
   const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
 
   // Compute unique correct picks: games where exactly one bracket got it right
@@ -135,6 +115,26 @@ export default function LeaderboardPage() {
     }
     return map;
   }, [locked, results, regions, scoringSettings, leaderboard]);
+
+  const openBreakdown = async (entry: LeaderboardEntry, round?: number) => {
+    if (!tournament) return;
+    try {
+      const { details } = await api.leaderboard.breakdown(tournament.id, entry.username, entry.bracket_name);
+      setBreakdownData({ username: entry.username, bracketName: entry.bracket_name, details });
+      setBreakdownRound(round ?? null);
+      setBreakdownOpen(true);
+    } catch {}
+  };
+
+  if (authLoading || tournLoading) return null;
+  if (!user) return <AuthForm />;
+
+  const userBestRank = leaderboard.length > 0
+    ? leaderboard.findIndex((e) => e.username === user?.username)
+    : -1;
+  const percentile = userBestRank >= 0 && leaderboard.length > 1
+    ? Math.round(((leaderboard.length - 1 - userBestRank) / (leaderboard.length - 1)) * 100)
+    : null;
 
   const hasUpsetBonus = locked && scoringSettings?.upsetBonusPerRound?.some(b => b > 0);
 

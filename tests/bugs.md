@@ -1,1 +1,3 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
+
+- **CRITICAL - Leaderboard page crashes with React error #310**: https://marchmadness.edgecdec.com/leaderboard throws "Minified React error #310" which means "Rendered more hooks than during the previous render." A hook is being called conditionally — likely a `useState` or `useEffect` inside an `if` block or after an early return. This was probably introduced in the recent Simple Mode commits. Check the leaderboard page component and any hooks it imports. All hooks must be called unconditionally at the top of the component, before any returns. Look at recent changes to the leaderboard page or any shared hooks/components it uses.
