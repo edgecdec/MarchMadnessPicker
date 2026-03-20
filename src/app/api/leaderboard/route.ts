@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
         championPick,
         busted: championPick ? eliminated.has(championPick) || eliminated.has(championPickRS!) : false,
         ffPicks,
+        picks,
       };
     })
     .sort((a, b) => b.score - a.score);
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
     bestPossibleFinish: entries.filter((o) => o.score > e.maxPossible).length + 1,
     eliminated: e.maxPossible < topScore,
     // Hide other users' pick details before lock
-    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false }),
+    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false, picks: undefined }),
   }));
 
   return NextResponse.json({ leaderboard, scoring_settings: settings });

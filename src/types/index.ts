@@ -59,6 +59,7 @@ export interface LeaderboardEntry {
   busted?: boolean;
   eliminated?: boolean;
   ffPicks?: Record<string, string>;
+  picks?: Record<string, string>;
 }
 
 export interface ScoringSettings {

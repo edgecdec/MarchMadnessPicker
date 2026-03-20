@@ -49,7 +49,7 @@ export const api = {
 
   // Leaderboard
   leaderboard: {
-    get: (tournamentId: string) => request<{ leaderboard: LeaderboardEntry[] }>(`/api/leaderboard?tournament_id=${tournamentId}`),
+    get: (tournamentId: string) => request<{ leaderboard: LeaderboardEntry[]; scoring_settings: ScoringSettings }>(`/api/leaderboard?tournament_id=${tournamentId}`),
     breakdown: (tournamentId: string, username: string, bracketName?: string | null) => {
       const params = new URLSearchParams({ tournament_id: tournamentId, username });
       if (bracketName) params.set("bracket_name", bracketName);

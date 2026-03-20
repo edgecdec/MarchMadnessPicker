@@ -4,8 +4,9 @@ import { Container, Typography, Table, TableBody, TableCell, TableContainer, Tab
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
-import { LeaderboardEntry } from "@/types";
+import { LeaderboardEntry, ScoringSettings } from "@/types";
 import { PickDetail } from "@/lib/scoring";
+import { computeTrueMax } from "@/lib/trueMaxPossible";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringBreakdownDialog from "@/components/common/ScoringBreakdownDialog";
@@ -17,6 +18,9 @@ export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, regions, results, firstFour, loading: tournLoading } = useTournament();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [scoringSettings, setScoringSettings] = useState<ScoringSettings | null>(null);
+  const [trueMax, setTrueMax] = useState<Record<string, number>>({});
+  const [trueMaxComputing, setTrueMaxComputing] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownData, setBreakdownData] = useState<{ username: string; bracketName?: string | null; details: PickDetail[] }>({ username: "", details: [] });
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
@@ -24,9 +28,44 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     if (tournament) {
-      api.leaderboard.get(tournament.id).then((d) => setLeaderboard(d.leaderboard));
+      api.leaderboard.get(tournament.id).then((d) => {
+        setLeaderboard(d.leaderboard);
+        setScoringSettings(d.scoring_settings);
+      });
     }
   }, [tournament]);
+
+  // Compute true max possible (with upset bonuses) in background
+  useEffect(() => {
+    if (!leaderboard.length || !regions?.length || !results || !scoringSettings) return;
+    // Only compute if entries have picks data (locked tournament)
+    if (!leaderboard.some(e => e.picks)) return;
+
+    setTrueMaxComputing(true);
+    let idx = 0;
+    const maxMap: Record<string, number> = {};
+
+    function computeNext() {
+      if (idx >= leaderboard.length) {
+        setTrueMax(maxMap);
+        setTrueMaxComputing(false);
+        return;
+      }
+      const entry = leaderboard[idx];
+      const key = `${entry.username}|${entry.bracket_name || ""}`;
+      if (entry.picks) {
+        maxMap[key] = computeTrueMax(entry.picks, results, regions!, scoringSettings!);
+      }
+      idx++;
+      // Update state progressively every 5 entries
+      if (idx % 5 === 0 || idx === leaderboard.length) {
+        setTrueMax({ ...maxMap });
+      }
+      setTimeout(computeNext, 0);
+    }
+
+    setTimeout(computeNext, 0);
+  }, [leaderboard, regions, results, scoringSettings]);
 
   const openBreakdown = async (entry: LeaderboardEntry) => {
     if (!tournament) return;
@@ -99,7 +138,12 @@ export default function LeaderboardPage() {
                       <TableCell key={r} align="right">{s}</TableCell>
                     ))}
                     <TableCell align="right" sx={{ fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
-                    <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
+                    <TableCell align="right">{(() => {
+                      const key = `${entry.username}|${entry.bracket_name || ""}`;
+                      if (trueMax[key] != null) return trueMax[key];
+                      if (entry.picks && trueMaxComputing) return "⏳";
+                      return entry.score + (entry.maxRemaining ?? 0);
+                    })()}</TableCell>
                     <TableCell align="right">{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
                     {locked && <TableCell align="right">{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
