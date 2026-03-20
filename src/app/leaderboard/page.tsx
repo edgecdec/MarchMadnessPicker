@@ -14,6 +14,23 @@ import MiniBracket from "@/components/bracket/MiniBracket";
 
 const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
 
+// Compute current hot streak: consecutive correct picks from most recent decided game backwards
+function computeHotStreak(picks: Record<string, string> | undefined, results: Record<string, string>): number {
+  if (!picks) return 0;
+  const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+  const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g))
+    .sort((a, b) => {
+      const [, rA, iA] = a.split("-"), [, rB, iB] = b.split("-");
+      return (+rA - +rB) || (+iA - +iB);
+    });
+  let streak = 0;
+  for (let i = decided.length - 1; i >= 0; i--) {
+    if (picks[decided[i]] === results[decided[i]]) streak++;
+    else break;
+  }
+  return streak;
+}
+
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { tournament, regions, results, firstFour, loading: tournLoading } = useTournament();
@@ -128,7 +145,7 @@ export default function LeaderboardPage() {
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                     <TableCell>{ranks[i]}</TableCell>
-                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
+                    <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
