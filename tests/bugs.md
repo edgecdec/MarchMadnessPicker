@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulation "Top Seeds" autofill produces impossible Final Four**: Filling top seeds gives Duke vs Florida in the semis which can't happen. Duke (#1) is East, Arizona (#2) is West, Michigan (#3) is Midwest, Florida (#4) is South. Left side = East vs South, Right side = West vs Midwest. The chalk autofill must respect the correct FF pairings.
-
 - **Who Picked Whom shows raw game IDs like "ff-4-0"**: Replace with human-readable names: "ff-4-0" → "Final Four - East/South", "ff-4-1" → "Final Four - West/Midwest", "ff-5-0" → "Championship". For regional games, show "East - Round of 64 - Game 1" etc.
 
 - **Simulation page should be locked for non-admins until brackets lock**: Show "Available after brackets lock" for non-admin users.
