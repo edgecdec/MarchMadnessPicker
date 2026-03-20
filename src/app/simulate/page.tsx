@@ -75,8 +75,8 @@ function chalkFill(regions: Region[], results: Record<string, string>): Record<s
   }
   // Final Four
   const ffPairs: [string, string, string][] = regions.length >= 4 ? [
-    ["ff-4-0", `${regions[0].name}-3-0`, `${regions[1].name}-3-0`],
-    ["ff-4-1", `${regions[2].name}-3-0`, `${regions[3].name}-3-0`],
+    ["ff-4-0", `${regions[0].name}-3-0`, `${regions[2].name}-3-0`],
+    ["ff-4-1", `${regions[1].name}-3-0`, `${regions[3].name}-3-0`],
   ] : [];
   for (const [gid, fA, fB] of ffPairs) {
     if (results[gid]) continue;
