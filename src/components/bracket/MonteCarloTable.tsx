@@ -72,9 +72,9 @@ export default function MonteCarloTable({
           <Table size="small" stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 0.5, px: 1, width: "34%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Player</TableCell>
+                <TableCell sx={{ py: 0.5, px: 1, width: "28%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Player</TableCell>
                 {(["avgScore", "avgPlace", "winPct"] as SortKey[]).map((k) => (
-                  <TableCell key={k} align="right" sx={{ py: 0.5, px: 1, width: "22%" }}>
+                  <TableCell key={k} align="right" sx={{ py: 0.5, px: 1, width: "24%" }}>
                     <TableSortLabel
                       active={sortBy === k}
                       direction={sortBy === k ? (asc ? "asc" : "desc") : "desc"}

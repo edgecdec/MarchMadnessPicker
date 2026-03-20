@@ -52,3 +52,6 @@ These are mistakes Ralph has made before. Read this every loop.
 - If a task description mentions multiple things, pick the FIRST one only. Leave the rest for the next iteration.
 - Each commit should have exactly ONE logical change. "Fix X and Y and Z" is WRONG. "Fix X" is correct.
 - This rule exists because multi-fix commits are harder to debug when something breaks.
+
+## Task Completion
+- If a task has multiple parts and you only complete the first part, split the task: mark what you did as done (or delete it from bugs.md), and create a NEW entry for the remaining work. Do NOT leave the original task unchanged — this causes infinite loops where you keep re-reading the same task and redoing the completed part.
