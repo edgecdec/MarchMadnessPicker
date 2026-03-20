@@ -173,6 +173,13 @@ export default function SimulatePage() {
     return baseIdx - simIdx;
   }, [baseRanked, simRanked]);
 
+  const scoreDelta = useCallback((key: string) => {
+    const base = baseRanked.find((e) => e.key === key);
+    const sim = simRanked.find((e) => e.key === key);
+    if (!base || !sim) return 0;
+    return sim.score - base.score;
+  }, [baseRanked, simRanked]);
+
   const pickHypo = useCallback((gameId: string, team: Team) => {
     if (results[gameId]) return; // can't override actual results
     // Compute region-seed for the team
@@ -299,7 +306,16 @@ export default function SimulatePage() {
                       {e.username}{e.bracket_name ? ` — ${e.bracket_name}` : ""}
                     </Typography>
                   </TableCell>
-                  <TableCell align="right" sx={{ py: 0.25, px: 1, fontWeight: 700 }}>{e.score}</TableCell>
+                  <TableCell align="right" sx={{ py: 0.25, px: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 0.5 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{e.score}</Typography>
+                      {(() => { const sd = scoreDelta(e.key); return sd !== 0 ? (
+                        <Typography variant="caption" sx={{ color: sd > 0 ? "success.main" : "error.main", fontWeight: 600, fontSize: "0.65rem" }}>
+                          {sd > 0 ? `+${sd}` : sd}
+                        </Typography>
+                      ) : null; })()}
+                    </Box>
+                  </TableCell>
                   <TableCell align="center" sx={{ py: 0.25, px: 1 }}>
                     {delta > 0 && <Chip icon={<ArrowUpwardIcon sx={{ fontSize: 14 }} />} label={`+${delta}`} size="small" color="success" variant="outlined" sx={{ height: 20, "& .MuiChip-label": { px: 0.5, fontSize: "0.7rem" } }} />}
                     {delta < 0 && <Chip icon={<ArrowDownwardIcon sx={{ fontSize: 14 }} />} label={`${delta}`} size="small" color="error" variant="outlined" sx={{ height: 20, "& .MuiChip-label": { px: 0.5, fontSize: "0.7rem" } }} />}
