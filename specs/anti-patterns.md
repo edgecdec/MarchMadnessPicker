@@ -45,3 +45,10 @@ These are mistakes Ralph has made before. Read this every loop.
 - When creating new components, test them in BOTH dark and light mode before committing
 - The bracket export must also respect the current theme — don't hardcode export colors separately
 - Common mistakes: hardcoded `#fff`/`#000` text, hardcoded `rgba()` backgrounds, hardcoded border colors, inline `sx` styles with literal color values
+
+## Iteration Discipline
+- STRICTLY ONE bug or ONE task per iteration. NEVER combine multiple fixes into one commit.
+- If you fix a bug and notice another bug, log it in bugs.md and move on. Do NOT fix it in the same iteration.
+- If a task description mentions multiple things, pick the FIRST one only. Leave the rest for the next iteration.
+- Each commit should have exactly ONE logical change. "Fix X and Y and Z" is WRONG. "Fix X" is correct.
+- This rule exists because multi-fix commits are harder to debug when something breaks.

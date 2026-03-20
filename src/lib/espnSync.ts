@@ -7,8 +7,8 @@ const ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/basketbal
 const ESPN_NAME_ALIASES: Record<string, string> = {
   "st john's": "St. Johns",
   "st. john's": "St. Johns",
-  "saint mary's": "St. Marys",
-  "st. mary's": "St. Marys",
+  "saint mary's": "Saint Marys",
+  "st. mary's": "Saint Marys",
   "mississippi st": "Mississippi St.",
   "michigan st": "Michigan St.",
   "iowa st": "Iowa St.",

@@ -34,7 +34,7 @@ src/app/ (pages + API routes)
 10. Bug fixed? DELETE the line from bugs.md. Task done? Mark [x] in PLAN.md. Commit.
 
 ## Rules
-- ONE item per loop.
+- STRICTLY ONE bug or ONE task per loop. NEVER combine multiple fixes in one commit. If you notice another issue while working, log it in bugs.md and move on. Each commit = exactly one logical change.
 - Do NOT modify: deploy_webhook.sh, server.js, ralph.sh
 - You MAY update PROMPT.md and specs/ files — but ONLY to add brief learnings or corrections. Keep changes minimal (1-2 lines). Never rewrite these files. Never remove existing rules. Only append.
 - Do NOT read files you don't need. Minimize context usage.
