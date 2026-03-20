@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Box, IconButton, Typography, LinearProgress, Button, Dialog } from "@mui/material";
+import { Box, IconButton, Typography, LinearProgress, Button, Dialog, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Region, Team, FirstFourGame } from "@/types";
 import { buildGameOrder, cascadeClear } from "@/lib/bracketUtils";
@@ -15,6 +15,8 @@ interface SimpleModeProps {
   onPicksChange: (picks: Record<string, string>) => void;
   results?: Record<string, string>;
   locked?: boolean;
+  tiebreaker?: string;
+  onTiebreakerChange?: (value: string) => void;
 }
 
 function resolveTeamsForGame(
@@ -178,7 +180,7 @@ function TeamCard({
   );
 }
 
-export default function SimpleMode({ open, onClose, regions, firstFour, picks, onPicksChange, results, locked }: SimpleModeProps) {
+export default function SimpleMode({ open, onClose, regions, firstFour, picks, onPicksChange, results, locked, tiebreaker, onTiebreakerChange }: SimpleModeProps) {
   const gameOrder = useMemo(() => buildGameOrder(regions), [regions]);
   const [currentStep, setCurrentStep] = useState(() => {
     const order = buildGameOrder(regions);
@@ -194,6 +196,13 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
 
   const totalGames = gameOrder.length;
   const pickedCount = gameOrder.filter((gid) => picks[gid] || results?.[gid]).length;
+  const allPicked = pickedCount === totalGames;
+  const [showTiebreaker, setShowTiebreaker] = useState(false);
+
+  useEffect(() => {
+    if (allPicked) setShowTiebreaker(true);
+  }, [allPicked]);
+
   const currentGameId = gameOrder[currentStep] ?? "";
 
   const { teamA, teamB, regionColor } = useMemo(
@@ -281,12 +290,20 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
         {/* Top bar */}
         <Box sx={{ display: "flex", alignItems: "center", px: 2, py: 1, borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="body2" sx={{ color: REGION_COLORS[gameLabel.region] || "text.secondary", fontWeight: 600 }}>
-              {gameLabel.region} — {gameLabel.round}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Game {currentStep + 1} of {totalGames} · {pickedCount} picked
-            </Typography>
+            {showTiebreaker ? (
+              <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
+                Tiebreaker
+              </Typography>
+            ) : (
+              <>
+                <Typography variant="body2" sx={{ color: REGION_COLORS[gameLabel.region] || "text.secondary", fontWeight: 600 }}>
+                  {gameLabel.region} — {gameLabel.round}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Game {currentStep + 1} of {totalGames} · {pickedCount} picked
+                </Typography>
+              </>
+            )}
           </Box>
           <IconButton onClick={onClose} edge="end" aria-label="Exit Simple Mode">
             <CloseIcon />
@@ -296,9 +313,30 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
         {/* Progress bar */}
         <LinearProgress variant="determinate" value={(pickedCount / totalGames) * 100} sx={{ flexShrink: 0 }} />
 
-        {/* Matchup card */}
+        {/* Content */}
         <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 2, sm: 4 } }}>
-          {currentBlocked && !hasResolvableNext ? (
+          {showTiebreaker ? (
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, maxWidth: 400, width: "100%" }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, textAlign: "center" }}>
+                🏆 All 63 games picked!
+              </Typography>
+              <Typography color="text.secondary" sx={{ textAlign: "center" }}>
+                Predict the total combined score of the Championship game.
+              </Typography>
+              <TextField
+                type="number"
+                label="Total combined score"
+                value={tiebreaker ?? ""}
+                onChange={(e) => onTiebreakerChange?.(e.target.value)}
+                inputProps={{ min: 0, max: 500, "aria-label": "Tiebreaker score prediction" }}
+                sx={{ width: "100%", maxWidth: 240 }}
+                disabled={locked}
+              />
+              <Typography variant="caption" color="text.secondary">
+                This is used to break ties on the leaderboard.
+              </Typography>
+            </Box>
+          ) : currentBlocked && !hasResolvableNext ? (
             <Typography color="text.secondary" sx={{ textAlign: "center", maxWidth: 400 }}>
               Some games can&apos;t be shown yet because earlier matchups are unanswered. Go back to fill them in.
             </Typography>
@@ -325,12 +363,25 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
 
         {/* Bottom navigation */}
         <Box sx={{ display: "flex", justifyContent: "space-between", px: 2, py: 1.5, borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-          <Button onClick={goBack} disabled={currentStep === 0}>
-            ← Back
-          </Button>
-          <Button onClick={goNext} disabled={!hasResolvableNext}>
-            Skip →
-          </Button>
+          {showTiebreaker ? (
+            <>
+              <Button onClick={() => setShowTiebreaker(false)}>
+                ← Back to bracket
+              </Button>
+              <Button variant="contained" onClick={onClose}>
+                Done
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={goBack} disabled={currentStep === 0}>
+                ← Back
+              </Button>
+              <Button onClick={goNext} disabled={!hasResolvableNext}>
+                Skip →
+              </Button>
+            </>
+          )}
         </Box>
       </Box>
     </Dialog>
