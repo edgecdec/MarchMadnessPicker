@@ -190,26 +190,34 @@ export default function SimulatePage() {
       const next = { ...prev };
       if (next[gameId] === rs) { delete next[gameId]; }
       else { next[gameId] = rs; }
-      // Clear downstream games that depended on a different winner
+      // Cascade-clear: repeatedly remove hypothetical results whose winner
+      // is no longer a valid feeder team (team was eliminated upstream).
       const ids = regions.length ? allGameIds(regions) : [];
-      for (const id of ids) {
-        if (id === gameId || !next[id]) continue;
-        const parts = id.split("-");
-        const region = parts[0];
-        const round = parseInt(parts[1]);
-        const idx = parseInt(parts[2]);
+      let changed = true;
+      while (changed) {
+        changed = false;
         const m = { ...results, ...next };
-        let feedA: string | undefined, feedB: string | undefined;
-        if (region === "ff") {
-          if (round === 4 && idx === 0) { feedA = m[`${regions[0].name}-3-0`]; feedB = m[`${regions[1].name}-3-0`]; }
-          else if (round === 4 && idx === 1) { feedA = m[`${regions[2].name}-3-0`]; feedB = m[`${regions[3].name}-3-0`]; }
-          else if (round === 5) { feedA = m["ff-4-0"]; feedB = m["ff-4-1"]; }
-        } else if (round > 0) {
-          feedA = m[`${region}-${round - 1}-${idx * 2}`];
-          feedB = m[`${region}-${round - 1}-${idx * 2 + 1}`];
-        }
-        if (feedA !== undefined && feedB !== undefined && next[id] !== feedA && next[id] !== feedB) {
-          delete next[id];
+        for (const id of ids) {
+          if (id === gameId || !next[id]) continue;
+          const p = id.split("-");
+          const region = p[0];
+          const round = parseInt(p[1]);
+          const idx = parseInt(p[2]);
+          let feedA: string | undefined, feedB: string | undefined;
+          let hasFeeders = false;
+          if (region === "ff") {
+            if (round === 4 && idx === 0) { feedA = m[`${regions[0].name}-3-0`]; feedB = m[`${regions[2].name}-3-0`]; hasFeeders = true; }
+            else if (round === 4 && idx === 1) { feedA = m[`${regions[1].name}-3-0`]; feedB = m[`${regions[3].name}-3-0`]; hasFeeders = true; }
+            else if (round === 5) { feedA = m["ff-4-0"]; feedB = m["ff-4-1"]; hasFeeders = true; }
+          } else if (round > 0) {
+            feedA = m[`${region}-${round - 1}-${idx * 2}`];
+            feedB = m[`${region}-${round - 1}-${idx * 2 + 1}`];
+            hasFeeders = true;
+          }
+          if (hasFeeders && next[id] !== feedA && next[id] !== feedB) {
+            delete next[id];
+            changed = true;
+          }
         }
       }
       return next;
