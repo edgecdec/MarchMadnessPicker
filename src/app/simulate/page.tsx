@@ -128,7 +128,6 @@ export default function SimulatePage() {
     if (groupId && tournament) {
       api.simulate.get(groupId, tournament.id).then((d) => {
         setData(d);
-        setHypo({});
       });
     }
   }, [groupId, tournament]);
