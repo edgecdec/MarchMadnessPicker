@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Who Picked Whom shows raw game IDs like "ff-4-0"**: Replace with human-readable names: "ff-4-0" → "Final Four - East/South", "ff-4-1" → "Final Four - West/Midwest", "ff-5-0" → "Championship". For regional games, show "East - Round of 64 - Game 1" etc.
-
 - **Simulation page should be locked for non-admins until brackets lock**: Show "Available after brackets lock" for non-admin users.
 
 - **Monte Carlo should run 10000 simulations, update every 1000**: See @specs/simulator.md.
