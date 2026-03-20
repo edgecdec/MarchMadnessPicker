@@ -130,7 +130,7 @@ self.onmessage = (e: MessageEvent<SimRequest>) => {
   const totals: Record<string, { score: number; rank: number; wins: number }> = {};
   for (const ent of entries) totals[ent.key] = { score: 0, rank: 0, wins: 0 };
 
-  const BATCH = 100;
+  const BATCH = 1000;
   for (let s = 0; s < totalSims; s++) {
     // Simulate all games
     const sim: Record<string, string> = { ...fixed };

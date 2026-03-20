@@ -43,7 +43,7 @@ export function useMonteCarlo(
       if (e.data.type === "progress") setProgress(e.data.progress);
       else if (e.data.type === "done") {
         setMcResults(e.data.results);
-        setProgress(1000);
+        setProgress(10000);
         setRunning(false);
       }
     };
@@ -55,7 +55,7 @@ export function useMonteCarlo(
       teamSeeds,
       scoring,
       seedWinRates: SEED_WIN_RATES,
-      totalSims: 1000,
+      totalSims: 10000,
     });
   }, [entries, results, hypo, regions, scoring]);
 

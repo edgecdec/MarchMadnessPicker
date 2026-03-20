@@ -47,9 +47,9 @@ export default function MonteCarloTable({
   return (
     <Box>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-        🎲 Monte Carlo ({running ? `${progress}/1000` : "1000 sims"})
+        🎲 Monte Carlo ({running ? `${progress}/10000` : "10000 sims"})
       </Typography>
-      {running && <LinearProgress variant="determinate" value={progress / 10} sx={{ mb: 1 }} />}
+      {running && <LinearProgress variant="determinate" value={progress / 100} sx={{ mb: 1 }} />}
       {results.length > 0 && (
         <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
           <Table size="small" stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
