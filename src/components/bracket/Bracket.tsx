@@ -5,6 +5,7 @@ import PrintIcon from "@mui/icons-material/Print";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import MobileBracket from "./MobileBracket";
+import SimpleMode from "./SimpleMode";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed, getTeamLogoUrl, parseRegionSeed } from "@/lib/bracketData";
@@ -55,6 +56,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const bracketRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [autofillAnchor, setAutofillAnchor] = useState<null | HTMLElement>(null);
+  const [simpleModeOpen, setSimpleModeOpen] = useState(false);
   const savedPicksRef = useRef<string>(JSON.stringify(initialPicks || {}));
   const savedTiebreakerRef = useRef<string>(initialTiebreaker != null ? String(initialTiebreaker) : "");
   const versionRef = useRef<number>(initialVersion ?? 1);
@@ -294,6 +296,11 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
                 <MenuItem onClick={() => { setPicks(autofillBracket(regions, "chalk", firstFour, picks)); setAutofillAnchor(null); }}>🏅 Chalk</MenuItem>
               </Tooltip>
             </Menu>
+            {totalPicks < totalGames && (
+              <Button variant="outlined" size="small" onClick={() => setSimpleModeOpen(true)} disabled={saving}>
+                📋 Fill Step-by-Step
+              </Button>
+            )}
             <Button variant="outlined" size="small" onClick={handleExport} disabled={exporting}>
               {exporting ? "Exporting..." : "📷 Export"}
             </Button>
@@ -453,6 +460,20 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
       <Snackbar open={!!snack} autoHideDuration={3000} onClose={() => setSnack(null)}>
         <Alert severity={snack?.severity} onClose={() => setSnack(null)}>{snack?.msg}</Alert>
       </Snackbar>
+
+      <SimpleMode
+        open={simpleModeOpen}
+        onClose={() => setSimpleModeOpen(false)}
+        regions={regions}
+        firstFour={firstFour}
+        picks={picks}
+        onPicksChange={setPicks}
+        results={results}
+        locked={locked}
+        tiebreaker={tiebreaker}
+        onTiebreakerChange={setTiebreaker}
+        onSave={async () => { await handleSave(); return true; }}
+      />
     </Box>
   );
 }
