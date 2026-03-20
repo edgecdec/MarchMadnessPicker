@@ -16,6 +16,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { useMonteCarlo } from "@/hooks/useMonteCarlo";
+import { useGameScores } from "@/hooks/useGameScores";
 import { api } from "@/lib/api";
 import { scorePicks } from "@/lib/scoring";
 import { ScoringSettings, Region, Team, FirstFourGame } from "@/types";
@@ -139,6 +140,8 @@ export default function SimulatePage() {
   // so teams propagate forward through the bracket correctly
   const merged = useMemo(() => ({ ...results, ...hypo }), [results, hypo]);
 
+  const gameScores = useGameScores(regions, firstFour, results);
+
   const mcEntries = useMemo(() =>
     (data?.entries || []).map((e) => ({
       key: `${e.username}|${e.bracket_name}`,
@@ -259,6 +262,58 @@ export default function SimulatePage() {
     setHypo(h);
     setPicksAnchor(null);
   }, [regions, results]);
+
+  const liveCount = useMemo(() => Object.values(gameScores).filter(g => g.state === "in").length, [gameScores]);
+
+  const fillCurrentResults = useCallback(() => {
+    if (!regions.length) return;
+    // Build name → regionSeed map
+    const nameToRS: Record<string, string> = {};
+    for (const r of regions) for (const t of r.teams) nameToRS[t.name] = toRegionSeed(r.name, t.seed);
+    // Build gameId → [teamAName, teamBName] from the same logic useGameScores uses
+    const rsToName: Record<string, string> = {};
+    for (const r of regions) for (const t of r.teams) rsToName[toRegionSeed(r.name, t.seed)] = t.name;
+    const resolve = (v: string) => rsToName[v] || v;
+
+    setHypo(prev => {
+      const next = { ...prev };
+      for (const [gid, gs] of Object.entries(gameScores)) {
+        if (gs.state !== "in" || results[gid]) continue;
+        const scoreA = parseInt(gs.teamA || "0");
+        const scoreB = parseInt(gs.teamB || "0");
+        if (scoreA === scoreB) continue; // tied — skip
+        // Determine which team is teamA/teamB for this game
+        // gameScores aligns teamA/teamB with the bracket's team order
+        // We need to find the actual team names for this game
+        const parts = gid.split("-");
+        if (parts[0] === "ff") {
+          const round = parseInt(parts[1]);
+          const idx = parseInt(parts[2]);
+          let feedA: string | undefined, feedB: string | undefined;
+          if (round === 4 && idx === 0) { feedA = results[`${regions[0].name}-3-0`]; feedB = results[`${regions[2].name}-3-0`]; }
+          else if (round === 4 && idx === 1) { feedA = results[`${regions[1].name}-3-0`]; feedB = results[`${regions[3].name}-3-0`]; }
+          else if (round === 5) { feedA = results["ff-4-0"]; feedB = results["ff-4-1"]; }
+          const winner = scoreA > scoreB ? feedA : feedB;
+          if (winner) next[gid] = winner;
+        } else {
+          const region = parts[0];
+          const round = parseInt(parts[1]);
+          const i = parseInt(parts[2]);
+          if (round === 0) {
+            const pair = SEED_PAIRS[i];
+            const winner = scoreA > scoreB ? toRegionSeed(region, pair[0]) : toRegionSeed(region, pair[1]);
+            next[gid] = winner;
+          } else {
+            const feedA = results[`${region}-${round - 1}-${i * 2}`];
+            const feedB = results[`${region}-${round - 1}-${i * 2 + 1}`];
+            const winner = scoreA > scoreB ? feedA : feedB;
+            if (winner) next[gid] = winner;
+          }
+        }
+      }
+      return next;
+    });
+  }, [regions, results, gameScores]);
 
   if (authLoading || tournLoading) return null;
   if (!user) return <AuthForm />;
@@ -387,6 +442,11 @@ export default function SimulatePage() {
                 {/* Autofill buttons */}
                 <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
                   <Button size="small" variant="outlined" onClick={fillChalk}>Top Seeds</Button>
+                  {liveCount > 0 && (
+                    <Button size="small" variant="outlined" color="success" onClick={fillCurrentResults}>
+                      📺 If Current Results Hold
+                    </Button>
+                  )}
                   <Button
                     size="small"
                     variant="outlined"
@@ -408,17 +468,17 @@ export default function SimulatePage() {
               {/* Top half: East | Final Four | West */}
               <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-                  <RegionBracket region={regions[0]} picks={merged} results={results} onPick={pickHypo} direction="left" firstFour={firstFour} />
-                  <FinalFour regions={regions} picks={merged} results={results} onPick={pickHypo} firstFour={firstFour} />
-                  <RegionBracket region={regions[1]} picks={merged} results={results} onPick={pickHypo} direction="right" firstFour={firstFour} />
+                  <RegionBracket region={regions[0]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="left" firstFour={firstFour} />
+                  <FinalFour regions={regions} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} firstFour={firstFour} />
+                  <RegionBracket region={regions[1]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
               {/* Bottom half: South | spacer | Midwest */}
               <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
-                  <RegionBracket region={regions[2]} picks={merged} results={results} onPick={pickHypo} direction="left" firstFour={firstFour} />
+                  <RegionBracket region={regions[2]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="left" firstFour={firstFour} />
                   <Box sx={{ minWidth: 160 }} />
-                  <RegionBracket region={regions[3]} picks={merged} results={results} onPick={pickHypo} direction="right" firstFour={firstFour} />
+                  <RegionBracket region={regions[3]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
             </Box>
