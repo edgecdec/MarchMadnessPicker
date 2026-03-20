@@ -139,7 +139,7 @@ function TeamCard({
 }) {
   if (!team) {
     return (
-      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: 3, borderRadius: 2, border: 2, borderColor: "divider", borderStyle: "dashed", opacity: 0.4 }}>
+      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 2, sm: 3 }, minHeight: { xs: 120, sm: "auto" }, borderRadius: 2, border: 2, borderColor: "divider", borderStyle: "dashed", opacity: 0.4 }}>
         <Typography color="text.disabled">Waiting for earlier pick</Typography>
       </Box>
     );
@@ -158,13 +158,15 @@ function TeamCard({
         alignItems: "center",
         justifyContent: "center",
         gap: 1.5,
-        p: 3,
+        p: { xs: 2, sm: 3 },
+        minHeight: { xs: 120, sm: "auto" },
         borderRadius: 2,
         border: 3,
         borderColor: selected ? accent : "divider",
         bgcolor: selected ? (theme => theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)") : "background.paper",
         cursor: "pointer",
         transition: "all 0.2s ease",
+        WebkitTapHighlightColor: "transparent",
         "&:hover": { borderColor: accent, transform: "scale(1.02)" },
         "&:active": { transform: "scale(0.98)" },
         ...(selected && {
@@ -172,11 +174,11 @@ function TeamCard({
         }),
       }}
     >
-      {logo && <Box component="img" src={logo} alt="" sx={{ width: 64, height: 64, objectFit: "contain" }} />}
+      {logo && <Box component="img" src={logo} alt="" sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, objectFit: "contain" }} />}
       <Typography variant="caption" sx={{ color: accent, fontWeight: 700, fontSize: "0.85rem" }}>
         #{team.seed}
       </Typography>
-      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: "center", lineHeight: 1.2, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
         {team.name}
       </Typography>
     </Box>
@@ -329,7 +331,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
     <Dialog open={open} onClose={onClose} fullScreen>
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "background.default" }}>
         {/* Top bar */}
-        <Box sx={{ display: "flex", alignItems: "center", px: 2, py: 1, borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+        <Box sx={{ display: "flex", alignItems: "center", px: { xs: 1.5, sm: 2 }, py: 1, borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}>
           <Box sx={{ flex: 1 }}>
             {activeView === "review" ? (
               <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
@@ -446,34 +448,34 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
         )}
 
         {/* Bottom navigation */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", px: 2, py: 1.5, borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 1.5 }, borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
           {activeView === "review" ? (
             <>
-              <Button onClick={() => setShowReview(false)}>
-                ← Back to tiebreaker
+              <Button onClick={() => setShowReview(false)} sx={{ minHeight: 44 }}>
+                ← Back
               </Button>
-              <Button variant="contained" onClick={handleSaveBracket} disabled={saving || !onSave}>
+              <Button variant="contained" onClick={handleSaveBracket} disabled={saving || !onSave} sx={{ minHeight: 44 }}>
                 {saving ? "Saving…" : "Save Bracket"}
               </Button>
             </>
           ) : activeView === "tiebreaker" ? (
             <>
-              <Button onClick={() => setShowTiebreaker(false)}>
-                ← Back to bracket
+              <Button onClick={() => setShowTiebreaker(false)} sx={{ minHeight: 44 }}>
+                ← Back
               </Button>
-              <Button variant="contained" onClick={() => setShowReview(true)}>
+              <Button variant="contained" onClick={() => setShowReview(true)} sx={{ minHeight: 44 }}>
                 Review →
               </Button>
             </>
           ) : (
             <>
-              <Button onClick={goBack} disabled={currentStep === 0}>
+              <Button onClick={goBack} disabled={currentStep === 0} sx={{ minHeight: 44 }}>
                 ← Back
               </Button>
-              <IconButton onClick={() => setShowMini(v => !v)} size="small" aria-label="Toggle mini bracket preview" sx={{ color: showMini ? "primary.main" : "text.secondary" }}>
+              <IconButton onClick={() => setShowMini(v => !v)} aria-label="Toggle mini bracket preview" sx={{ color: showMini ? "primary.main" : "text.secondary", display: { xs: "none", sm: "inline-flex" } }}>
                 <AccountTreeIcon fontSize="small" />
               </IconButton>
-              <Button onClick={goNext} disabled={!hasResolvableNext}>
+              <Button onClick={goNext} disabled={!hasResolvableNext} sx={{ minHeight: 44 }}>
                 Skip →
               </Button>
             </>
