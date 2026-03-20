@@ -243,6 +243,19 @@ export default function SimulatePage() {
   if (!user) return <AuthForm />;
 
   const locked = isTournamentLocked(tournament?.lock_time ?? null);
+
+  if (!locked && !user.is_admin) {
+    return (
+      <>
+        <Navbar />
+        <Container maxWidth="sm" sx={{ mt: 8, textAlign: "center" }}>
+          <Typography variant="h4" gutterBottom>🔮 What-If Simulator</Typography>
+          <Typography color="text.secondary">Available after brackets lock.</Typography>
+        </Container>
+      </>
+    );
+  }
+
   const hideMC = !locked && !user.is_admin;
 
   const hypoCount = Object.keys(hypo).length;
