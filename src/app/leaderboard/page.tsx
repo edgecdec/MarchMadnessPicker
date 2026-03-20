@@ -141,12 +141,12 @@ export default function LeaderboardPage() {
         {leaderboard.length === 0 ? (
           <Typography color="text.secondary">No picks submitted yet.</Typography>
         ) : (
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>Player</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper" }}>Rank</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 48, zIndex: 3, bgcolor: "background.paper" }}>Player</TableCell>
                   {ROUND_LABELS.map((l) => (
                     <TableCell key={l} align="right">{l}</TableCell>
                   ))}
@@ -159,11 +159,11 @@ export default function LeaderboardPage() {
               <TableBody>
                 {leaderboard.map((entry, i) => (
                   <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
-                    <TableCell>{ranks[i]}</TableCell>
+                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper" }}>{ranks[i]}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ maxWidth: 110, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined }}
+                      sx={{ position: "sticky", left: 48, zIndex: 1, bgcolor: "background.paper", maxWidth: 110, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
                         <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", maxWidth: 100 }}>
