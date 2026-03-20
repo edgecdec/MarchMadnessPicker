@@ -38,7 +38,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simple Mode (6/12): Add progress bar and labels — "Game N of 63" counter, region name, round name in the top bar.
 - [x] Simple Mode (7/12): Add back/skip navigation — "← Back" returns to previous picked game, "Skip →" advances to next resolvable game, show message when no more games can be shown due to skipped dependencies.
 - [x] Simple Mode (8/12): Add tiebreaker prompt — after all 63 games are picked, show tiebreaker score input ("Predict the total combined score of the championship game").
-- [ ] Simple Mode (9/12): Add review screen — after tiebreaker, show completed bracket summary with "Save Bracket" button that calls the existing savePicks API and exits Simple Mode.
+- [x] Simple Mode (9/12): Add review screen — after tiebreaker, show completed bracket summary with "Save Bracket" button that calls the existing savePicks API and exits Simple Mode.
 - [ ] Simple Mode (10/12): Add mini bracket preview — collapsible thumbnail in the corner showing region winners + FF, using existing MiniBracket component. Hidden by default with a toggle.
 - [ ] Simple Mode (11/12): Add "Fill Step-by-Step" entry point button on the bracket page (next to autofill). Only shown when bracket is unlocked and has empty picks.
 - [ ] Simple Mode (12/12): Mobile styling — ensure matchup cards stack vertically on small screens, progress bar and navigation are touch-friendly, mini bracket preview is hidden by default on mobile.
