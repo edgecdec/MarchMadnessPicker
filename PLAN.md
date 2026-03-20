@@ -8,7 +8,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simulation: highlight the current user's own bracket(s) in the simulated standings box, same style as in the Monte Carlo results table.
 - [x] Simulation: switching groups should preserve any hypothetical results the user already set on the bracket.
 - [x] Simulation: show live scores for in-progress games and add an "If Current Results Hold" button that auto-fills hypothetical results based on which team is currently winning.
-- [ ] Simulation: use the same mobile bracket layout (round tabs) as the main bracket page when on small screens.
+- [x] Simulation: use the same mobile bracket layout (round tabs) as the main bracket page when on small screens.
 - [ ] Leaderboard: add emoji indicators — 🔥N for hot streaks (5+ correct in a row), 🤡 if entire Final Four eliminated without any correct, 😱 if only person to get a specific pick correct.
 - [ ] Leaderboard: shorten username and bracket name display. Make username column sticky on horizontal scroll. Make total score column sticky after username. Add a "Bonus" column showing upset bonus points earned. Make round-by-round scores clickable to show that round's picks (same as total score click).
 - [ ] Leaderboard: tiebreaker column should be visible without scrolling — reduce column widths to fit.
