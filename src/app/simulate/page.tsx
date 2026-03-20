@@ -4,7 +4,7 @@ import {
   Container, Typography, Box, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Select, MenuItem, FormControl,
   InputLabel, Button, Chip, Drawer, useMediaQuery, useTheme, IconButton,
-  Menu, Collapse,
+  Menu, Collapse, Tooltip,
 } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -12,6 +12,7 @@ import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { useMonteCarlo } from "@/hooks/useMonteCarlo";
@@ -288,6 +289,9 @@ export default function SimulatePage() {
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
             Leaderboard {hypoCount > 0 && <Chip label={`${hypoCount} hypothetical`} size="small" color="warning" variant="outlined" sx={{ ml: 1 }} />}
           </Typography>
+          <Tooltip title="Shows what the standings would look like if the hypothetical results you selected actually happen." arrow>
+            <HelpOutlineIcon sx={{ fontSize: 16, color: "text.secondary", cursor: "help" }} onClick={(e) => e.stopPropagation()} />
+          </Tooltip>
           {lbOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
         </Box>
         {hypoCount > 0 && <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); setHypo({}); }}>Reset</Button>}

@@ -2,10 +2,11 @@
 import { useState } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, LinearProgress, TableSortLabel, Collapse,
+  TableHead, TableRow, Paper, LinearProgress, TableSortLabel, Collapse, Tooltip, IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { MCResult } from "@/hooks/useMonteCarlo";
 
 type SortKey = "winPct" | "avgPlace" | "avgScore";
@@ -59,6 +60,9 @@ export default function MonteCarloTable({
         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
           🎲 Monte Carlo ({running ? `${progress}/10000` : "10000 sims"})
         </Typography>
+        <Tooltip title="We simulate the rest of the tournament 10,000 times using historical odds to estimate each bracket's chance of winning." arrow>
+          <HelpOutlineIcon sx={{ fontSize: 16, color: "text.secondary", cursor: "help" }} />
+        </Tooltip>
         {collapsible && (open ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />)}
       </Box>
       {running && <LinearProgress variant="determinate" value={progress / 100} sx={{ mb: 1 }} />}
