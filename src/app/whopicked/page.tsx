@@ -44,14 +44,14 @@ function TeamPickRow({ team, pickers, total, regionColor }: {
   );
 }
 
-function GameCard({ gameId, gamePicks, totalBrackets, regionColor, teamA, teamB }: {
+function GameCard({ gameId, gamePicks, totalBrackets, regionColor, teamA, teamB, label: labelOverride }: {
   gameId: string; gamePicks: GamePicks; totalBrackets: number;
-  regionColor: string; teamA?: string; teamB?: string;
+  regionColor: string; teamA?: string; teamB?: string; label?: string;
 }) {
   const teams = Object.keys(gamePicks);
   if (teams.length === 0) return null;
 
-  const label = teamA && teamB ? `${teamA} vs ${teamB}` : gameId;
+  const label = labelOverride || (teamA && teamB ? `${teamA} vs ${teamB}` : formatGameId(gameId));
 
   return (
     <Paper variant="outlined" sx={{ p: 1.5, mb: 1 }}>
@@ -68,7 +68,22 @@ function GameCard({ gameId, gamePicks, totalBrackets, regionColor, teamA, teamB 
 }
 
 const ROUND_NAMES = ["Round of 64", "Round of 32", "Sweet 16", "Elite 8"];
-const FF_ROUND_NAMES: Record<string, string> = { "ff-4-0": "Semifinal 1", "ff-4-1": "Semifinal 2", "ff-5-0": "Championship" };
+function ffLabel(gameId: string, regions: Region[]): string {
+  if (gameId === "ff-5-0") return "Championship";
+  if (gameId === "ff-4-0" && regions.length >= 4) return `Final Four — ${regions[0].name} / ${regions[2].name}`;
+  if (gameId === "ff-4-1" && regions.length >= 4) return `Final Four — ${regions[1].name} / ${regions[3].name}`;
+  return gameId;
+}
+
+function formatGameId(gameId: string): string {
+  const parts = gameId.split("-");
+  if (parts.length === 3) {
+    const [region, round, index] = parts;
+    const roundName = ROUND_NAMES[parseInt(round)];
+    if (roundName) return `${region} — ${roundName} — Game ${parseInt(index) + 1}`;
+  }
+  return gameId;
+}
 
 function getMatchupTeams(
   region: Region, round: number, gameIndex: number,
@@ -172,7 +187,7 @@ export default function WhoPickedPage() {
                 {["ff-4-0", "ff-4-1", "ff-5-0"].map((gid) => {
                   const gp = games[gid];
                   if (!gp || !matchesSearch(gp)) return null;
-                  return <GameCard key={gid} gameId={gid} gamePicks={gp} totalBrackets={totalBrackets} regionColor="#FFB300" teamA={undefined} teamB={undefined} />;
+                  return <GameCard key={gid} gameId={gid} gamePicks={gp} totalBrackets={totalBrackets} regionColor="#FFB300" label={ffLabel(gid, regions)} />;
                 })}
               </AccordionDetails>
             </Accordion>
