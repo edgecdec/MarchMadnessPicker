@@ -163,12 +163,12 @@ export default function LeaderboardPage() {
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ position: "sticky", left: 48, zIndex: 1, bgcolor: "background.paper", maxWidth: 90, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5 }}
+                      sx={{ position: "sticky", left: 48, zIndex: 1, bgcolor: "background.paper", maxWidth: 110, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5 }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
-                        <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", maxWidth: 80 }}>
-                          <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.75rem" }}>{entry.username.length > 6 ? entry.username.slice(0, 5) + "…" : entry.username}</Link>
-                          {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.65rem" }}>{` · ${entry.bracket_name.length > 5 ? entry.bracket_name.slice(0, 4) + "…" : entry.bracket_name}`}</Box>}
+                        <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, overflow: "hidden", maxWidth: 100 }}>
+                          <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.75rem", overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0, maxWidth: entry.bracket_name ? 55 : 100 }}>{entry.username}</Link>
+                          {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.65rem", overflow: "hidden", textOverflow: "ellipsis" }}>{entry.bracket_name}</Box>}
                         </Box>
                       </Tooltip>
                       {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span> 🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span> 🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span> 😱</span></Tooltip> : null; })()}
