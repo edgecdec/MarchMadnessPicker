@@ -2,6 +2,8 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Box, IconButton, Typography, LinearProgress, Button, Dialog, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import MiniBracket from "./MiniBracket";
 import { Region, Team, FirstFourGame } from "@/types";
 import { buildGameOrder, cascadeClear } from "@/lib/bracketUtils";
 import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, toRegionSeed, parseRegionSeed, ffGameId } from "@/lib/bracketData";
@@ -191,6 +193,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showMini, setShowMini] = useState(false);
 
   useEffect(() => {
     return () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); };
@@ -431,6 +434,17 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
           )}
         </Box>
 
+        {/* Mini bracket preview */}
+        {activeView === "game" && (
+          <Box sx={{ position: "relative" }}>
+            {showMini && (
+              <Box sx={{ position: "absolute", bottom: 4, right: 8, zIndex: 10, p: 1, borderRadius: 1, bgcolor: "background.paper", boxShadow: 3, border: 1, borderColor: "divider" }}>
+                <MiniBracket regions={regions} picks={picks} results={results} firstFour={firstFour} />
+              </Box>
+            )}
+          </Box>
+        )}
+
         {/* Bottom navigation */}
         <Box sx={{ display: "flex", justifyContent: "space-between", px: 2, py: 1.5, borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
           {activeView === "review" ? (
@@ -456,6 +470,9 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
               <Button onClick={goBack} disabled={currentStep === 0}>
                 ← Back
               </Button>
+              <IconButton onClick={() => setShowMini(v => !v)} size="small" aria-label="Toggle mini bracket preview" sx={{ color: showMini ? "primary.main" : "text.secondary" }}>
+                <AccountTreeIcon fontSize="small" />
+              </IconButton>
               <Button onClick={goNext} disabled={!hasResolvableNext}>
                 Skip →
               </Button>
