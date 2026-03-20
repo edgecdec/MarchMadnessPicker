@@ -35,7 +35,7 @@ Tasks ordered by priority. Agent picks the top incomplete one.
 - [x] Simple Mode (3/12): Create `src/components/bracket/SimpleMode.tsx` component shell — full-screen modal overlay with step navigation state, exit button, and basic layout structure.
 - [x] Simple Mode (4/12): Build matchup card UI for single game display — two team cards (logo, name, seed, region color accent), tap to pick. Auto-advance after 300ms highlight.
 - [x] Simple Mode (5/12): Wire pick handling into SimpleMode — selecting a team updates picks state, changing a previous pick triggers cascadeClear on downstream games, currentStep adjusts to first unpicked game.
-- [ ] Simple Mode (6/12): Add progress bar and labels — "Game N of 63" counter, region name, round name in the top bar.
+- [x] Simple Mode (6/12): Add progress bar and labels — "Game N of 63" counter, region name, round name in the top bar.
 - [ ] Simple Mode (7/12): Add back/skip navigation — "← Back" returns to previous picked game, "Skip →" advances to next resolvable game, show message when no more games can be shown due to skipped dependencies.
 - [ ] Simple Mode (8/12): Add tiebreaker prompt — after all 63 games are picked, show tiebreaker score input ("Predict the total combined score of the championship game").
 - [ ] Simple Mode (9/12): Add review screen — after tiebreaker, show completed bracket summary with "Save Bracket" button that calls the existing savePicks API and exits Simple Mode.
