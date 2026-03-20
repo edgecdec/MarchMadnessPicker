@@ -9,6 +9,7 @@ import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
 import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed, getTeamLogoUrl, parseRegionSeed } from "@/lib/bracketData";
 import { autofillBracket } from "@/lib/autofill";
+import { cascadeClear } from "@/lib/bracketUtils";
 
 interface Props {
   regions: Region[];
@@ -42,34 +43,6 @@ function getNextGameId(gameId: string): string | null {
   // Elite 8 winners go to Final Four
   // East(0) & West(1) -> ff-4-0, South(2) & Midwest(3) -> ff-4-1
   return null; // handled by FinalFour component reading region-3-0 picks
-}
-
-// Clear all downstream picks that depend on a team that was just un-picked
-function cascadeClear(picks: Record<string, string>, gameId: string, oldWinner: string): Record<string, string> {
-  const updated = { ...picks };
-  const parts = gameId.split("-");
-
-  const region = parts[0];
-  const round = parseInt(parts[1]);
-
-  // Clear in subsequent rounds within the region
-  for (let r = round + 1; r <= 3; r++) {
-    const gamesInRound = 8 / Math.pow(2, r);
-    for (let i = 0; i < gamesInRound; i++) {
-      const gid = `${region}-${r}-${i}`;
-      if (updated[gid] === oldWinner) delete updated[gid];
-    }
-  }
-
-  // Clear Final Four and Championship if affected
-  // But NOT when changing the championship pick itself (ff-5-0) — nothing is downstream of it,
-  // and clearing ff-4-x would remove the opponent from the championship display.
-  const ffGids = gameId === "ff-5-0" ? [] : ["ff-4-0", "ff-4-1", "ff-5-0"];
-  for (const gid of ffGids) {
-    if (updated[gid] === oldWinner) delete updated[gid];
-  }
-
-  return updated;
 }
 
 export default function Bracket({ regions, firstFour, initialPicks, results, gameScores, tournamentId, locked, distribution, bracketName, initialTiebreaker, initialVersion, onSaved }: Props) {
