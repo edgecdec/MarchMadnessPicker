@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulator doesn't cascade-clear hypothetical results**: Changing an earlier round should remove the eliminated team from all later rounds, same as bracket edit page.
-
 - **Simulator leaderboard should show tied ranks**: Same score = same rank (e.g. "T-1").
 
 - **Simulator leaderboard should show score delta**: Show +/- delta from actual current score to simulated score.
