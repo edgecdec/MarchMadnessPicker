@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { LeaderboardEntry, ScoringSettings } from "@/types";
-import { PickDetail } from "@/lib/scoring";
+import { PickDetail, scorePicksDetailed } from "@/lib/scoring";
 import { computeTrueMax } from "@/lib/trueMaxPossible";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -121,6 +121,21 @@ export default function LeaderboardPage() {
     return map;
   }, [locked, results, leaderboard]);
 
+  // Compute total upset bonus per entry
+  const bonusMap = useMemo(() => {
+    if (!locked || !results || !regions || !scoringSettings) return {};
+    const map: Record<string, number> = {};
+    for (const entry of leaderboard) {
+      if (!entry.picks) continue;
+      const key = `${entry.username}|${entry.bracket_name || ""}`;
+      const details = scorePicksDetailed(entry.picks, results, scoringSettings, regions);
+      map[key] = details.reduce((sum, d) => sum + d.upsetBonus, 0);
+    }
+    return map;
+  }, [locked, results, regions, scoringSettings, leaderboard]);
+
+  const hasUpsetBonus = locked && scoringSettings?.upsetBonusPerRound?.some(b => b > 0);
+
   // Compute tied ranks: same score = same rank, displayed as "T-X" when tied
   const ranks = leaderboard.map((entry, i) => {
     const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
@@ -151,6 +166,7 @@ export default function LeaderboardPage() {
                     <TableCell key={l} align="right">{l}</TableCell>
                   ))}
                   <TableCell align="right" sx={{ position: "sticky", left: 120, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider" }}>Total</TableCell>
+                  {hasUpsetBonus && <TableCell align="right">Bonus</TableCell>}
                   <TableCell align="right">Max Possible</TableCell>
                   <TableCell align="right">Best Finish</TableCell>
                   {locked && <TableCell align="right">Tiebreaker</TableCell>}
@@ -177,6 +193,7 @@ export default function LeaderboardPage() {
                       <TableCell key={r} align="right">{s}</TableCell>
                     ))}
                     <TableCell align="right" sx={{ position: "sticky", left: 120, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
+                    {hasUpsetBonus && <TableCell align="right">{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
                     <TableCell align="right">{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
                       if (trueMax[key] != null) return trueMax[key];
