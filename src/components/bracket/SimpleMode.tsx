@@ -223,15 +223,27 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
     }
   }, [currentStep, gameOrder, picks, results]);
 
+  const isResolvable = useCallback((gid: string) => {
+    const { teamA, teamB } = resolveTeamsForGame(gid, regions, picks, results, firstFour);
+    return !!teamA && !!teamB;
+  }, [regions, picks, results, firstFour]);
+
   const goNext = useCallback(() => {
     for (let i = currentStep + 1; i < totalGames; i++) {
-      if (!picks[gameOrder[i]] && !results?.[gameOrder[i]]) {
+      if (!picks[gameOrder[i]] && !results?.[gameOrder[i]] && isResolvable(gameOrder[i])) {
         setCurrentStep(i);
         setSelectedTeam(null);
         return;
       }
     }
-  }, [currentStep, totalGames, gameOrder, picks, results]);
+  }, [currentStep, totalGames, gameOrder, picks, results, isResolvable]);
+
+  const hasResolvableNext = useMemo(() => {
+    for (let i = currentStep + 1; i < totalGames; i++) {
+      if (!picks[gameOrder[i]] && !results?.[gameOrder[i]] && isResolvable(gameOrder[i])) return true;
+    }
+    return false;
+  }, [currentStep, totalGames, gameOrder, picks, results, isResolvable]);
 
   const handlePick = useCallback((team: Team) => {
     if (locked || results?.[currentGameId]) return;
@@ -261,6 +273,8 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
     return (team.regionSeed && team.regionSeed === value) || team.name === value;
   };
 
+  const currentBlocked = !teamA || !teamB;
+
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "background.default" }}>
@@ -284,23 +298,29 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
 
         {/* Matchup card */}
         <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 2, sm: 4 } }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, width: "100%", maxWidth: 600 }}>
-            <TeamCard
-              team={teamA}
-              selected={teamMatch(teamA, selectedTeam || winner)}
-              regionColor={regionColor}
-              onClick={() => teamA && handlePick(teamA)}
-            />
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700 }}>VS</Typography>
+          {currentBlocked && !hasResolvableNext ? (
+            <Typography color="text.secondary" sx={{ textAlign: "center", maxWidth: 400 }}>
+              Some games can&apos;t be shown yet because earlier matchups are unanswered. Go back to fill them in.
+            </Typography>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, width: "100%", maxWidth: 600 }}>
+              <TeamCard
+                team={teamA}
+                selected={teamMatch(teamA, selectedTeam || winner)}
+                regionColor={regionColor}
+                onClick={() => teamA && handlePick(teamA)}
+              />
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700 }}>VS</Typography>
+              </Box>
+              <TeamCard
+                team={teamB}
+                selected={teamMatch(teamB, selectedTeam || winner)}
+                regionColor={regionColor}
+                onClick={() => teamB && handlePick(teamB)}
+              />
             </Box>
-            <TeamCard
-              team={teamB}
-              selected={teamMatch(teamB, selectedTeam || winner)}
-              regionColor={regionColor}
-              onClick={() => teamB && handlePick(teamB)}
-            />
-          </Box>
+          )}
         </Box>
 
         {/* Bottom navigation */}
@@ -308,7 +328,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
           <Button onClick={goBack} disabled={currentStep === 0}>
             ← Back
           </Button>
-          <Button onClick={goNext} disabled={currentStep >= totalGames - 1}>
+          <Button onClick={goNext} disabled={!hasResolvableNext}>
             Skip →
           </Button>
         </Box>
