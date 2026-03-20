@@ -1,7 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Simulator leaderboard should show tied ranks**: Same score = same rank (e.g. "T-1").
-
 - **Simulator leaderboard should show score delta**: Show +/- delta from actual current score to simulated score.
 
 - **Simulator: make leaderboard and Monte Carlo sections collapsible**: Add collapse/expand toggles. Default expanded. Remember state during session.
