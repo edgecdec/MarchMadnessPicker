@@ -23,6 +23,7 @@ import { ScoringSettings, Region, Team, FirstFourGame } from "@/types";
 import { toRegionSeed, getTeamRegion, parseRegionSeed } from "@/lib/bracketData";
 import RegionBracket from "@/components/bracket/RegionBracket";
 import FinalFour from "@/components/bracket/FinalFour";
+import MobileBracket from "@/components/bracket/MobileBracket";
 import MonteCarloTable from "@/components/bracket/MonteCarloTable";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -120,6 +121,7 @@ export default function SimulatePage() {
   const toggleMc = () => setMcOpen((v) => { sessionStorage.setItem("sim-mc-open", v ? "0" : "1"); return !v; });
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up("lg"));
+  const isMobile = useMediaQuery("(max-width:767px)");
 
   useEffect(() => {
     if (user) api.groups.list().then((d) => setGroups(d.groups));
@@ -465,6 +467,13 @@ export default function SimulatePage() {
                 </Box>
               </Box>
 
+              {isMobile ? (
+                <MobileBracket
+                  regions={regions} picks={merged} results={results}
+                  gameScores={gameScores} onPick={pickHypo} firstFour={firstFour}
+                />
+              ) : (
+              <>
               {/* Top half: East | Final Four | West */}
               <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
@@ -481,6 +490,8 @@ export default function SimulatePage() {
                   <RegionBracket region={regions[3]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
+              </>
+              )}
             </Box>
 
             {/* Leaderboard sidebar (wide screens) */}
