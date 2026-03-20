@@ -1,5 +1,5 @@
 "use client";
-import { Box, Tabs, Tab, Typography } from "@mui/material";
+import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
 import Matchup from "./Matchup";
 import FinalFour from "./FinalFour";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
@@ -198,6 +198,18 @@ export default function MobileBracket({ regions, picks, results, gameScores, onP
           distribution={distribution} eliminated={eliminated} firstFour={firstFour}
         />
       )}
+      <Box sx={{ display: "flex", justifyContent: tab === 0 ? "flex-end" : tab === 2 ? "flex-start" : "space-between", mt: 2, mb: 1 }}>
+        {tab > 0 && (
+          <Button variant="outlined" size="small" onClick={() => setTab(tab - 1)}>
+            ← {TAB_LABELS[tab - 1]}
+          </Button>
+        )}
+        {tab < 2 && (
+          <Button variant="outlined" size="small" onClick={() => setTab(tab + 1)}>
+            {TAB_LABELS[tab + 1]} →
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 }
