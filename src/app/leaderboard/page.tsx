@@ -141,36 +141,7 @@ export default function LeaderboardPage() {
     return map;
   }, [locked, results, regions, scoringSettings, leaderboard]);
 
-  const openBreakdown = async (entry: LeaderboardEntry, round?: number) => {
-    if (!tournament) return;
-    try {
-      const { details } = await api.leaderboard.breakdown(tournament.id, entry.username, entry.bracket_name);
-      setBreakdownData({ username: entry.username, bracketName: entry.bracket_name, details });
-      setBreakdownRound(round ?? null);
-      setBreakdownOpen(true);
-    } catch {}
-  };
-
-  if (authLoading || tournLoading) return null;
-  if (!user) return <AuthForm />;
-
-  const userBestRank = leaderboard.length > 0
-    ? leaderboard.findIndex((e) => e.username === user?.username)
-    : -1;
-  const percentile = userBestRank >= 0 && leaderboard.length > 1
-    ? Math.round(((leaderboard.length - 1 - userBestRank) / (leaderboard.length - 1)) * 100)
-    : null;
-
-  const hasUpsetBonus = locked && scoringSettings?.upsetBonusPerRound?.some(b => b > 0);
-
-  // Compute tied ranks: same score = same rank, displayed as "T-X" when tied
-  const ranks = leaderboard.map((entry, i) => {
-    const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
-    const tied = leaderboard.filter((e) => e.score === entry.score).length > 1;
-    return tied ? `T-${rank}` : `${rank}`;
-  });
-
-  // Sort leaderboard for display
+  // Sort leaderboard for display — must be before early returns to preserve hook order
   const sortedIndices = useMemo(() => {
     const indices = leaderboard.map((_, i) => i);
     indices.sort((a, b) => {
@@ -213,6 +184,35 @@ export default function LeaderboardPage() {
     });
     return indices;
   }, [leaderboard, orderBy, order, bonusMap, trueMax, trueBestFinish]);
+
+  const openBreakdown = async (entry: LeaderboardEntry, round?: number) => {
+    if (!tournament) return;
+    try {
+      const { details } = await api.leaderboard.breakdown(tournament.id, entry.username, entry.bracket_name);
+      setBreakdownData({ username: entry.username, bracketName: entry.bracket_name, details });
+      setBreakdownRound(round ?? null);
+      setBreakdownOpen(true);
+    } catch {}
+  };
+
+  if (authLoading || tournLoading) return null;
+  if (!user) return <AuthForm />;
+
+  const userBestRank = leaderboard.length > 0
+    ? leaderboard.findIndex((e) => e.username === user?.username)
+    : -1;
+  const percentile = userBestRank >= 0 && leaderboard.length > 1
+    ? Math.round(((leaderboard.length - 1 - userBestRank) / (leaderboard.length - 1)) * 100)
+    : null;
+
+  const hasUpsetBonus = locked && scoringSettings?.upsetBonusPerRound?.some(b => b > 0);
+
+  // Compute tied ranks: same score = same rank, displayed as "T-X" when tied
+  const ranks = leaderboard.map((entry, i) => {
+    const rank = leaderboard.findIndex((e) => e.score === entry.score) + 1;
+    const tied = leaderboard.filter((e) => e.score === entry.score).length > 1;
+    return tied ? `T-${rank}` : `${rank}`;
+  });
 
   return (
     <>

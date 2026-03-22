@@ -55,3 +55,8 @@ These are mistakes Ralph has made before. Read this every loop.
 
 ## Task Completion
 - If a task has multiple parts and you only complete the first part, split the task: mark what you did as done (or delete it from bugs.md), and create a NEW entry for the remaining work. Do NOT leave the original task unchanged — this causes infinite loops where you keep re-reading the same task and redoing the completed part.
+
+## Local Server
+- NEVER start a local dev server. Do NOT run `node server.js`, `npm run dev`, or `bash dev.sh` locally. It gets stuck and blocks the iteration.
+- This app deploys to a REMOTE server via git push. After pushing, the webhook auto-deploys.
+- To verify: `sleep 60 && curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` and check chunks per @specs/deployment.md.
