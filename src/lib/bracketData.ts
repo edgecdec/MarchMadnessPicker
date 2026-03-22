@@ -9,12 +9,12 @@ export const SEED_ORDER_PAIRS: [number, number][] = [
 
 export const TOTAL_GAMES = 63; // 32+16+8+4+2+1
 
-// Region accent colors for visual distinction
+// Region accent colors — must be distinct from pick state colors (green=correct, red=wrong)
 export const REGION_COLORS: Record<string, string> = {
-  East: "#1976d2",
-  West: "#d32f2f",
-  South: "#2e7d32",
-  Midwest: "#e65100",
+  East: "#1565c0",
+  West: "#8e24aa",
+  South: "#00838f",
+  Midwest: "#f9a825",
 };
 
 // ESPN team IDs for logo URLs: https://a.espncdn.com/i/teamlogos/ncaa/500/{id}.png
