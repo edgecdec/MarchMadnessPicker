@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Tooltip, Popover, Box } from "@mui/material";
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Paper, Link, Tooltip, Popover, Box } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
@@ -43,6 +43,8 @@ export default function LeaderboardPage() {
   const [breakdownRound, setBreakdownRound] = useState<number | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
   const [popoverEntry, setPopoverEntry] = useState<LeaderboardEntry | null>(null);
+  const [orderBy, setOrderBy] = useState<string>("score");
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     if (tournament) {
@@ -84,6 +86,16 @@ export default function LeaderboardPage() {
 
     setTimeout(computeNext, 0);
   }, [leaderboard, regions, results, scoringSettings]);
+
+  const handleSort = (col: string) => {
+    const ascDefault = col === "player" || col === "best" || col === "rank" || col === "tb";
+    if (orderBy === col) {
+      setOrder(order === "asc" ? "desc" : "asc");
+    } else {
+      setOrderBy(col);
+      setOrder(ascDefault ? "asc" : "desc");
+    }
+  };
 
   const locked = tournament?.lock_time ? new Date(tournament.lock_time) <= new Date() : false;
 
@@ -145,6 +157,48 @@ export default function LeaderboardPage() {
     return tied ? `T-${rank}` : `${rank}`;
   });
 
+  // Sort leaderboard for display
+  const sortedIndices = useMemo(() => {
+    const indices = leaderboard.map((_, i) => i);
+    indices.sort((a, b) => {
+      const ea = leaderboard[a], eb = leaderboard[b];
+      let va: number, vb: number;
+      if (orderBy === "rank") {
+        va = leaderboard.findIndex(e => e.score === ea.score) + 1;
+        vb = leaderboard.findIndex(e => e.score === eb.score) + 1;
+      } else if (orderBy === "player") {
+        const na = `${ea.username}${ea.bracket_name || ""}`.toLowerCase();
+        const nb = `${eb.username}${eb.bracket_name || ""}`.toLowerCase();
+        return order === "asc" ? na.localeCompare(nb) : nb.localeCompare(na);
+      } else if (orderBy.startsWith("r")) {
+        const ri = parseInt(orderBy.slice(1));
+        va = (ea.roundScores || [])[ri] || 0;
+        vb = (eb.roundScores || [])[ri] || 0;
+      } else if (orderBy === "score") {
+        va = ea.score; vb = eb.score;
+      } else if (orderBy === "bonus") {
+        const ka = `${ea.username}|${ea.bracket_name || ""}`;
+        const kb = `${eb.username}|${eb.bracket_name || ""}`;
+        va = bonusMap[ka] || 0; vb = bonusMap[kb] || 0;
+      } else if (orderBy === "max") {
+        const ka = `${ea.username}|${ea.bracket_name || ""}`;
+        const kb = `${eb.username}|${eb.bracket_name || ""}`;
+        va = trueMax[ka] ?? (ea.score + (ea.maxRemaining ?? 0));
+        vb = trueMax[kb] ?? (eb.score + (eb.maxRemaining ?? 0));
+      } else if (orderBy === "best") {
+        va = ea.bestPossibleFinish ?? 999;
+        vb = eb.bestPossibleFinish ?? 999;
+      } else if (orderBy === "tb") {
+        va = ea.tiebreaker ?? 999;
+        vb = eb.tiebreaker ?? 999;
+      } else {
+        va = 0; vb = 0;
+      }
+      return order === "asc" ? va! - vb! : vb! - va!;
+    });
+    return indices;
+  }, [leaderboard, orderBy, order, bonusMap, trueMax]);
+
   return (
     <>
       <Navbar />
@@ -162,21 +216,37 @@ export default function LeaderboardPage() {
             <Table size="small" sx={{ tableLayout: "fixed" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>#</TableCell>
-                  <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 200, minWidth: 200, px: 0.5, fontSize: "0.8rem" }}>Player</TableCell>
-                  {ROUND_LABELS.map((l) => (
-                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>{l}</TableCell>
+                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "rank"} direction={orderBy === "rank" ? order : "desc"} onClick={() => handleSort("rank")}>#</TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 200, minWidth: 200, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "player"} direction={orderBy === "player" ? order : "asc"} onClick={() => handleSort("player")}>Player</TableSortLabel>
+                  </TableCell>
+                  {ROUND_LABELS.map((l, ri) => (
+                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
+                      <TableSortLabel active={orderBy === `r${ri}`} direction={orderBy === `r${ri}` ? order : "desc"} onClick={() => handleSort(`r${ri}`)}>{l}</TableSortLabel>
+                    </TableCell>
                   ))}
-                  <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Tot</TableCell>
-                  {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>Bon</TableCell>}
-                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Max</TableCell>
-                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>Best</TableCell>
-                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>TB</TableCell>}
+                  <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "score"} direction={orderBy === "score" ? order : "desc"} onClick={() => handleSort("score")}>Tot</TableSortLabel>
+                  </TableCell>
+                  {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "bonus"} direction={orderBy === "bonus" ? order : "desc"} onClick={() => handleSort("bonus")}>Bon</TableSortLabel>
+                  </TableCell>}
+                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "max"} direction={orderBy === "max" ? order : "desc"} onClick={() => handleSort("max")}>Max</TableSortLabel>
+                  </TableCell>
+                  <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "best"} direction={orderBy === "best" ? order : "asc"} onClick={() => handleSort("best")}>Best</TableSortLabel>
+                  </TableCell>
+                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "tb"} direction={orderBy === "tb" ? order : "asc"} onClick={() => handleSort("tb")}>TB</TableSortLabel>
+                  </TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {leaderboard.map((entry, i) => (
-                  <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
+                {sortedIndices.map((idx) => { const entry = leaderboard[idx]; const i = idx; return (
+                  <TableRow key={`${entry.username}-${entry.bracket_name || idx}`}>
                     <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>{ranks[i]}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
@@ -209,7 +279,7 @@ export default function LeaderboardPage() {
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
                     {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
-                ))}
+                ); })}
               </TableBody>
             </Table>
           </TableContainer>
