@@ -5,6 +5,7 @@ import PrintIcon from "@mui/icons-material/Print";
 import RegionBracket from "./RegionBracket";
 import FinalFour from "./FinalFour";
 import MobileBracket from "./MobileBracket";
+import MediumBracket from "./MediumBracket";
 import SimpleMode from "./SimpleMode";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
 import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring";
@@ -64,6 +65,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [versionConflict, setVersionConflict] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
   const isMobile = useMediaQuery("(max-width:767px)");
+  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1199px)");
 
   // Sync internal state when switching brackets
   useEffect(() => {
@@ -366,10 +368,16 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
         </Box>
       </Box>
 
-      {/* Bracket grid: mobile tabs or desktop layout */}
+      {/* Bracket grid: mobile tabs, medium stacked, or desktop layout */}
       <Box ref={bracketRef} className="bracket-print-container" sx={{ mx: "auto", width: "fit-content", maxWidth: "100%", position: "relative" }}>
       {isMobile ? (
         <MobileBracket
+          regions={regions} picks={picks} results={results}
+          gameScores={gameScores} onPick={handlePick} locked={locked}
+          distribution={distribution} eliminated={eliminated} firstFour={firstFour}
+        />
+      ) : isMedium ? (
+        <MediumBracket
           regions={regions} picks={picks} results={results}
           gameScores={gameScores} onPick={handlePick} locked={locked}
           distribution={distribution} eliminated={eliminated} firstFour={firstFour}
