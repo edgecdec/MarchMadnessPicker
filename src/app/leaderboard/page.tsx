@@ -227,17 +227,17 @@ export default function LeaderboardPage() {
         {leaderboard.length === 0 ? (
           <Typography color="text.secondary">No picks submitted yet.</Typography>
         ) : (
-          <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
-            <Table size="small" sx={{ tableLayout: "fixed" }}>
+          <TableContainer component={Paper} sx={{ overflowX: "auto", maxHeight: "75vh" }}>
+            <Table size="small" stickyHeader sx={{ tableLayout: "fixed" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ position: "sticky", left: 0, zIndex: 3, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>
+                  <TableCell sx={{ position: "sticky", left: 0, top: 0, zIndex: 4, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "rank"} direction={orderBy === "rank" ? order : "desc"} onClick={() => handleSort("rank")}>#</TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 130, minWidth: 130, px: 0.5, fontSize: "0.8rem" }}>
+                  <TableCell sx={{ position: "sticky", left: 28, top: 0, zIndex: 4, bgcolor: "background.paper", width: 130, minWidth: 130, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "player"} direction={orderBy === "player" ? order : "asc"} onClick={() => handleSort("player")}>Player</TableSortLabel>
                   </TableCell>
-                  <TableCell align="right" sx={{ position: "sticky", left: 158, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                  <TableCell align="right" sx={{ position: "sticky", left: 158, top: 0, zIndex: 4, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "score"} direction={orderBy === "score" ? order : "desc"} onClick={() => handleSort("score")}>Tot</TableSortLabel>
                   </TableCell>
                   {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
