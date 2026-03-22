@@ -24,6 +24,7 @@ import { toRegionSeed, getTeamRegion, parseRegionSeed } from "@/lib/bracketData"
 import RegionBracket from "@/components/bracket/RegionBracket";
 import FinalFour from "@/components/bracket/FinalFour";
 import MobileBracket from "@/components/bracket/MobileBracket";
+import MediumBracket from "@/components/bracket/MediumBracket";
 import MonteCarloTable from "@/components/bracket/MonteCarloTable";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -122,6 +123,7 @@ export default function SimulatePage() {
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up("lg"));
   const isMobile = useMediaQuery("(max-width:767px)");
+  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1199px)");
 
   useEffect(() => {
     if (user) api.groups.list().then((d) => setGroups(d.groups));
@@ -469,6 +471,11 @@ export default function SimulatePage() {
 
               {isMobile ? (
                 <MobileBracket
+                  regions={regions} picks={merged} results={results}
+                  gameScores={gameScores} onPick={pickHypo} firstFour={firstFour}
+                />
+              ) : isMedium ? (
+                <MediumBracket
                   regions={regions} picks={merged} results={results}
                   gameScores={gameScores} onPick={pickHypo} firstFour={firstFour}
                 />
