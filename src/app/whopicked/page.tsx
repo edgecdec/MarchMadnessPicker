@@ -13,6 +13,7 @@ import { Region, FirstFourGame } from "@/types";
 import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl } from "@/lib/bracketData";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
+import TeamLogo from "@/components/common/TeamLogo";
 
 type PickerInfo = { username: string; bracket_name: string | null };
 type GamePicks = Record<string, { count: number; users: PickerInfo[] }>;
@@ -27,7 +28,7 @@ function TeamPickRow({ team, pickers, total, regionColor }: {
     <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 0.5 }}>
       <Box sx={{ width: pct + "%", minWidth: 4, height: 6, borderRadius: 3, bgcolor: regionColor, opacity: 0.5, position: "absolute", left: 0, top: 0, bottom: 0 }} />
       <Box sx={{ position: "relative", display: "flex", alignItems: "center", gap: 1, flex: 1, zIndex: 1 }}>
-        {logo && <Box component="img" src={logo} alt="" sx={{ width: 20, height: 20, objectFit: "contain" }} />}
+        {logo && <TeamLogo src={logo} size={20} />}
         <Typography variant="body2" sx={{ fontWeight: 600, fontSize: "0.8rem", minWidth: 100 }}>{team}</Typography>
         <Chip label={`${pickers.length} (${pct}%)`} size="small" sx={{ height: 20, fontSize: "0.7rem" }} />
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>

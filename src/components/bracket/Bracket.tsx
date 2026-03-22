@@ -11,6 +11,7 @@ import { scorePicks, maxPossibleScore, getEliminatedTeams } from "@/lib/scoring"
 import { toRegionSeed, TOTAL_GAMES, getTeamRegion, resolveRegionSeed, getTeamLogoUrl, parseRegionSeed } from "@/lib/bracketData";
 import { autofillBracket } from "@/lib/autofill";
 import { cascadeClear } from "@/lib/bracketUtils";
+import TeamLogo from "@/components/common/TeamLogo";
 
 interface Props {
   regions: Region[];
@@ -341,7 +342,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
               <Typography sx={{ fontSize: "1rem", lineHeight: 1 }}>🏆</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700, color: "warning.main" }}>Champion:</Typography>
-              {logo && <Box component="img" src={logo} alt="" sx={{ width: 20, height: 20, objectFit: "contain" }} />}
+              {logo && <TeamLogo src={logo} size={20} />}
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {champName}{parsed ? ` (${parsed.seed})` : ""}
               </Typography>

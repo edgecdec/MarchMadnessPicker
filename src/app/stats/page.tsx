@@ -9,6 +9,7 @@ import { getTeamLogoUrl } from "@/lib/bracketData";
 import { api } from "@/lib/api";
 import AuthForm from "@/components/auth/AuthForm";
 import Navbar from "@/components/common/Navbar";
+import TeamLogo from "@/components/common/TeamLogo";
 
 interface Stats {
   totalBrackets: number;
@@ -47,7 +48,7 @@ export default function StatsPage() {
               <Typography variant="h6" gutterBottom><EmojiEvents sx={{ verticalAlign: "middle", mr: 1 }} />Most Popular Champions</Typography>
               {stats.champions.slice(0, 10).map((c) => (
                 <Box key={c.team} sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-                  {getTeamLogoUrl(c.team) && <Box component="img" src={getTeamLogoUrl(c.team)} sx={{ width: 28, height: 28 }} />}
+                  {getTeamLogoUrl(c.team) && <TeamLogo src={getTeamLogoUrl(c.team)!} size={28} />}
                   <Typography sx={{ minWidth: 140 }}>({c.seed}) {c.team}</Typography>
                   <LinearProgress variant="determinate" value={c.pct} sx={{ flex: 1, height: 10, borderRadius: 5 }} />
                   <Typography variant="body2" color="text.secondary" sx={{ minWidth: 70, textAlign: "right" }}>{c.count} ({c.pct}%)</Typography>
@@ -60,7 +61,7 @@ export default function StatsPage() {
               <Paper sx={{ p: 3 }}>
                 <Typography variant="h6" gutterBottom><Whatshot sx={{ verticalAlign: "middle", mr: 1 }} />Biggest Upset Pick</Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  {getTeamLogoUrl(stats.biggestUpset.team) && <Box component="img" src={getTeamLogoUrl(stats.biggestUpset.team)} sx={{ width: 36, height: 36 }} />}
+                  {getTeamLogoUrl(stats.biggestUpset.team) && <TeamLogo src={getTeamLogoUrl(stats.biggestUpset.team)!} size={36} />}
                   <Box>
                     <Typography variant="h6">({stats.biggestUpset.seed}) {stats.biggestUpset.team}</Typography>
                     <Typography color="text.secondary">

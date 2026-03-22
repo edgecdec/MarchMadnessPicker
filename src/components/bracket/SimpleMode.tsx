@@ -7,6 +7,7 @@ import MiniBracket from "./MiniBracket";
 import { Region, Team, FirstFourGame } from "@/types";
 import { buildGameOrder, cascadeClear } from "@/lib/bracketUtils";
 import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, toRegionSeed, parseRegionSeed, ffGameId } from "@/lib/bracketData";
+import TeamLogo from "@/components/common/TeamLogo";
 
 interface SimpleModeProps {
   open: boolean;
@@ -174,7 +175,7 @@ function TeamCard({
         }),
       }}
     >
-      {logo && <Box component="img" src={logo} alt="" sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, objectFit: "contain" }} />}
+      {logo && <TeamLogo src={logo} size={48} sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, p: "4px" }} />}
       <Typography variant="caption" sx={{ color: accent, fontWeight: 700, fontSize: "0.85rem" }}>
         #{team.seed}
       </Typography>

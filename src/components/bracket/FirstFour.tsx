@@ -2,6 +2,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { FirstFourGame, Team } from "@/types";
 import { getTeamLogoUrl, REGION_COLORS, ffGameId } from "@/lib/bracketData";
+import TeamLogo from "@/components/common/TeamLogo";
 
 export { ffGameId };
 
@@ -55,7 +56,7 @@ export default function FirstFour({ games, picks, results, onPick, locked }: Pro
                     <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>
                       {g.seed}
                     </Typography>
-                    {logo && <Box component="img" src={logo} alt="" sx={{ width: 16, height: 16, objectFit: "contain" }} />}
+                    {logo && <TeamLogo src={logo} size={16} />}
                     <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400 }}>
                       {name}
                     </Typography>

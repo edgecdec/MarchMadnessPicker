@@ -2,6 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import { Region, FirstFourGame } from "@/types";
 import { getTeamLogoUrl, resolveRegionSeed, parseRegionSeed } from "@/lib/bracketData";
+import TeamLogo from "@/components/common/TeamLogo";
 
 interface Props {
   regions: Region[];
@@ -18,7 +19,7 @@ function MiniTeam({ name, seed, result, bold }: { name?: string; seed?: number; 
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, px: 0.5, py: 0.125, background: correct ? "rgba(76,175,80,0.2)" : wrong ? "rgba(244,67,54,0.2)" : bold ? "rgba(66,165,245,0.2)" : "transparent", borderRadius: 0.5 }}>
       <Typography sx={{ fontSize: "0.55rem", color: "text.disabled", fontWeight: 700, minWidth: 10 }}>{seed}</Typography>
-      {logo && <Box component="img" src={logo} alt="" sx={{ width: 12, height: 12, objectFit: "contain" }} />}
+      {logo && <TeamLogo src={logo} size={12} />}
       <Typography noWrap sx={{ fontSize: "0.6rem", fontWeight: bold ? 700 : 400, maxWidth: 60 }}>{name}</Typography>
     </Box>
   );
@@ -68,7 +69,7 @@ export default function MiniBracket({ regions, picks, results, firstFour }: Prop
       {champ && (
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", px: 0.5 }}>
           <Typography sx={{ fontSize: "0.8rem", lineHeight: 1 }}>🏆</Typography>
-          {getTeamLogoUrl(champ) && <Box component="img" src={getTeamLogoUrl(champ)} alt="" sx={{ width: 16, height: 16, objectFit: "contain" }} />}
+          {getTeamLogoUrl(champ) && <TeamLogo src={getTeamLogoUrl(champ)!} size={16} />}
           <Typography noWrap sx={{ fontSize: "0.6rem", fontWeight: 800, maxWidth: 60 }}>{champ}</Typography>
         </Box>
       )}

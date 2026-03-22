@@ -9,6 +9,7 @@ import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, parseRegionSeed, toReg
 import { ffGameId } from "@/components/bracket/FirstFour";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
+import TeamLogo from "@/components/common/TeamLogo";
 
 const USER_COLORS = ["#42a5f5", "#ef5350", "#66bb6a", "#ffa726"];
 
@@ -44,7 +45,7 @@ function OverlayMatchup({ teamA, teamB, gameId, allPicks, selected, result, regi
           }}>
             {team ? (<>
               <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 700, minWidth: 16, fontSize: "0.65rem" }}>{team.seed}</Typography>
-              {(() => { const logo = getTeamLogoUrl(team.name); return logo ? <Box component="img" src={logo} alt="" sx={{ width: 14, height: 14, objectFit: "contain", flexShrink: 0 }} /> : null; })()}
+              {(() => { const logo = getTeamLogoUrl(team.name); return logo ? <TeamLogo src={logo} size={14} /> : null; })()}
               <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isResult ? 700 : 400, flexGrow: 1 }}>{team.name}</Typography>
               {isResult && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
               <Box sx={{ display: "flex", gap: 0.25 }}>

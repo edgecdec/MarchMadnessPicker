@@ -2,6 +2,7 @@
 import { Box, Typography, Paper, Tooltip } from "@mui/material";
 import { Team, GameScore } from "@/types";
 import { getTeamLogoUrl, getTeamAbbreviation, SEED_WIN_RATES } from "@/lib/bracketData";
+import TeamLogo from "@/components/common/TeamLogo";
 
 function getSeedMatchupTip(teamA?: Team, teamB?: Team): string | null {
   if (!teamA || !teamB) return null;
@@ -113,7 +114,7 @@ function TeamSlot({
                     key={name}
                     sx={{ display: "flex", alignItems: "center", gap: 0.25, overflow: "hidden" }}
                   >
-                    {logo && <Box component="img" src={logo} alt="" sx={{ width: 14, height: 14, objectFit: "contain", flexShrink: 0 }} />}
+                    {logo && <TeamLogo src={logo} size={14} />}
                     <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem" }}>{abbr}{idx < arr.length - 1 ? "/" : ""}</Typography>
                   </Box>
                 );
@@ -122,7 +123,7 @@ function TeamSlot({
           ) : (
             <>
               {(() => { const logo = getTeamLogoUrl(team.name); return logo ? (
-                <Box component="img" src={logo} alt="" sx={{ width: 16, height: 16, objectFit: "contain", flexShrink: 0 }} />
+                <TeamLogo src={logo} size={16} />
               ) : null; })()}
               <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner || isActualWinner ? 700 : 400, flexGrow: 1 }}>
                 {team.name}
