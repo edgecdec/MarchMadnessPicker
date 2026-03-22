@@ -118,11 +118,14 @@ export default function LeaderboardPage() {
     const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
     const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g));
     const map: Record<string, string[]> = {}; // key -> team names
+    const threshold = Math.max(1, Math.floor(leaderboard.length * 0.05));
     for (const g of decided) {
       const correct = leaderboard.filter(e => e.picks?.[g] === results[g]);
-      if (correct.length === 1) {
-        const key = `${correct[0].username}|${correct[0].bracket_name || ""}`;
-        (map[key] ??= []).push(results[g]);
+      if (correct.length >= 1 && correct.length <= threshold) {
+        for (const c of correct) {
+          const key = `${c.username}|${c.bracket_name || ""}`;
+          (map[key] ??= []).push(results[g]);
+        }
       }
     }
     return map;
@@ -277,7 +280,7 @@ export default function LeaderboardPage() {
                             {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.8rem" }}>{" - "}{entry.bracket_name.length > 6 ? entry.bracket_name.slice(0, 6) + "…" : entry.bracket_name}</Box>}
                           </Box>
                           <Box component="span" sx={{ flexShrink: 0, ml: 0.5, fontSize: "0.8rem" }}>
-                            {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span>💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span>🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span>🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span>🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Only one to pick: ${u.join(", ")}`}><span>😱</span></Tooltip> : null; })()}
+                            {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span>💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span>🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span>🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span>🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={`Rare correct pick (≤5%): ${u.join(", ")}`}><span>😱</span></Tooltip> : null; })()}
                           </Box>
                         </Box>
                       </Tooltip>
