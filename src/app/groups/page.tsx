@@ -92,8 +92,9 @@ export default function GroupsPage() {
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" gutterBottom>Create a Group</Typography>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <TextField size="small" label="Group Name" value={newName} onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && createGroup()} />
+            <TextField size="small" label="Group Name" value={newName} onChange={(e) => setNewName(e.target.value.slice(0, 50))}
+              onKeyDown={(e) => e.key === "Enter" && createGroup()} inputProps={{ maxLength: 50 }}
+              helperText={newName.length >= 40 ? `${newName.length}/50` : undefined} />
             <Button variant="contained" onClick={createGroup}>Create</Button>
           </Box>
         </Paper>

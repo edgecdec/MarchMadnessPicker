@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
 
   if (action === "create") {
     if (!data.name?.trim()) return NextResponse.json({ error: "Group name required" }, { status: 400 });
+    if (data.name.trim().length > 50) return NextResponse.json({ error: "Group name must be 50 characters or less" }, { status: 400 });
     const id = uuid();
     const inviteCode = generateInviteCode();
     const settings = data.scoring_settings || DEFAULT_SCORING;
