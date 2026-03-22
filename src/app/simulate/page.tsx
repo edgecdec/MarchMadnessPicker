@@ -260,11 +260,29 @@ export default function SimulatePage() {
 
   const fillMyPicks = useCallback((entry: SimEntry) => {
     if (!regions.length) return;
-    // Only set picks for games not already in actual results
     const h: Record<string, string> = {};
     const ids = allGameIds(regions);
+    // Process in round order so feeder results are available for later rounds
     for (const id of ids) {
-      if (!results[id] && entry.picks[id]) h[id] = entry.picks[id];
+      if (results[id] || !entry.picks[id]) continue;
+      const p = id.split("-");
+      const region = p[0];
+      const round = parseInt(p[1]);
+      const idx = parseInt(p[2]);
+      const m = { ...results, ...h };
+      // For round 0, both teams are always valid participants
+      if (region !== "ff" && round > 0) {
+        const feedA = m[`${region}-${round - 1}-${idx * 2}`];
+        const feedB = m[`${region}-${round - 1}-${idx * 2 + 1}`];
+        if (entry.picks[id] !== feedA && entry.picks[id] !== feedB) continue;
+      } else if (region === "ff") {
+        let feedA: string | undefined, feedB: string | undefined;
+        if (round === 4 && idx === 0) { feedA = m[`${regions[0].name}-3-0`]; feedB = m[`${regions[2].name}-3-0`]; }
+        else if (round === 4 && idx === 1) { feedA = m[`${regions[1].name}-3-0`]; feedB = m[`${regions[3].name}-3-0`]; }
+        else if (round === 5) { feedA = m["ff-4-0"]; feedB = m["ff-4-1"]; }
+        if (entry.picks[id] !== feedA && entry.picks[id] !== feedB) continue;
+      }
+      h[id] = entry.picks[id];
     }
     setHypo(h);
     setPicksAnchor(null);
