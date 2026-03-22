@@ -1,6 +1,5 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
-- **Bracket: don't highlight the actual winner in green if the user got it wrong**: Currently when a game resolves, the winning team gets a green highlight even if the user picked the other team. This makes it confusing — green should ONLY mean "you got this right." Change to: ✅ green = user's pick was correct (user picked this team AND they won). ❌ red/muted = user's pick was wrong (user picked this team but they lost). 🏆 trophy emoji on the actual winner when the user got it wrong — no green highlight, just the trophy to show who actually won. This way green = good, no green = bad, trophy = actual result.
 
 - **Use more distinct colors for bracket states**: The current orange and red are too similar — not enough contrast. Use 4 clearly distinct colors: (1) Green for correct picks, (2) Red for wrong picks (user's eliminated team), (3) Blue or purple for the user's selected/pending pick (not yet resolved), (4) Gray for unselected/empty slots. Make sure all 4 are easily distinguishable in both dark and light mode.
 
