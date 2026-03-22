@@ -262,13 +262,13 @@ export default function LeaderboardPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedIndices.map((idx) => { const entry = leaderboard[idx]; const i = idx; return (
-                  <TableRow key={`${entry.username}-${entry.bracket_name || idx}`}>
-                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>{ranks[i]}</TableCell>
+                {sortedIndices.map((idx) => { const entry = leaderboard[idx]; const i = idx; const isOwn = entry.username === user?.username; return (
+                  <TableRow key={`${entry.username}-${entry.bracket_name || idx}`} sx={isOwn ? { bgcolor: "action.selected", borderLeft: 3, borderColor: "primary.main" } : undefined}>
+                    <TableCell sx={{ position: "sticky", left: 0, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>{ranks[i]}</TableCell>
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ position: "sticky", left: 28, zIndex: 1, bgcolor: "background.paper", width: 200, minWidth: 200, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
+                      sx={{ position: "sticky", left: 28, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", width: 200, minWidth: 200, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
                         <Box sx={{ display: "flex", alignItems: "center", width: 190, maxWidth: 190 }}>
@@ -285,7 +285,7 @@ export default function LeaderboardPage() {
                     {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
                       <TableCell key={r} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
                     ))}
-                    <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 1, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
+                    <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem" }}>{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
