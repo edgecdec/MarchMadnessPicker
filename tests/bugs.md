@@ -1,7 +1,6 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
 
 
-- **Use more distinct colors for bracket states**: The current orange and red are too similar — not enough contrast. Use 4 clearly distinct colors: (1) Green for correct picks, (2) Red for wrong picks (user's eliminated team), (3) Blue or purple for the user's selected/pending pick (not yet resolved), (4) Gray for unselected/empty slots. Make sure all 4 are easily distinguishable in both dark and light mode.
 
 - **Make the 4 regional colors more distinct**: The current region accent colors (used for headers, borders, etc.) need to be more visually distinct from each other AND from the pick state colors (green/red/blue). Pick 4 colors that are clearly different — e.g. deep blue (East), crimson (West), forest green (South), gold/amber (Midwest). Make sure they don't clash with the green=correct / red=wrong pick colors.
 
