@@ -19,8 +19,11 @@ const ROUND_LABELS = ["R64", "R32", "S16", "E8", "FF", "Champ"];
 function computeHotStreak(picks: Record<string, string> | undefined, results: Record<string, string>): number {
   if (!picks) return 0;
   const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+  const dates = (results as any)._dates as Record<string, string> | undefined;
   const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g))
     .sort((a, b) => {
+      // Sort by ESPN game date if available, then by round/index as fallback
+      if (dates?.[a] && dates?.[b]) return dates[a] < dates[b] ? -1 : dates[a] > dates[b] ? 1 : 0;
       const [, rA, iA] = a.split("-"), [, rB, iB] = b.split("-");
       return (+rA - +rB) || (+iA - +iB);
     });

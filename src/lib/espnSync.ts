@@ -182,11 +182,24 @@ export async function syncEspnResults(daysBack: number = 2): Promise<{ updated: 
 
       if (foundGameId && !results[foundGameId]) {
         results[foundGameId] = foundGameId.startsWith("ff-play-") ? winnerName : (nameToRS[winnerName] || winnerName);
+        const gameDate = event.date || comp?.date;
+        if (gameDate) {
+          if (!results._dates) results._dates = {} as any;
+          (results._dates as any)[foundGameId] = gameDate;
+        }
         updated++;
         matched.push(`${foundGameId}: ${results[foundGameId]}`);
         const newGameTeams = buildGameTeams(bracketData, results);
         for (const [k, v] of newGameTeams) {
           if (!gameTeams.has(k)) gameTeams.set(k, v);
+        }
+      } else if (foundGameId && results[foundGameId]) {
+        // Backfill game date for already-resolved games missing _dates entry
+        const gameDate = event.date || comp?.date;
+        if (gameDate && (!(results as any)._dates || !(results as any)._dates[foundGameId])) {
+          if (!results._dates) results._dates = {} as any;
+          (results._dates as any)[foundGameId] = gameDate;
+          updated++;
         }
       }
     }
@@ -228,7 +241,7 @@ export async function syncEspnResults(daysBack: number = 2): Promise<{ updated: 
       return { updated: updated + secondPass.updated, matched: [...matched, ...secondPass.matched], unmatched: secondPass.unmatched, totalResults: secondPass.totalResults };
     }
 
-    return { updated, matched, unmatched, totalResults: Object.keys(results).length };
+    return { updated, matched, unmatched, totalResults: Object.keys(results).filter(k => k !== "_dates").length };
   } finally {
     syncInProgress = false;
   }
