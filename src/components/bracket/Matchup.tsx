@@ -169,7 +169,19 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
   };
 
   const content = (
-    <Paper elevation={0} sx={{ background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25 }}>
+    <Paper elevation={0} sx={{
+      background: "transparent", borderRadius: 0, my: compact ? 0 : 0.25,
+      ...(isLive && {
+        outline: "2px solid",
+        outlineColor: "#ff1744",
+        borderRadius: 1,
+        "@keyframes liveGlow": {
+          "0%, 100%": { outlineColor: "#ff1744" },
+          "50%": { outlineColor: "rgba(255, 23, 68, 0.3)" },
+        },
+        animation: "liveGlow 2s ease-in-out infinite",
+      }),
+    }}>
       {gameScore?.detail && (
         <Typography variant="caption" sx={{ fontSize: "0.55rem", color: isLive ? "success.main" : "text.secondary", display: "block", textAlign: "center" }}>
           {isLive ? `🔴 ${gameScore.detail}` : gameScore.state === "post" ? gameScore.detail : ""}
