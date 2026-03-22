@@ -130,27 +130,53 @@ self.onmessage = (e: MessageEvent<SimRequest>) => {
   const totals: Record<string, { score: number; rank: number; wins: number }> = {};
   for (const ent of entries) totals[ent.key] = { score: 0, rank: 0, wins: 0 };
 
+  // Pre-compute which games need simulating (not in fixed results)
+  // and their feeder info so we don't recompute each iteration
+  type UnresolvedGame = {
+    gid: string;
+    round: number;
+    region: string;
+    feederA?: string;
+    feederB?: string;
+    r64TeamA?: string;
+    r64TeamB?: string;
+  };
+  const unresolvedGames: UnresolvedGame[] = [];
+  for (const gid of gameIds) {
+    if (fixed[gid]) continue;
+    const p = gid.split("-");
+    const region = p[0];
+    const round = parseInt(p[1]);
+    const ug: UnresolvedGame = { gid, round, region };
+    if (round === 0 && region !== "ff") {
+      [ug.r64TeamA, ug.r64TeamB] = r64Teams(gid);
+    } else {
+      const f = feeders(gid, regionNames);
+      if (f) { ug.feederA = f[0]; ug.feederB = f[1]; }
+    }
+    unresolvedGames.push(ug);
+  }
+
+  // Reusable sim object — reset only unresolved keys each iteration
+  const sim: Record<string, string> = {};
+  // Copy fixed results once
+  for (const k in fixed) sim[k] = fixed[k];
+
   const BATCH = 1000;
   for (let s = 0; s < totalSims; s++) {
-    // Simulate all games
-    const sim: Record<string, string> = { ...fixed };
-    for (const gid of gameIds) {
-      if (sim[gid]) continue; // already resolved
-      const p = gid.split("-");
-      const region = p[0];
-      const round = parseInt(p[1]);
+    // Simulate only unresolved games
+    for (const ug of unresolvedGames) {
       let teamA: string | undefined, teamB: string | undefined;
-      if (round === 0 && region !== "ff") {
-        [teamA, teamB] = r64Teams(gid);
-      } else {
-        const f = feeders(gid, regionNames);
-        if (f) { teamA = sim[f[0]]; teamB = sim[f[1]]; }
+      if (ug.r64TeamA) {
+        teamA = ug.r64TeamA; teamB = ug.r64TeamB;
+      } else if (ug.feederA) {
+        teamA = sim[ug.feederA]; teamB = sim[ug.feederB!];
       }
       if (!teamA || !teamB) continue;
       const seedA = teamSeeds[teamA] ?? 8;
       const seedB = teamSeeds[teamB] ?? 8;
       const prob = getWinProb(seedA, seedB, seedWinRates);
-      sim[gid] = Math.random() < prob ? teamA : teamB;
+      sim[ug.gid] = Math.random() < prob ? teamA : teamB;
     }
 
     // Score each entry
