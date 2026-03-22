@@ -65,7 +65,7 @@ export default function Bracket({ regions, firstFour, initialPicks, results, gam
   const [versionConflict, setVersionConflict] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
   const isMobile = useMediaQuery("(max-width:767px)");
-  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1199px)");
+  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1799px)");
 
   // Sync internal state when switching brackets
   useEffect(() => {

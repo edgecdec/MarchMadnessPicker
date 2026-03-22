@@ -123,7 +123,7 @@ export default function SimulatePage() {
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up("lg"));
   const isMobile = useMediaQuery("(max-width:767px)");
-  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1199px)");
+  const isMedium = useMediaQuery("(min-width:768px) and (max-width:1799px)");
 
   useEffect(() => {
     if (user) api.groups.list().then((d) => setGroups(d.groups));
