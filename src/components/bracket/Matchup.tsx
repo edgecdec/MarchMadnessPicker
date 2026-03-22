@@ -63,8 +63,6 @@ function TeamSlot({
     ? "rgba(76, 175, 80, 0.3)"
     : isWrong
     ? "rgba(244, 67, 54, 0.3)"
-    : isActualWinner
-    ? "rgba(76, 175, 80, 0.12)"
     : isWinner
     ? "rgba(255, 111, 0, 0.25)"
     : "transparent";
@@ -133,7 +131,7 @@ function TeamSlot({
           )}
           {isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
           {isWrong && <Typography component="span" sx={{ fontSize: "0.6rem", color: "error.main" }}>✗</Typography>}
-          {isActualWinner && !isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem", color: "success.main" }}>✓</Typography>}
+          {isActualWinner && !isCorrect && <Typography component="span" sx={{ fontSize: "0.6rem" }}>🏆</Typography>}
           {score && (
             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: "0.65rem", color: isLive ? "success.main" : "text.secondary", ml: 0.5 }}>
               {score}
