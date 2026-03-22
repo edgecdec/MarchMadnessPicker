@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { LeaderboardEntry, ScoringSettings } from "@/types";
 import { PickDetail, scorePicksDetailed } from "@/lib/scoring";
 import { computeTrueMax } from "@/lib/trueMaxPossible";
+import { resolveRegionSeed } from "@/lib/bracketData";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringBreakdownDialog from "@/components/common/ScoringBreakdownDialog";
@@ -114,22 +115,26 @@ export default function LeaderboardPage() {
 
   // Compute unique correct picks: games where exactly one bracket got it right
   const uniquePicks = useMemo(() => {
-    if (!locked || !results) return {};
+    if (!locked || !results || !regions) return {};
     const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+    const RND = ["R64", "R32", "Sweet 16", "Elite 8", "Final Four", "Championship"];
     const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g));
-    const map: Record<string, string[]> = {}; // key -> team names
+    const map: Record<string, string[]> = {};
     const threshold = Math.max(1, Math.floor(leaderboard.length * 0.05));
     for (const g of decided) {
       const correct = leaderboard.filter(e => e.picks?.[g] === results[g]);
       if (correct.length >= 1 && correct.length <= threshold) {
+        const teamName = resolveRegionSeed(results[g], regions, firstFour ?? undefined, results);
+        const round = g.startsWith("ff-") ? RND[parseInt(g.split("-")[1])] : RND[parseInt(g.split("-")[1])];
+        const label = `${teamName} in ${round}`;
         for (const c of correct) {
           const key = `${c.username}|${c.bracket_name || ""}`;
-          (map[key] ??= []).push(results[g]);
+          (map[key] ??= []).push(label);
         }
       }
     }
     return map;
-  }, [locked, results, leaderboard]);
+  }, [locked, results, leaderboard, regions, firstFour]);
 
   // Compute total upset bonus per entry
   const bonusMap = useMemo(() => {
