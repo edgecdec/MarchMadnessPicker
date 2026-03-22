@@ -87,6 +87,19 @@ export default function LeaderboardPage() {
     setTimeout(computeNext, 0);
   }, [leaderboard, regions, results, scoringSettings]);
 
+  // Recompute bestPossibleFinish using trueMax values (includes upset bonuses)
+  const trueBestFinish = useMemo(() => {
+    if (!Object.keys(trueMax).length) return {};
+    const map: Record<string, number> = {};
+    for (const entry of leaderboard) {
+      const key = `${entry.username}|${entry.bracket_name || ""}`;
+      const myMax = trueMax[key];
+      if (myMax == null) continue;
+      map[key] = leaderboard.filter(o => o.score > myMax).length + 1;
+    }
+    return map;
+  }, [trueMax, leaderboard]);
+
   const handleSort = (col: string) => {
     const ascDefault = col === "player" || col === "best" || col === "rank" || col === "tb";
     if (orderBy === col) {
@@ -186,8 +199,10 @@ export default function LeaderboardPage() {
         va = trueMax[ka] ?? (ea.score + (ea.maxRemaining ?? 0));
         vb = trueMax[kb] ?? (eb.score + (eb.maxRemaining ?? 0));
       } else if (orderBy === "best") {
-        va = ea.bestPossibleFinish ?? 999;
-        vb = eb.bestPossibleFinish ?? 999;
+        const ka = `${ea.username}|${ea.bracket_name || ""}`;
+        const kb = `${eb.username}|${eb.bracket_name || ""}`;
+        va = trueBestFinish[ka] ?? ea.bestPossibleFinish ?? 999;
+        vb = trueBestFinish[kb] ?? eb.bestPossibleFinish ?? 999;
       } else if (orderBy === "tb") {
         va = ea.tiebreaker ?? 999;
         vb = eb.tiebreaker ?? 999;
@@ -197,7 +212,7 @@ export default function LeaderboardPage() {
       return order === "asc" ? va! - vb! : vb! - va!;
     });
     return indices;
-  }, [leaderboard, orderBy, order, bonusMap, trueMax]);
+  }, [leaderboard, orderBy, order, bonusMap, trueMax, trueBestFinish]);
 
   return (
     <>
@@ -237,7 +252,9 @@ export default function LeaderboardPage() {
                     <TableSortLabel active={orderBy === "max"} direction={orderBy === "max" ? order : "desc"} onClick={() => handleSort("max")}>Max</TableSortLabel>
                   </TableCell>
                   <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
-                    <TableSortLabel active={orderBy === "best"} direction={orderBy === "best" ? order : "asc"} onClick={() => handleSort("best")}>Best</TableSortLabel>
+                    <Tooltip title="Best possible rank if remaining games go optimally for this bracket">
+                      <TableSortLabel active={orderBy === "best"} direction={orderBy === "best" ? order : "asc"} onClick={() => handleSort("best")}>Best</TableSortLabel>
+                    </Tooltip>
                   </TableCell>
                   {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "tb"} direction={orderBy === "tb" ? order : "asc"} onClick={() => handleSort("tb")}>TB</TableSortLabel>
@@ -276,7 +293,12 @@ export default function LeaderboardPage() {
                       if (entry.picks && trueMaxComputing) return "⏳";
                       return entry.score + (entry.maxRemaining ?? 0);
                     })()}</TableCell>
-                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—"}</TableCell>
+                    <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
+                      const key = `${entry.username}|${entry.bracket_name || ""}`;
+                      if (trueBestFinish[key] != null) return `#${trueBestFinish[key]}`;
+                      if (entry.picks && trueMaxComputing) return "⏳";
+                      return entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—";
+                    })()}</TableCell>
                     {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
                 ); })}
