@@ -2,8 +2,6 @@
 
 
 
-- **Make the 4 regional colors more distinct**: The current region accent colors (used for headers, borders, etc.) need to be more visually distinct from each other AND from the pick state colors (green/red/blue). Pick 4 colors that are clearly different — e.g. deep blue (East), crimson (West), forest green (South), gold/amber (Midwest). Make sure they don't clash with the green=correct / red=wrong pick colors.
-
 - **Add background or outline to team logos**: Some team logos are hard to see against the bracket background (especially dark logos on dark mode or light logos on light mode). Add a small white circular background or a subtle border/outline behind each team logo so they're always visible regardless of theme.
 
 - **Make all leaderboard columns sortable**: Every column on the leaderboard should be clickable to sort by that column — rank, player, total, max, bonus, each round score, tiebreaker, best. Currently only some columns may be sortable. Add sort arrows to all column headers.
