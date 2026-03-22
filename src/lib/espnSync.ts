@@ -191,10 +191,41 @@ export async function syncEspnResults(daysBack: number = 2): Promise<{ updated: 
       }
     }
 
-    if (updated > 0) {
-      db.prepare("UPDATE tournaments SET results_data = ?, results_updated_at = datetime('now') WHERE id = ?").run(
-        JSON.stringify(results), tournament.id
-      );
+    // Promote First Four winners into bracket_data.regions
+    let bracketDataUpdated = false;
+    if (bracketData.first_four) {
+      for (const ff of bracketData.first_four) {
+        const gid = `ff-play-${ff.region}-${ff.seed}-${ff.slot}`;
+        const winnerName = results[gid];
+        if (!winnerName) continue;
+        const region = bracketData.regions.find(r => r.name === ff.region);
+        if (!region) continue;
+        const team = region.teams.find(t => t.seed === ff.seed);
+        if (!team || team.name === winnerName) continue;
+        const winnerEspnId = winnerName === ff.teamA ? ff.espnIdA : winnerName === ff.teamB ? ff.espnIdB : undefined;
+        team.name = winnerName;
+        if (winnerEspnId != null) team.espnId = winnerEspnId;
+        bracketDataUpdated = true;
+      }
+    }
+
+    if (updated > 0 || bracketDataUpdated) {
+      if (bracketDataUpdated) {
+        db.prepare("UPDATE tournaments SET bracket_data = ?, results_data = ?, results_updated_at = datetime('now') WHERE id = ?").run(
+          JSON.stringify(bracketData), JSON.stringify(results), tournament.id
+        );
+      } else {
+        db.prepare("UPDATE tournaments SET results_data = ?, results_updated_at = datetime('now') WHERE id = ?").run(
+          JSON.stringify(results), tournament.id
+        );
+      }
+    }
+
+    // If bracket_data was updated, do another sync pass to match games involving promoted FF winners
+    if (bracketDataUpdated && updated > 0) {
+      syncInProgress = false;
+      const secondPass = await syncEspnResults(daysBack);
+      return { updated: updated + secondPass.updated, matched: [...matched, ...secondPass.matched], unmatched: secondPass.unmatched, totalResults: secondPass.totalResults };
     }
 
     return { updated, matched, unmatched, totalResults: Object.keys(results).length };
