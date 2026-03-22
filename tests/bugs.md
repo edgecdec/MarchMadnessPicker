@@ -2,14 +2,10 @@
 
 
 
-- **Add background or outline to team logos**: Some team logos are hard to see against the bracket background (especially dark logos on dark mode or light logos on light mode). Add a small white circular background or a subtle border/outline behind each team logo so they're always visible regardless of theme.
-
 - **Make all leaderboard columns sortable**: Every column on the leaderboard should be clickable to sort by that column — rank, player, total, max, bonus, each round score, tiebreaker, best. Currently only some columns may be sortable. Add sort arrows to all column headers.
 
 - **"Best" column on leaderboard needs proper calculation, loaded async**: The "Best Possible Finish" needs to find the tournament outcome that maximizes each bracket's score (including upset bonuses). This is NOT 2^63 — use the per-region brute force approach: for each of the 4 regions independently, enumerate all 2^15=32768 possible outcomes and find the best score. Then try FF/Championship combos. Total ~131K evaluations per bracket, runs in ~200ms (already proven — see /tmp/max_calc.js pattern). IMPORTANT: do NOT block page load for this calculation. Show a spinner (⏳) in the "Best" column, compute client-side in the background using requestIdleCallback or setTimeout, then fill in the values progressively. Also note: "all picks correct" may NOT be the best outcome — a higher-seeded upset opponent in a later round could yield more upset bonus points. The brute force handles this correctly. Add a tooltip explaining "Best possible rank if remaining games go optimally for this bracket."
 
 - **Monte Carlo simulations not getting faster as games resolve**: With fewer remaining games, simulations should run faster (fewer random outcomes to generate). Investigate: is the simulation always simulating all 63 games regardless of how many are already resolved? It should only simulate UNRESOLVED games — resolved games and user hypotheticals should be fixed inputs, not re-simulated. Check the simulation loop and make sure it skips games that already have results.
-
-- **Team logos should use rounded square background**: Change the logo background from circular to a rounded square (border-radius ~4px). This gives logos more space and looks cleaner than a circle for rectangular logos.
 
 - **Highlight live games in the bracket with a red "LIVE" border**: When a game is currently in progress, give its matchup box a bright red border (or pulsing red glow) to make it immediately obvious which games are live. This is the standard "live" indicator color. Should be clearly distinct from the green=correct, red=wrong pick colors — use a brighter/neon red or add a subtle pulse animation.
