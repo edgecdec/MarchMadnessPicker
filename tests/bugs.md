@@ -3,8 +3,6 @@
 
 
 
-- **Emoji tooltip format should be "Team - Round", one per line**: Change tooltip text from verbose descriptions to compact format: "Texas - Sweet 16", one pick per line. Not "Texas advanced to Sweet 16" — just "Team - Round".
-
 - **Simulator should use the same full bracket layout as the main bracket page**: The simulator currently has a different/special layout. Remove it and reuse the exact same bracket component and responsive layouts (desktop/medium/mobile) as the /bracket page.
 
 - **Leaderboard: expand bracket name area, shrink emoji area**: The emoji section is taking up too much horizontal space relative to the player/bracket name. Reduce the space allocated to emojis and give more to the bracket name so names are more readable.
