@@ -16,7 +16,7 @@ function MiniTeam({ name, seed, result, bold }: { name?: string; seed?: number; 
   const correct = result && result === name;
   const wrong = result && result !== name && bold;
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, px: 0.5, py: 0.125, background: correct ? "rgba(76,175,80,0.2)" : wrong ? "rgba(244,67,54,0.2)" : bold ? "rgba(255,111,0,0.15)" : "transparent", borderRadius: 0.5 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, px: 0.5, py: 0.125, background: correct ? "rgba(76,175,80,0.2)" : wrong ? "rgba(244,67,54,0.2)" : bold ? "rgba(66,165,245,0.2)" : "transparent", borderRadius: 0.5 }}>
       <Typography sx={{ fontSize: "0.55rem", color: "text.disabled", fontWeight: 700, minWidth: 10 }}>{seed}</Typography>
       {logo && <Box component="img" src={logo} alt="" sx={{ width: 12, height: 12, objectFit: "contain" }} />}
       <Typography noWrap sx={{ fontSize: "0.6rem", fontWeight: bold ? 700 : 400, maxWidth: 60 }}>{name}</Typography>

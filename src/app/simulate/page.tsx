@@ -438,7 +438,7 @@ export default function SimulatePage() {
                   <Typography variant="caption">Actual result</Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <Box sx={{ width: 12, height: 12, bgcolor: "rgba(255,111,0,0.25)", border: "1px solid #ff6f00", borderRadius: 0.5 }} />
+                  <Box sx={{ width: 12, height: 12, bgcolor: "rgba(66,165,245,0.3)", border: "1px solid #42a5f5", borderRadius: 0.5 }} />
                   <Typography variant="caption">Hypothetical</Typography>
                 </Box>
                 {/* Autofill buttons */}

@@ -64,7 +64,7 @@ function TeamSlot({
     : isWrong
     ? "rgba(244, 67, 54, 0.3)"
     : isWinner
-    ? "rgba(255, 111, 0, 0.25)"
+    ? "rgba(66, 165, 245, 0.3)"
     : "transparent";
 
   return (

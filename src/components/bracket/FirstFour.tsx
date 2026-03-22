@@ -38,7 +38,7 @@ export default function FirstFour({ games, picks, results, onPick, locked }: Pro
                 const isWinner = winner === name;
                 const isCorrect = result && winner === name && result === name;
                 const isWrong = result && winner === name && result !== name;
-                const bg = isCorrect ? "rgba(76,175,80,0.3)" : isWrong ? "rgba(244,67,54,0.3)" : isWinner ? "rgba(255,111,0,0.25)" : "transparent";
+                const bg = isCorrect ? "rgba(76,175,80,0.3)" : isWrong ? "rgba(244,67,54,0.3)" : isWinner ? "rgba(66,165,245,0.3)" : "transparent";
 
                 return (
                   <Box
