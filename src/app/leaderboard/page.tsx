@@ -242,10 +242,10 @@ export default function LeaderboardPage() {
                   <TableCell sx={{ position: "sticky", left: 0, top: 0, zIndex: 4, bgcolor: "background.paper", width: 28, minWidth: 28, maxWidth: 28, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "rank"} direction={orderBy === "rank" ? order : "desc"} onClick={() => handleSort("rank")}>#</TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ position: "sticky", left: 28, top: 0, zIndex: 4, bgcolor: "background.paper", width: 130, minWidth: 130, px: 0.5, fontSize: "0.8rem" }}>
+                  <TableCell sx={{ position: "sticky", left: 28, top: 0, zIndex: 4, bgcolor: "background.paper", width: 160, minWidth: 160, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "player"} direction={orderBy === "player" ? order : "asc"} onClick={() => handleSort("player")}>Player</TableSortLabel>
                   </TableCell>
-                  <TableCell align="right" sx={{ position: "sticky", left: 158, top: 0, zIndex: 4, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                  <TableCell align="right" sx={{ position: "sticky", left: 188, top: 0, zIndex: 4, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "score"} direction={orderBy === "score" ? order : "desc"} onClick={() => handleSort("score")}>Tot</TableSortLabel>
                   </TableCell>
                   {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
@@ -276,21 +276,21 @@ export default function LeaderboardPage() {
                     <TableCell
                       onMouseEnter={(e) => { if (locked && entry.ffPicks && Object.keys(entry.ffPicks).length > 0) { setPopoverAnchor(e.currentTarget); setPopoverEntry(entry); } }}
                       onMouseLeave={() => { setPopoverAnchor(null); setPopoverEntry(null); }}
-                      sx={{ position: "sticky", left: 28, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", width: 130, minWidth: 130, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
+                      sx={{ position: "sticky", left: 28, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", width: 160, minWidth: 160, whiteSpace: "nowrap", cursor: locked && entry.ffPicks ? "default" : undefined, py: 0.5, px: 0.5 }}
                     >
                       <Tooltip title={`${entry.username}${entry.bracket_name ? ` — ${entry.bracket_name}` : ""}`}>
-                        <Box sx={{ display: "flex", alignItems: "center", width: 120, maxWidth: 120 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", width: 150, maxWidth: 150 }}>
                           <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
-                            <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.8rem" }}>{entry.username.length > 8 ? entry.username.slice(0, 8) + "…" : entry.username}</Link>
-                            {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.8rem" }}>{" - "}{entry.bracket_name.length > 6 ? entry.bracket_name.slice(0, 6) + "…" : entry.bracket_name}</Box>}
+                            <Link href={`/bracket/${entry.username}`} underline="hover" sx={{ fontSize: "0.8rem" }}>{entry.username.length > 10 ? entry.username.slice(0, 10) + "…" : entry.username}</Link>
+                            {entry.bracket_name && <Box component="span" sx={{ color: "text.secondary", fontSize: "0.8rem" }}>{" - "}{entry.bracket_name.length > 8 ? entry.bracket_name.slice(0, 8) + "…" : entry.bracket_name}</Box>}
                           </Box>
-                          <Box component="span" sx={{ flexShrink: 0, ml: 0.5, fontSize: "0.8rem" }}>
+                          <Box component="span" sx={{ flexShrink: 0, ml: 0.5, fontSize: "0.75rem", maxWidth: 40, overflow: "hidden", whiteSpace: "nowrap" }}>
                             {locked && entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span>💀</span></Tooltip>}{locked && entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span>🚫</span></Tooltip>}{locked && (() => { const s = computeHotStreak(entry.picks, results || {}); return s >= 5 ? <Tooltip title={`${s} correct picks in a row`}><span>🔥{s}</span></Tooltip> : null; })()}{locked && regions && (() => { const e8Keys = regions.map(r => `${r.name}-3-0`); const allDecided = e8Keys.every(k => results?.[k]); if (!allDecided || !entry.picks) return null; const gotAny = e8Keys.some(k => entry.picks![k] === results![k]); return !gotAny ? <Tooltip title="Entire Final Four wrong"><span>🤡</span></Tooltip> : null; })()}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const u = uniquePicks[key]; return u?.length ? <Tooltip title={<>{u.map((p, i) => <div key={i}>{p}</div>)}</>}><span>😱{u.length}</span></Tooltip> : null; })()}
                           </Box>
                         </Box>
                       </Tooltip>
                     </TableCell>
-                    <TableCell align="right" sx={{ position: "sticky", left: 158, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
+                    <TableCell align="right" sx={{ position: "sticky", left: 188, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem" }}>{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
