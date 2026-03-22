@@ -29,6 +29,7 @@ import MonteCarloTable from "@/components/bracket/MonteCarloTable";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import { isTournamentLocked } from "@/lib/lockUtils";
+import LiveScores from "@/components/bracket/LiveScores";
 
 interface SimEntry {
   username: string;
@@ -118,6 +119,8 @@ export default function SimulatePage() {
   const [picksAnchor, setPicksAnchor] = useState<null | HTMLElement>(null);
   const [lbOpen, setLbOpen] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sim-lb-open") !== "0" : true);
   const [mcOpen, setMcOpen] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sim-mc-open") !== "0" : true);
+  const [liveOpen, setLiveOpen] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sim-live-open") === "1" : false);
+  const toggleLive = () => setLiveOpen((v) => { sessionStorage.setItem("sim-live-open", v ? "0" : "1"); return !v; });
   const toggleLb = () => setLbOpen((v) => { sessionStorage.setItem("sim-lb-open", v ? "0" : "1"); return !v; });
   const toggleMc = () => setMcOpen((v) => { sessionStorage.setItem("sim-mc-open", v ? "0" : "1"); return !v; });
   const theme = useTheme();
@@ -516,6 +519,17 @@ export default function SimulatePage() {
         {data && regions.length === 0 && (
           <Typography color="text.secondary">No bracket data available for this tournament.</Typography>
         )}
+
+        {/* Collapsible live scores banner at bottom */}
+        <Box className="no-print" sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", mb: 0.5 }} onClick={toggleLive}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main" }}>🏀 Live Scores</Typography>
+            {liveOpen ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+          </Box>
+          <Collapse in={liveOpen}>
+            <LiveScores />
+          </Collapse>
+        </Box>
       </Container>
 
       {/* Leaderboard drawer (narrow screens) */}
