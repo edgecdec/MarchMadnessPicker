@@ -111,7 +111,7 @@ export interface LiveGame {
   state: string;
   clock: string;
   period: number;
-  home: { name: string; score: string; logo: string };
-  away: { name: string; score: string; logo: string };
+  home: { name: string; score: string; logo: string; id?: string };
+  away: { name: string; score: string; logo: string; id?: string };
   broadcast: string;
 }

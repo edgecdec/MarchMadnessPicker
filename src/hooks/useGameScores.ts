@@ -56,6 +56,19 @@ function buildGameTeamPairs(
   return map;
 }
 
+// Build map from ESPN team ID → team name using bracket data
+function buildEspnIdToName(regions: Region[], firstFour?: FirstFourGame[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const r of regions) for (const t of r.teams) if (t.espnId != null) map.set(String(t.espnId), t.name);
+  if (firstFour) {
+    for (const ff of firstFour) {
+      if (ff.espnIdA != null) map.set(String(ff.espnIdA), ff.teamA);
+      if (ff.espnIdB != null) map.set(String(ff.espnIdB), ff.teamB);
+    }
+  }
+  return map;
+}
+
 function matchName(espnName: string, bracketName: string): boolean {
   const a = espnName.toLowerCase().replace(/\./g, "");
   const b = bracketName.toLowerCase().replace(/\./g, "");
@@ -72,15 +85,35 @@ export function useGameScores(
   return useMemo(() => {
     if (!regions || liveGames.length === 0) return {};
     const pairs = buildGameTeamPairs(regions, firstFour || undefined, results);
+    const espnIdToName = buildEspnIdToName(regions, firstFour || undefined);
     const scores: Record<string, GameScore> = {};
 
     for (const game of liveGames) {
       if (game.state === "pre") continue;
+
+      // Resolve ESPN team IDs to our bracket team names
+      const homeName = (game.home.id && espnIdToName.get(game.home.id)) || null;
+      const awayName = (game.away.id && espnIdToName.get(game.away.id)) || null;
+
       for (const [gid, [tA, tB]] of pairs) {
-        const homeMatch = matchName(game.home.name, tA) || matchName(game.home.name, tB);
-        const awayMatch = matchName(game.away.name, tA) || matchName(game.away.name, tB);
-        if (homeMatch && awayMatch) {
-          const aIsHome = matchName(game.home.name, tA);
+        let homeMatchA: boolean, homeMatchB: boolean;
+
+        if (homeName && awayName) {
+          // Match by ESPN ID (reliable)
+          homeMatchA = homeName === tA && awayName === tB;
+          homeMatchB = homeName === tB && awayName === tA;
+        } else {
+          // Fallback to name matching
+          const homeMatchesA = matchName(game.home.name, tA);
+          const homeMatchesB = matchName(game.home.name, tB);
+          const awayMatchesA = matchName(game.away.name, tA);
+          const awayMatchesB = matchName(game.away.name, tB);
+          homeMatchA = homeMatchesA && awayMatchesB;
+          homeMatchB = homeMatchesB && awayMatchesA;
+        }
+
+        if (homeMatchA || homeMatchB) {
+          const aIsHome = homeMatchA;
           scores[gid] = {
             teamA: aIsHome ? game.home.score : game.away.score,
             teamB: aIsHome ? game.away.score : game.home.score,

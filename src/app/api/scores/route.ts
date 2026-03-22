@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
         clock: comp?.status?.displayClock,
         period: comp?.status?.period,
         state: comp?.status?.type?.state,
-        home: { name: home?.team?.shortDisplayName, score: home?.score, logo: home?.team?.logo },
-        away: { name: away?.team?.shortDisplayName, score: away?.score, logo: away?.team?.logo },
+        home: { name: home?.team?.shortDisplayName, score: home?.score, logo: home?.team?.logo, id: home?.team?.id },
+        away: { name: away?.team?.shortDisplayName, score: away?.score, logo: away?.team?.logo, id: away?.team?.id },
         broadcast: comp?.broadcast,
       };
     });
