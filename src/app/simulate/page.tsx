@@ -501,24 +501,28 @@ export default function SimulatePage() {
                   gameScores={gameScores} onPick={pickHypo} firstFour={firstFour}
                 />
               ) : (
-              <>
-              {/* Top half: East | Final Four | West */}
-              <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", mb: 2 }}>
+              <Box sx={{ position: "relative" }}>
+              {/* Top half: East | spacer | West */}
+              <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", overflow: "hidden" }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
                   <RegionBracket region={regions[0]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="left" firstFour={firstFour} />
-                  <FinalFour regions={regions} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} firstFour={firstFour} />
+                  <Box sx={{ minWidth: 160 }} />
                   <RegionBracket region={regions[1]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
               {/* Bottom half: South | spacer | Midwest */}
-              <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+              <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch", overflow: "hidden" }}>
                 <Box sx={{ display: "flex", alignItems: "stretch", minWidth: "fit-content" }}>
                   <RegionBracket region={regions[2]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="left" firstFour={firstFour} />
                   <Box sx={{ minWidth: 160 }} />
                   <RegionBracket region={regions[3]} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} direction="right" firstFour={firstFour} />
                 </Box>
               </Box>
-              </>
+              {/* Final Four: absolutely positioned to overlap the seam */}
+              <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10, bgcolor: "background.paper", borderRadius: 3, p: 1 }}>
+                <FinalFour regions={regions} picks={merged} results={results} gameScores={gameScores} onPick={pickHypo} firstFour={firstFour} />
+              </Box>
+              </Box>
               )}
             </Box>
 
