@@ -237,11 +237,6 @@ export default function LeaderboardPage() {
                   <TableCell sx={{ position: "sticky", left: 28, zIndex: 3, bgcolor: "background.paper", width: 200, minWidth: 200, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "player"} direction={orderBy === "player" ? order : "asc"} onClick={() => handleSort("player")}>Player</TableSortLabel>
                   </TableCell>
-                  {ROUND_LABELS.map((l, ri) => (
-                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
-                      <TableSortLabel active={orderBy === `r${ri}`} direction={orderBy === `r${ri}` ? order : "desc"} onClick={() => handleSort(`r${ri}`)}>{l}</TableSortLabel>
-                    </TableCell>
-                  ))}
                   <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 3, bgcolor: "background.paper", borderLeft: 1, borderColor: "divider", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "score"} direction={orderBy === "score" ? order : "desc"} onClick={() => handleSort("score")}>Tot</TableSortLabel>
                   </TableCell>
@@ -251,14 +246,19 @@ export default function LeaderboardPage() {
                   <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <TableSortLabel active={orderBy === "max"} direction={orderBy === "max" ? order : "desc"} onClick={() => handleSort("max")}>Max</TableSortLabel>
                   </TableCell>
+                  {ROUND_LABELS.map((l, ri) => (
+                    <TableCell key={l} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.8rem" }}>
+                      <TableSortLabel active={orderBy === `r${ri}`} direction={orderBy === `r${ri}` ? order : "desc"} onClick={() => handleSort(`r${ri}`)}>{l}</TableSortLabel>
+                    </TableCell>
+                  ))}
+                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
+                    <TableSortLabel active={orderBy === "tb"} direction={orderBy === "tb" ? order : "asc"} onClick={() => handleSort("tb")}>TB</TableSortLabel>
+                  </TableCell>}
                   <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
                     <Tooltip title="Best possible rank if remaining games go optimally for this bracket">
                       <TableSortLabel active={orderBy === "best"} direction={orderBy === "best" ? order : "asc"} onClick={() => handleSort("best")}>Best</TableSortLabel>
                     </Tooltip>
                   </TableCell>
-                  {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
-                    <TableSortLabel active={orderBy === "tb"} direction={orderBy === "tb" ? order : "asc"} onClick={() => handleSort("tb")}>TB</TableSortLabel>
-                  </TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -282,9 +282,6 @@ export default function LeaderboardPage() {
                         </Box>
                       </Tooltip>
                     </TableCell>
-                    {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
-                      <TableCell key={r} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
-                    ))}
                     <TableCell align="right" sx={{ position: "sticky", left: 228, zIndex: 1, bgcolor: isOwn ? "action.selected" : "background.paper", borderLeft: 1, borderColor: "divider", fontWeight: "bold", width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry)}>{entry.score}</TableCell>
                     {hasUpsetBonus && <TableCell align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem" }}>{bonusMap[`${entry.username}|${entry.bracket_name || ""}`] || 0}</TableCell>}
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
@@ -293,13 +290,16 @@ export default function LeaderboardPage() {
                       if (entry.picks && trueMaxComputing) return "⏳";
                       return entry.score + (entry.maxRemaining ?? 0);
                     })()}</TableCell>
+                    {(entry.roundScores || [0,0,0,0,0,0]).map((s, r) => (
+                      <TableCell key={r} align="right" sx={{ width: 32, minWidth: 32, maxWidth: 32, px: 0.5, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline", "&:hover": { color: "primary.main" } }} onClick={() => openBreakdown(entry, r)}>{s}</TableCell>
+                    ))}
+                    {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
                       if (trueBestFinish[key] != null) return `#${trueBestFinish[key]}`;
                       if (entry.picks && trueMaxComputing) return "⏳";
                       return entry.bestPossibleFinish ? `#${entry.bestPossibleFinish}` : "—";
                     })()}</TableCell>
-                    {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                   </TableRow>
                 ); })}
               </TableBody>
