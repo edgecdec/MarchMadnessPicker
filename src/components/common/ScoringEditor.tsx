@@ -21,7 +21,7 @@ export default function ScoringEditor({ groupId, initial, canEdit }: Props) {
   const update = (field: "pointsPerRound" | "upsetBonusPerRound", idx: number, val: string) => {
     setSettings((s) => {
       const arr = [...s[field]];
-      arr[idx] = Math.max(0, parseInt(val) || 0);
+      arr[idx] = Math.min(1000, Math.max(0, parseInt(val) || 0));
       return { ...s, [field]: arr };
     });
   };
@@ -49,13 +49,13 @@ export default function ScoringEditor({ groupId, initial, canEdit }: Props) {
               size="small" type="number" value={settings.pointsPerRound[i]}
               onChange={(e) => update("pointsPerRound", i, e.target.value)}
               disabled={!canEdit}
-              inputProps={{ min: 0, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
+              inputProps={{ min: 0, max: 1000, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
             />
             <TextField
               size="small" type="number" value={settings.upsetBonusPerRound[i]}
               onChange={(e) => update("upsetBonusPerRound", i, e.target.value)}
               disabled={!canEdit}
-              inputProps={{ min: 0, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
+              inputProps={{ min: 0, max: 1000, style: { padding: "4px 8px", fontSize: "0.8rem" } }}
             />
           </Box>
         ))}

@@ -9,6 +9,14 @@ function generateInviteCode(): string {
   return crypto.randomBytes(4).toString("hex");
 }
 
+function validateScoring(s: any): string | null {
+  for (const field of ["pointsPerRound", "upsetBonusPerRound"] as const) {
+    if (Array.isArray(s?.[field]) && s[field].some((v: number) => v > 1000))
+      return `${field} values must not exceed 1000`;
+  }
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -60,6 +68,8 @@ export async function POST(req: NextRequest) {
     const id = uuid();
     const inviteCode = generateInviteCode();
     const settings = data.scoring_settings || DEFAULT_SCORING;
+    const scoringErr = validateScoring(settings);
+    if (scoringErr) return NextResponse.json({ error: scoringErr }, { status: 400 });
     const maxBrackets = data.max_brackets != null ? Number(data.max_brackets) : null;
     db.prepare("INSERT INTO groups (id, name, invite_code, created_by, scoring_settings, max_brackets) VALUES (?, ?, ?, ?, ?, ?)").run(
       id, data.name.trim(), inviteCode, user.id, JSON.stringify(settings), maxBrackets
@@ -84,6 +94,8 @@ export async function POST(req: NextRequest) {
     const isEveryone = group.id === "everyone";
     if (isEveryone && !user.is_admin) return NextResponse.json({ error: "Only admin can change global scoring" }, { status: 403 });
     if (!isEveryone && group.created_by !== user.id) return NextResponse.json({ error: "Only the group creator can change scoring" }, { status: 403 });
+    const scoringErr = validateScoring(data.scoring_settings);
+    if (scoringErr) return NextResponse.json({ error: scoringErr }, { status: 400 });
     db.prepare("UPDATE groups SET scoring_settings = ? WHERE id = ?").run(JSON.stringify(data.scoring_settings), data.group_id);
     return NextResponse.json({ ok: true });
   }
