@@ -3,8 +3,6 @@
 
 
 
-- **Leaderboard: reduce player column width**: Reduce the player/bracket/emojis column width to about 2/3 of its current size.
-
 - **Leaderboard: make column headers sticky**: Make the leaderboard table column headers sticky so they stay visible when scrolling vertically.
 
 - **Change shocked emoji threshold from "only one" to 5% or less**: The 😱 shocked emoji currently shows when a user is the only person to get a specific pick correct. Change it to show when the user got a pick correct that 5% or fewer of all brackets predicted. This makes it more meaningful in larger pools.
