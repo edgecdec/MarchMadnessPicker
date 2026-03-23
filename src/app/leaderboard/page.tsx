@@ -123,13 +123,15 @@ export default function LeaderboardPage() {
     const RND = ["R64", "R32", "Sweet 16", "Elite 8", "Final Four", "Championship"];
     const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g));
     const map: Record<string, string[]> = {};
-    const threshold = Math.max(1, Math.floor(leaderboard.length * 0.05));
+    const threshold = Math.max(1, Math.floor(leaderboard.length * 0.10));
     for (const g of decided) {
       const correct = leaderboard.filter(e => e.picks?.[g] === results[g]);
       if (correct.length >= 1 && correct.length <= threshold) {
         const teamName = resolveRegionSeed(results[g], regions, firstFour ?? undefined, results);
-        const round = g.startsWith("ff-") ? RND[parseInt(g.split("-")[1])] : RND[parseInt(g.split("-")[1])];
-        const label = `${teamName} - ${round}`;
+        const roundIdx = parseInt(g.split("-")[1]);
+        const advancedTo = roundIdx + 1 < RND.length ? RND[roundIdx + 1] : "Champion";
+        const pct = Math.round(correct.length / leaderboard.length * 100);
+        const label = `${teamName} - ${advancedTo} (${pct}%)`;
         for (const c of correct) {
           const key = `${c.username}|${c.bracket_name || ""}`;
           (map[key] ??= []).push(label);
