@@ -146,15 +146,15 @@ export function computeTrueMax(
             if (results[gid]) {
               if (results[gid] !== winner) continue;
               // Score already counted; just record the E8 winner
-              const prev = regionBestByWinner[name][winner] ?? 0;
+              const prev = regionBestByWinner[name][winner];
               const total = s16score;
-              if (total > prev) regionBestByWinner[name][winner] = total;
+              if (prev == null || total > prev) regionBestByWinner[name][winner] = total;
               continue;
             }
             const loser = e8bit === 0 ? teamB : teamA;
             const total = s16score + scoreGame(picks, gid, winner, loser, 3, pts, bonus, seedOf);
-            const prev = regionBestByWinner[name][winner] ?? 0;
-            if (total > prev) regionBestByWinner[name][winner] = total;
+            const prev = regionBestByWinner[name][winner];
+            if (prev == null || total > prev) regionBestByWinner[name][winner] = total;
           }
         }
       }
