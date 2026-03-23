@@ -3,7 +3,7 @@ import ThemeRegistry from "@/components/common/ThemeRegistry";
 import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 
-export const metadata: Metadata = { title: "March Madness Picker" };
+export const metadata: Metadata = { title: "🏀 March Madness Picker" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
