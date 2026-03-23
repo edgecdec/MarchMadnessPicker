@@ -9,7 +9,6 @@
 
 
 
-- **Clown emoji may not be working**: Verify the 🤡 clown emoji logic — it should show when a user's entire Final Four is eliminated without getting any of them correct. Test with brackets that have all 4 FF picks eliminated and confirm the emoji appears.
 
 - **Shocked emoji: change threshold to 10%, show % and round advanced to in tooltip**: Change the 😱 threshold from 5% to 10%. In the tooltip, show the team name, the round they ADVANCED to (not the round they won in), and the pick percentage. E.g. "Texas - Sweet 16 (4%)" means the user predicted Texas to make the Sweet 16 and only 4% of brackets had that pick.
 
