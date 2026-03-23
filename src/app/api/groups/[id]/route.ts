@@ -59,6 +59,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         championPick,
         busted: championPick ? eliminated.has(championPick) || (championPickRS ? eliminated.has(championPickRS) : false) : false,
         ffPicks,
+        picks,
       };
     })
     .sort((a, b) => b.score - a.score);
@@ -68,7 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const leaderboardWithElim = leaderboard.map((e) => ({
     ...e,
     eliminated: (e.score + e.maxRemaining) < topScore,
-    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false }),
+    ...(locked ? {} : { ffPicks: {}, championPick: null, busted: false, picks: undefined }),
   }));
 
   return NextResponse.json({

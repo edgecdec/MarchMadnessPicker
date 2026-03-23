@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container, Typography, Button, TextField, Paper, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Snackbar, Alert, Link, Chip, Checkbox, FormControlLabel, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { DEFAULT_SCORING } from "@/types";
+import { computeTrueMax } from "@/lib/trueMaxPossible";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringEditor from "@/components/common/ScoringEditor";
@@ -18,7 +19,7 @@ import GroupChat from "@/components/common/GroupChat";
 
 export default function GroupsPage() {
   const { user, loading: authLoading } = useAuth();
-  const { tournament } = useTournament();
+  const { tournament, regions, results, userBrackets } = useTournament();
   const [groups, setGroups] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<{ pick_id: string; group_id: string }[]>([]);
   const [newName, setNewName] = useState("");
@@ -27,11 +28,12 @@ export default function GroupsPage() {
   const [bracketsGroup, setBracketsGroup] = useState<string | null>(null);
   const [chatGroup, setChatGroup] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [groupScoring, setGroupScoring] = useState<any>(null);
+  const [trueMax, setTrueMax] = useState<Record<string, number>>({});
   const [snack, setSnack] = useState("");
   const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
   const [deleteGroup, setDeleteGroup] = useState<{ id: string; name: string } | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const { userBrackets } = useTournament();
 
   const loadGroups = () => {
     api.groups.list().then((d) => {
@@ -46,9 +48,30 @@ export default function GroupsPage() {
 
   useEffect(() => {
     if (selectedGroup && tournament) {
-      api.groups.leaderboard(selectedGroup, tournament.id).then((d) => setLeaderboard(d.leaderboard));
+      api.groups.leaderboard(selectedGroup, tournament.id).then((d) => {
+        setLeaderboard(d.leaderboard);
+        setGroupScoring(d.group?.scoring_settings || null);
+        setTrueMax({});
+      });
     }
   }, [selectedGroup, tournament]);
+
+  // Compute true max possible (with upset bonuses) in background
+  useEffect(() => {
+    if (!leaderboard.length || !regions?.length || !results || !groupScoring) return;
+    if (!leaderboard.some((e: any) => e.picks)) return;
+    let idx = 0;
+    const maxMap: Record<string, number> = {};
+    function computeNext() {
+      if (idx >= leaderboard.length) { setTrueMax({ ...maxMap }); return; }
+      const entry = leaderboard[idx];
+      const key = `${entry.username}|${entry.bracket_name || ""}`;
+      if (entry.picks) maxMap[key] = computeTrueMax(entry.picks, results, regions!, groupScoring);
+      idx++;
+      setTimeout(computeNext, 0);
+    }
+    setTimeout(computeNext, 0);
+  }, [leaderboard, regions, results, groupScoring]);
 
   if (authLoading) return null;
   if (!user) return <AuthForm />;
@@ -243,10 +266,10 @@ export default function GroupsPage() {
                             return (
                             <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                               <TableCell>{tied ? `T-${rank}` : rank}</TableCell>
-                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{entry.eliminated && <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip>}</TableCell>
+                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const maxP = trueMax[key] != null ? trueMax[key] : entry.score + (entry.maxRemaining ?? 0); const top = leaderboard.length > 0 ? leaderboard[0].score : 0; return maxP < top ? <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip> : null; })()}</TableCell>
                               <TableCell>{entry.bracket_name || "—"}</TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
-                              <TableCell align="right">{entry.score + (entry.maxRemaining ?? 0)}</TableCell>
+                              <TableCell align="right">{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; return trueMax[key] != null ? trueMax[key] : entry.score + (entry.maxRemaining ?? 0); })()}</TableCell>
                               <TableCell align="right">{entry.pick_count >= 63 ? "✅" : entry.pick_count === 0 ? "⏳ No picks" : `⏳ ${63 - entry.pick_count} missing`}</TableCell>
                               {canEdit && entry.pick_id && (
                                 <TableCell align="right">
