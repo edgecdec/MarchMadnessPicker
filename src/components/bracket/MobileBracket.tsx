@@ -25,7 +25,7 @@ const TAB_ROUNDS: number[][] = [[0, 1], [2, 3]];
 function getTeamForGame(
   region: Region, round: number, gameIndex: number,
   picks: Record<string, string>, firstFour?: FirstFourGame[], results?: Record<string, string>,
-): { teamA?: Team; teamB?: Team } {
+): { teamA?: Team; teamB?: Team; actualTeamA?: Team; actualTeamB?: Team } {
   if (round === 0) {
     const pair = SEED_ORDER_PAIRS[gameIndex];
     let teamA = region.teams.find((t) => t.seed === pair[0]);
@@ -61,7 +61,18 @@ function getTeamForGame(
     }
     return undefined;
   };
-  return { teamA: prevA ? resolveTeam(prevA) : undefined, teamB: prevB ? resolveTeam(prevB) : undefined };
+  const actualA = results?.[`${region.name}-${round - 1}-${gameIndex * 2}`];
+  const actualB = results?.[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
+  const teamA = prevA ? resolveTeam(prevA) : undefined;
+  const teamB = prevB ? resolveTeam(prevB) : undefined;
+  const resolvedActualA = actualA ? resolveTeam(actualA) : undefined;
+  const resolvedActualB = actualB ? resolveTeam(actualB) : undefined;
+  return {
+    teamA,
+    teamB,
+    actualTeamA: resolvedActualA && teamA && resolvedActualA.name !== teamA.name ? resolvedActualA : undefined,
+    actualTeamB: resolvedActualB && teamB && resolvedActualB.name !== teamB.name ? resolvedActualB : undefined,
+  };
 }
 
 function MatchupPair({
@@ -90,6 +101,7 @@ function MatchupPair({
         <Box sx={{ mb: 0.5 }}>
           <Matchup
             teamA={left0.teamA} teamB={left0.teamB}
+            actualTeamA={left0.actualTeamA} actualTeamB={left0.actualTeamB}
             winner={picks[leftId0]} result={results?.[leftId0]}
             gameScore={gameScores?.[leftId0]}
             onPick={(team) => onPick(leftId0, team)}
@@ -100,6 +112,7 @@ function MatchupPair({
         <Box>
           <Matchup
             teamA={left1.teamA} teamB={left1.teamB}
+            actualTeamA={left1.actualTeamA} actualTeamB={left1.actualTeamB}
             winner={picks[leftId1]} result={results?.[leftId1]}
             gameScore={gameScores?.[leftId1]}
             onPick={(team) => onPick(leftId1, team)}
@@ -124,6 +137,7 @@ function MatchupPair({
       <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
         <Matchup
           teamA={right.teamA} teamB={right.teamB}
+          actualTeamA={right.actualTeamA} actualTeamB={right.actualTeamB}
           winner={picks[rightId]} result={results?.[rightId]}
           gameScore={gameScores?.[rightId]}
           onPick={(team) => onPick(rightId, team)}

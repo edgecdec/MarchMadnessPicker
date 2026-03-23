@@ -66,11 +66,25 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
   const ff1TeamA = westWinner ? findTeam(regions, westWinner, firstFour, results) : undefined;
   const ff1TeamB = midwestWinner ? findTeam(regions, midwestWinner, firstFour, results) : undefined;
 
+  // Actual teams from results (for showing corrections when picks are wrong)
+  const actualEast = results?.[`${regions[0].name}-3-0`];
+  const actualSouth = results?.[`${regions[2].name}-3-0`];
+  const actualWest = results?.[`${regions[1].name}-3-0`];
+  const actualMidwest = results?.[`${regions[3].name}-3-0`];
+  const ff0ActualA = actualEast ? findTeam(regions, actualEast, firstFour, results) : undefined;
+  const ff0ActualB = actualSouth ? findTeam(regions, actualSouth, firstFour, results) : undefined;
+  const ff1ActualA = actualWest ? findTeam(regions, actualWest, firstFour, results) : undefined;
+  const ff1ActualB = actualMidwest ? findTeam(regions, actualMidwest, firstFour, results) : undefined;
+
   const ff0Winner = picks["ff-4-0"];
   const ff1Winner = picks["ff-4-1"];
 
   const champTeamA = ff0Winner ? findTeam(regions, ff0Winner, firstFour, results) : undefined;
   const champTeamB = ff1Winner ? findTeam(regions, ff1Winner, firstFour, results) : undefined;
+  const actualFF0 = results?.["ff-4-0"];
+  const actualFF1 = results?.["ff-4-1"];
+  const champActualA = actualFF0 ? findTeam(regions, actualFF0, firstFour, results) : undefined;
+  const champActualB = actualFF1 ? findTeam(regions, actualFF1, firstFour, results) : undefined;
 
   const ffWrap = {
     p: 1,
@@ -96,6 +110,8 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         <Matchup
           teamA={ff0TeamA}
           teamB={ff0TeamB}
+          actualTeamA={ff0ActualA && ff0TeamA && ff0ActualA.name !== ff0TeamA.name ? ff0ActualA : undefined}
+          actualTeamB={ff0ActualB && ff0TeamB && ff0ActualB.name !== ff0TeamB.name ? ff0ActualB : undefined}
           winner={picks["ff-4-0"]}
           result={results?.["ff-4-0"]}
           gameScore={gameScores?.["ff-4-0"]}
@@ -113,6 +129,8 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
           <Matchup
             teamA={champTeamA}
             teamB={champTeamB}
+            actualTeamA={champActualA && champTeamA && champActualA.name !== champTeamA.name ? champActualA : undefined}
+            actualTeamB={champActualB && champTeamB && champActualB.name !== champTeamB.name ? champActualB : undefined}
             winner={picks["ff-5-0"]}
             result={results?.["ff-5-0"]}
             gameScore={gameScores?.["ff-5-0"]}
@@ -127,6 +145,8 @@ export default function FinalFour({ regions, picks, results, gameScores, onPick,
         <Matchup
           teamA={ff1TeamA}
           teamB={ff1TeamB}
+          actualTeamA={ff1ActualA && ff1TeamA && ff1ActualA.name !== ff1TeamA.name ? ff1ActualA : undefined}
+          actualTeamB={ff1ActualB && ff1TeamB && ff1ActualB.name !== ff1TeamB.name ? ff1ActualB : undefined}
           winner={picks["ff-4-1"]}
           result={results?.["ff-4-1"]}
           gameScore={gameScores?.["ff-4-1"]}

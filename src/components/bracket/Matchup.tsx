@@ -17,6 +17,8 @@ function getSeedMatchupTip(teamA?: Team, teamB?: Team): string | null {
 interface Props {
   teamA?: Team;
   teamB?: Team;
+  actualTeamA?: Team;
+  actualTeamB?: Team;
   winner?: string;
   result?: string;
   gameScore?: GameScore;
@@ -35,6 +37,7 @@ function TeamSlot({
   isWrong,
   isActualWinner,
   isEliminated,
+  actualTeam,
   score,
   isLive,
   onClick,
@@ -50,6 +53,7 @@ function TeamSlot({
   isWrong?: boolean;
   isActualWinner?: boolean;
   isEliminated?: boolean;
+  actualTeam?: Team;
   score?: string;
   isLive?: boolean;
   onClick: () => void;
@@ -60,6 +64,7 @@ function TeamSlot({
   regionColor?: string;
 }) {
   const isFirstFourPlaceholder = team && team.name.includes("/");
+  const showCorrection = actualTeam && team && actualTeam.name !== team.name;
   const bg = isCorrect
     ? "rgba(76, 175, 80, 0.3)"
     : isWrong
@@ -68,7 +73,16 @@ function TeamSlot({
     ? "rgba(66, 165, 245, 0.3)"
     : "transparent";
 
-  return (
+  const correctionRow = showCorrection ? (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, px: 0.75, width: 155 }}>
+      {(() => { const logo = getTeamLogoUrl(actualTeam.name); return logo ? <TeamLogo src={logo} size={12} /> : null; })()}
+      <Typography variant="caption" noWrap sx={{ fontSize: "0.6rem", fontWeight: 700, color: "success.main" }}>
+        {getTeamAbbreviation(actualTeam.name)} ✓
+      </Typography>
+    </Box>
+  ) : null;
+
+  const slot = (
     <Box
       onClick={() => !locked && team && onClick()}
       sx={{
@@ -84,7 +98,7 @@ function TeamSlot({
         borderTopWidth: position === "top" ? 1 : 0,
         width: 155,
         minHeight: { xs: 32, sm: "auto" },
-        opacity: isEliminated ? 0.35 : 1,
+        opacity: showCorrection ? 0.4 : isEliminated ? 0.35 : 1,
         "&:hover": !locked && team ? { background: isWinner ? bg : "action.hover" } : {},
         transition: "background 0.2s ease, opacity 0.2s ease, transform 0.2s ease",
         transform: isWinner ? "scale(1.02)" : "scale(1)",
@@ -115,7 +129,7 @@ function TeamSlot({
                     sx={{ display: "flex", alignItems: "center", gap: 0.25, overflow: "hidden" }}
                   >
                     {logo && <TeamLogo src={logo} size={14} />}
-                    <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem" }}>{abbr}{idx < arr.length - 1 ? "/" : ""}</Typography>
+                    <Typography variant="body2" noWrap sx={{ fontSize: "0.65rem", ...(showCorrection && { textDecoration: "line-through" }) }}>{abbr}{idx < arr.length - 1 ? "/" : ""}</Typography>
                   </Box>
                 );
               })}
@@ -125,7 +139,7 @@ function TeamSlot({
               {(() => { const logo = getTeamLogoUrl(team.name); return logo ? (
                 <TeamLogo src={logo} size={16} />
               ) : null; })()}
-              <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner || isActualWinner ? 700 : 400, flexGrow: 1 }}>
+              <Typography variant="body2" noWrap sx={{ fontSize: "0.7rem", fontWeight: isWinner || isActualWinner ? 700 : 400, flexGrow: 1, ...(showCorrection && { textDecoration: "line-through" }) }}>
                 {team.name}
               </Typography>
             </>
@@ -151,9 +165,18 @@ function TeamSlot({
       )}
     </Box>
   );
+
+  if (!correctionRow) return slot;
+  return (
+    <Box>
+      {position === "top" && correctionRow}
+      {slot}
+      {position === "bottom" && correctionRow}
+    </Box>
+  );
 }
 
-export default function Matchup({ teamA, teamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor, eliminated }: Props) {
+export default function Matchup({ teamA, teamB, actualTeamA, actualTeamB, winner, result, gameScore, onPick, locked, compact, distribution, regionColor, eliminated }: Props) {
   const isLive = gameScore?.state === "in";
   const seedTip = getSeedMatchupTip(teamA, teamB);
 
@@ -193,6 +216,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         isWrong={!!result && !!teamA && teamMatch(teamA, winner) && !teamMatch(teamA, result)}
         isActualWinner={!!result && !!teamA && teamMatch(teamA, result)}
         isEliminated={!!teamA && !!eliminated?.has(teamA.name)}
+        actualTeam={actualTeamA}
         score={gameScore?.teamA} isLive={isLive}
         onClick={() => teamA && onPick(teamA)} onPickTeam={onPick} locked={locked} position="top"
         pct={teamA && distribution?.[teamA.name] !== undefined ? distribution[teamA.name] : (teamA?.regionSeed && distribution?.[teamA.regionSeed] !== undefined ? distribution[teamA.regionSeed] : undefined)}
@@ -204,6 +228,7 @@ export default function Matchup({ teamA, teamB, winner, result, gameScore, onPic
         isWrong={!!result && !!teamB && teamMatch(teamB, winner) && !teamMatch(teamB, result)}
         isActualWinner={!!result && !!teamB && teamMatch(teamB, result)}
         isEliminated={!!teamB && !!eliminated?.has(teamB.name)}
+        actualTeam={actualTeamB}
         score={gameScore?.teamB} isLive={isLive}
         onClick={() => teamB && onPick(teamB)} onPickTeam={onPick} locked={locked} position="bottom"
         pct={teamB && distribution?.[teamB.name] !== undefined ? distribution[teamB.name] : (teamB?.regionSeed && distribution?.[teamB.regionSeed] !== undefined ? distribution[teamB.regionSeed] : undefined)}

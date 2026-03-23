@@ -25,7 +25,7 @@ function getTeamForGame(
   picks: Record<string, string>,
   firstFour?: FirstFourGame[],
   results?: Record<string, string>,
-): { teamA?: Team; teamB?: Team } {
+): { teamA?: Team; teamB?: Team; actualTeamA?: Team; actualTeamB?: Team } {
   if (round === 0) {
     const pair = SEED_ORDER_PAIRS[gameIndex];
     let teamA = region.teams.find((t) => t.seed === pair[0]);
@@ -79,9 +79,17 @@ function getTeamForGame(
     }
     return undefined;
   };
+  const actualA = results?.[`${region.name}-${round - 1}-${gameIndex * 2}`];
+  const actualB = results?.[`${region.name}-${round - 1}-${gameIndex * 2 + 1}`];
+  const teamA = prevA ? resolveTeam(prevA) : undefined;
+  const teamB = prevB ? resolveTeam(prevB) : undefined;
+  const resolvedActualA = actualA ? resolveTeam(actualA) : undefined;
+  const resolvedActualB = actualB ? resolveTeam(actualB) : undefined;
   return {
-    teamA: prevA ? resolveTeam(prevA) : undefined,
-    teamB: prevB ? resolveTeam(prevB) : undefined,
+    teamA,
+    teamB,
+    actualTeamA: resolvedActualA && teamA && resolvedActualA.name !== teamA.name ? resolvedActualA : undefined,
+    actualTeamB: resolvedActualB && teamB && resolvedActualB.name !== teamB.name ? resolvedActualB : undefined,
   };
 }
 
@@ -108,12 +116,14 @@ export default function RegionBracket({ region, picks, results, gameScores, onPi
       >
         {Array.from({ length: count }, (_, i) => {
           const gameId = `${region.name}-${round}-${i}`;
-          const { teamA, teamB } = getTeamForGame(region, round, i, picks, firstFour, results);
+          const { teamA, teamB, actualTeamA, actualTeamB } = getTeamForGame(region, round, i, picks, firstFour, results);
           return (
             <Box key={gameId} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
               <Matchup
                 teamA={teamA}
                 teamB={teamB}
+                actualTeamA={actualTeamA}
+                actualTeamB={actualTeamB}
                 winner={picks[gameId]}
                 result={results?.[gameId]}
                 gameScore={gameScores?.[gameId]}
