@@ -8,7 +8,6 @@
 
 
 
-- **Eliminated from contention emoji not synced with max score**: The 🚫 eliminated indicator should show when a bracket's max possible score is less than the current leader's score. Check if it's using the same max score calculation as the leaderboard column. It may be using a different/simpler max that doesn't account for upset bonuses.
 
 - **Clown emoji may not be working**: Verify the 🤡 clown emoji logic — it should show when a user's entire Final Four is eliminated without getting any of them correct. Test with brackets that have all 4 FF picks eliminated and confirm the emoji appears.
 
