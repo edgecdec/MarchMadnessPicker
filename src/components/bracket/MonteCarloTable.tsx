@@ -68,7 +68,7 @@ export default function MonteCarloTable({
       {running && <LinearProgress variant="determinate" value={progress / 100} sx={{ mb: 1 }} />}
       <Collapse in={open ?? true}>
         {results.length > 0 && (
-        <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+        <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto", resize: "vertical" }}>
           <Table size="small" stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
             <TableHead>
               <TableRow>

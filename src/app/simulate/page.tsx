@@ -376,7 +376,7 @@ export default function SimulatePage() {
         {hypoCount > 0 && <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); setHypo({}); }}>Reset</Button>}
       </Box>
       <Collapse in={lbOpen}>
-        <TableContainer component={Paper} sx={{ maxHeight: "calc(100vh - 200px)", overflow: "auto" }}>
+        <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto", resize: "vertical" }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
