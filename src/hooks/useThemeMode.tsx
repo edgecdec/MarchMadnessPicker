@@ -14,9 +14,16 @@ const makeTheme = (mode: Mode) =>
   createTheme({
     palette: {
       mode,
-      primary: { main: "#ff6f00" },
+      primary: { main: mode === "dark" ? "#ffab40" : "#ff6f00" },
       ...(mode === "dark"
-        ? { background: { default: "#121212", paper: "#1e1e1e" } }
+        ? {
+            background: { default: "#121212", paper: "#1e1e1e" },
+            success: { main: "#49BC4E" },
+            error: { main: "#F27573" },
+            warning: { main: "#FFB74D" },
+            info: { main: "#59A3EC" },
+            text: { primary: "#F0F0F0", secondary: "#B0B0B0" },
+          }
         : { background: { default: "#f5f5f5", paper: "#ffffff" } }),
     },
   });

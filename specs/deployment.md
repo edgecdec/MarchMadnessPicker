@@ -1,9 +1,9 @@
 # Deployment Spec
 
 ## Architecture
-- Server: 5.78.132.57, nginx reverse proxy, pm2 process manager
+- Server: see ~/.config/marchmadness-server.env, nginx reverse proxy, pm2 process manager
 - App runs on port 3002, NODE_ENV=production
-- SSH: `ssh -i ~/.ssh/vps1.priv root@5.78.132.57`
+- SSH: `source ~/.config/marchmadness-server.env && ssh -i $SSH_KEY $SSH_HOST`
 - App dir: /var/www/MarchMadness
 - DB: /var/www/MarchMadness/data/marchmadness.db
 
