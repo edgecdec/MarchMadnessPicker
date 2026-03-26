@@ -1,3 +1,1 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
-
-- **Bracket region colors: add dark mode variants with WCAG AAA contrast, change South to red**: After the revert, modify ONLY the bracket region foreground colors (East, West, South, Midwest) used on the bracket page. Create two sets of colors — keep the current light mode colors unchanged, add a separate dark mode set with higher contrast that passes WCAG AAA against the dark background. Also change South's color from teal to red because teal is too close to East's blue. Apply these via theme-aware values so they automatically switch between light and dark mode. Do NOT change any other colors in the app — only the 4 bracket region accent colors.
