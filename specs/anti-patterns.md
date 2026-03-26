@@ -59,6 +59,4 @@ These are mistakes Ralph has made before. Read this every loop.
 ## Local Server
 - NEVER start a local dev server. Do NOT run `node server.js`, `npm run dev`, or `bash dev.sh` locally. It gets stuck and blocks the iteration.
 - This app deploys to a REMOTE server via git push. After pushing, the webhook auto-deploys.
-- You CAN and SHOULD use SSH to check the server, run DB queries, check logs, or debug issues. See ~/.config/marchmadness-server.env for connection details.
-- To verify deploy: `source ~/.config/marchmadness-server.env && ssh -i $SSH_KEY $SSH_HOST "commands here"`
 - To verify: `sleep 60 && curl -s -o /dev/null -w "%{http_code}" https://marchmadness.edgecdec.com` and check chunks per @specs/deployment.md.
