@@ -3,8 +3,9 @@ import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
 import Matchup from "./Matchup";
 import FinalFour from "./FinalFour";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS, parseRegionSeed, toRegionSeed, ffGameId } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, getRegionColor, parseRegionSeed, toRegionSeed, ffGameId } from "@/lib/bracketData";
 import { useState } from "react";
+import { useThemeMode } from "@/hooks/useThemeMode";
 
 interface Props {
   regions: Region[];
@@ -159,7 +160,8 @@ function RegionPairedRounds({
   locked?: boolean; distribution?: Record<string, Record<string, number>>;
   eliminated?: Set<string>; firstFour?: FirstFourGame[];
 }) {
-  const color = REGION_COLORS[region.name] || "text.secondary";
+  const { mode } = useThemeMode();
+  const color = getRegionColor(region.name, mode);
   const rightCount = 8 / Math.pow(2, rightRound);
 
   return (

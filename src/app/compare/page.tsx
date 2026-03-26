@@ -5,11 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { LeaderboardEntry, Team, Region, GameScore, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, parseRegionSeed, toRegionSeed, resolveRegionSeed } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, getRegionColor, getTeamLogoUrl, parseRegionSeed, toRegionSeed, resolveRegionSeed } from "@/lib/bracketData";
 import { ffGameId } from "@/components/bracket/FirstFour";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import TeamLogo from "@/components/common/TeamLogo";
+import { useThemeMode } from "@/hooks/useThemeMode";
 
 const USER_COLORS = ["#42a5f5", "#ef5350", "#66bb6a", "#ffa726"];
 
@@ -134,7 +135,8 @@ function OverlayRegion({ region, allPicks, selected, results, firstFour, directi
   region: Region; allPicks: PicksMap; selected: { key: string; label: string }[];
   results?: Record<string, string>; firstFour?: FirstFourGame[]; direction: "left" | "right";
 }) {
-  const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
+  const { mode } = useThemeMode();
+  const regionColor = getRegionColor(region.name, mode);
   const gamesPerRound = [8, 4, 2, 1];
   // Use results for team resolution so the bracket structure is consistent
   const resolvePicks = results || {};

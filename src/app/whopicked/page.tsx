@@ -10,10 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { Region, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, getRegionColor, getTeamLogoUrl } from "@/lib/bracketData";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import TeamLogo from "@/components/common/TeamLogo";
+import { useThemeMode } from "@/hooks/useThemeMode";
 
 type PickerInfo = { username: string; bracket_name: string | null };
 type GamePicks = Record<string, { count: number; users: PickerInfo[] }>;
@@ -113,6 +114,7 @@ function getMatchupTeams(
 
 export default function WhoPickedPage() {
   const { user, loading: authLoading } = useAuth();
+  const { mode } = useThemeMode();
   const { tournament, regions: tournRegions, firstFour, loading: tournLoading } = useTournament();
   const [groups, setGroups] = useState<any[]>([]);
   const [groupId, setGroupId] = useState("");
@@ -195,7 +197,7 @@ export default function WhoPickedPage() {
 
             {/* Regions */}
             {regions.map((region) => {
-              const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
+              const regionColor = getRegionColor(region.name, mode);
               return (
                 <Accordion key={region.name} defaultExpanded={false}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>

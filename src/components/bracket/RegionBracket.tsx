@@ -2,7 +2,8 @@
 import { Box, Typography } from "@mui/material";
 import Matchup from "./Matchup";
 import { Team, Region, GameScore, FirstFourGame } from "@/types";
-import { SEED_ORDER_PAIRS, REGION_COLORS, parseRegionSeed, toRegionSeed } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, getRegionColor, parseRegionSeed, toRegionSeed } from "@/lib/bracketData";
+import { useThemeMode } from "@/hooks/useThemeMode";
 import { ffGameId } from "./FirstFour";
 
 interface Props {
@@ -96,7 +97,8 @@ function getTeamForGame(
 export default function RegionBracket({ region, picks, results, gameScores, onPick, locked, direction, distribution, eliminated, firstFour }: Props) {
   const rounds = [0, 1, 2, 3]; // R64, R32, S16, E8
   const gamesPerRound = [8, 4, 2, 1];
-  const regionColor = REGION_COLORS[region.name] || "#9e9e9e";
+  const { mode } = useThemeMode();
+  const regionColor = getRegionColor(region.name, mode);
 
   const renderRound = (round: number) => {
     const count = gamesPerRound[round];

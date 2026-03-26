@@ -6,8 +6,9 @@ import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import MiniBracket from "./MiniBracket";
 import { Region, Team, FirstFourGame } from "@/types";
 import { buildGameOrder, cascadeClear } from "@/lib/bracketUtils";
-import { SEED_ORDER_PAIRS, REGION_COLORS, getTeamLogoUrl, toRegionSeed, parseRegionSeed, ffGameId } from "@/lib/bracketData";
+import { SEED_ORDER_PAIRS, getRegionColor, getTeamLogoUrl, toRegionSeed, parseRegionSeed, ffGameId } from "@/lib/bracketData";
 import TeamLogo from "@/components/common/TeamLogo";
+import { useThemeMode } from "@/hooks/useThemeMode";
 
 interface SimpleModeProps {
   open: boolean;
@@ -29,6 +30,7 @@ function resolveTeamsForGame(
   picks: Record<string, string>,
   results?: Record<string, string>,
   firstFour?: FirstFourGame[],
+  mode: "dark" | "light" = "dark",
 ): { teamA?: Team; teamB?: Team; regionColor?: string } {
   const parts = gameId.split("-");
 
@@ -80,7 +82,7 @@ function resolveTeamsForGame(
   const gameIndex = parseInt(parts[2]);
   const region = regions.find(r => r.name === regionName);
   if (!region) return {};
-  const regionColor = REGION_COLORS[regionName];
+  const regionColor = getRegionColor(regionName, mode);
 
   if (round === 0) {
     const pair = SEED_ORDER_PAIRS[gameIndex];
@@ -187,6 +189,7 @@ function TeamCard({
 }
 
 export default function SimpleMode({ open, onClose, regions, firstFour, picks, onPicksChange, results, locked, tiebreaker, onTiebreakerChange, onSave }: SimpleModeProps) {
+  const { mode } = useThemeMode();
   const gameOrder = useMemo(() => buildGameOrder(regions), [regions]);
   const [currentStep, setCurrentStep] = useState(() => {
     const order = buildGameOrder(regions);
@@ -215,8 +218,8 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
   const currentGameId = gameOrder[currentStep] ?? "";
 
   const { teamA, teamB, regionColor } = useMemo(
-    () => resolveTeamsForGame(currentGameId, regions, picks, results, firstFour),
-    [currentGameId, regions, picks, results, firstFour],
+    () => resolveTeamsForGame(currentGameId, regions, picks, results, firstFour, mode),
+    [currentGameId, regions, picks, results, firstFour, mode],
   );
 
   const winner = picks[currentGameId] || results?.[currentGameId];
@@ -242,7 +245,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
   }, [currentStep, gameOrder, picks, results]);
 
   const isResolvable = useCallback((gid: string) => {
-    const { teamA, teamB } = resolveTeamsForGame(gid, regions, picks, results, firstFour);
+    const { teamA, teamB } = resolveTeamsForGame(gid, regions, picks, results, firstFour, mode);
     return !!teamA && !!teamB;
   }, [regions, picks, results, firstFour]);
 
@@ -344,7 +347,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
               </Typography>
             ) : (
               <>
-                <Typography variant="body2" sx={{ color: REGION_COLORS[gameLabel.region] || "text.secondary", fontWeight: 600 }}>
+                <Typography variant="body2" sx={{ color: getRegionColor(gameLabel.region, mode), fontWeight: 600 }}>
                   {gameLabel.region} — {gameLabel.round}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -370,7 +373,7 @@ export default function SimpleMode({ open, onClose, regions, firstFour, picks, o
               <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
                 {reviewData.regionWinners.map(rw => (
                   <Box key={rw.region} sx={{ display: "flex", alignItems: "center", gap: 1, p: 1.5, borderRadius: 1, bgcolor: "background.paper", border: 1, borderColor: "divider" }}>
-                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: REGION_COLORS[rw.region!] || "text.secondary", flexShrink: 0 }} />
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: getRegionColor(rw.region!, mode), flexShrink: 0 }} />
                     <Typography variant="body2" color="text.secondary" sx={{ minWidth: 70 }}>{rw.region}</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, flex: 1 }}>
                       {rw.seed ? `(${rw.seed}) ` : ""}{rw.name}

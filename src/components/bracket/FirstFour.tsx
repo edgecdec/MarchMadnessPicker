@@ -1,8 +1,9 @@
 "use client";
 import { Box, Typography, Paper } from "@mui/material";
 import { FirstFourGame, Team } from "@/types";
-import { getTeamLogoUrl, REGION_COLORS, ffGameId } from "@/lib/bracketData";
+import { getTeamLogoUrl, getRegionColor, ffGameId } from "@/lib/bracketData";
 import TeamLogo from "@/components/common/TeamLogo";
+import { useThemeMode } from "@/hooks/useThemeMode";
 
 export { ffGameId };
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function FirstFour({ games, picks, results, onPick, locked }: Props) {
+  const { mode } = useThemeMode();
   if (!games.length) return null;
 
   return (
@@ -27,7 +29,7 @@ export default function FirstFour({ games, picks, results, onPick, locked }: Pro
           const gid = ffGameId(g);
           const winner = picks[gid];
           const result = results?.[gid];
-          const regionColor = REGION_COLORS[g.region] || "#9e9e9e";
+          const regionColor = getRegionColor(g.region, mode);
 
           return (
             <Paper key={gid} variant="outlined" sx={{ p: 1, minWidth: 160, borderColor: regionColor }}>

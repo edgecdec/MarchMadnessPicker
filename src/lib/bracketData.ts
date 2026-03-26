@@ -10,12 +10,23 @@ export const SEED_ORDER_PAIRS: [number, number][] = [
 export const TOTAL_GAMES = 63; // 32+16+8+4+2+1
 
 // Region accent colors — must be distinct from pick state colors (green=correct, red=wrong)
+// Light mode originals (South changed from teal to red)
 export const REGION_COLORS: Record<string, string> = {
   East: "#1565c0",
   West: "#8e24aa",
-  South: "#00838f",
+  South: "#c62828",
   Midwest: "#f9a825",
 };
+// Dark mode variants — WCAG AAA (≥7:1) against #121212
+const REGION_COLORS_DARK: Record<string, string> = {
+  East: "#64b5f6",
+  West: "#ce93d8",
+  South: "#ef9a9a",
+  Midwest: "#ffd54f",
+};
+export function getRegionColor(name: string, mode: "dark" | "light"): string {
+  return (mode === "dark" ? REGION_COLORS_DARK[name] : REGION_COLORS[name]) || "#9e9e9e";
+}
 
 // ESPN team IDs for logo URLs: https://a.espncdn.com/i/teamlogos/ncaa/500/{id}.png
 const ESPN_TEAM_IDS: Record<string, number> = {
