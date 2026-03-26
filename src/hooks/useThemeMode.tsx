@@ -26,6 +26,13 @@ const makeTheme = (mode: Mode) =>
           }
         : { background: { default: "#f5f5f5", paper: "#ffffff" } }),
     },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          containedPrimary: { fontWeight: 700 },
+        },
+      },
+    },
   });
 
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
