@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { LeaderboardEntry, ScoringSettings } from "@/types";
 import { PickDetail, scorePicksDetailed, getEliminatedTeams } from "@/lib/scoring";
 import { computeTrueMax } from "@/lib/trueMaxPossible";
+import { computeBestPossibleFinishAsync } from "@/lib/bestPossibleFinish";
 import { resolveRegionSeed } from "@/lib/bracketData";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
@@ -96,18 +97,17 @@ export default function LeaderboardPage() {
     setTimeout(computeNext, 0);
   }, [leaderboard, regions, results, scoringSettings]);
 
-  // Recompute bestPossibleFinish using trueMax values (includes upset bonuses)
-  const trueBestFinish = useMemo(() => {
-    if (!Object.keys(trueMax).length) return {};
-    const map: Record<string, number> = {};
-    for (const entry of leaderboard) {
-      const key = `${entry.username}|${entry.bracket_name || ""}`;
-      const myMax = trueMax[key];
-      if (myMax == null) continue;
-      map[key] = leaderboard.filter(o => o.score > myMax).length + 1;
-    }
-    return map;
-  }, [trueMax, leaderboard]);
+  // Recompute bestPossibleFinish by enumerating all outcomes and ranking all brackets
+  const [trueBestFinish, setTrueBestFinish] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (tooManyRemaining || !leaderboard.length || !regions?.length || !results || !scoringSettings) return;
+    const withPicks = leaderboard.filter(e => e.picks);
+    if (!withPicks.length) return;
+    const entries = withPicks.map(e => ({ username: e.username, bracket_name: e.bracket_name, picks: e.picks!, tiebreaker: e.tiebreaker }));
+    const { promise, cancel } = computeBestPossibleFinishAsync(entries, results, regions, scoringSettings, setTrueBestFinish);
+    promise.then(setTrueBestFinish);
+    return cancel;
+  }, [leaderboard, regions, results, scoringSettings, tooManyRemaining]);
 
   const handleSort = (col: string) => {
     const ascDefault = col === "player" || col === "best" || col === "rank" || col === "tb";
