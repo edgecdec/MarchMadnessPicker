@@ -42,6 +42,7 @@ export default function LeaderboardPage() {
   const [scoringSettings, setScoringSettings] = useState<ScoringSettings | null>(null);
   const [trueMax, setTrueMax] = useState<Record<string, number>>({});
   const [trueMaxComputing, setTrueMaxComputing] = useState(false);
+  const [tooManyRemaining, setTooManyRemaining] = useState(false);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownData, setBreakdownData] = useState<{ username: string; bracketName?: string | null; details: PickDetail[] }>({ username: "", details: [] });
   const [breakdownRound, setBreakdownRound] = useState<number | null>(null);
@@ -59,11 +60,16 @@ export default function LeaderboardPage() {
     }
   }, [tournament]);
 
-  // Compute true max possible (with upset bonuses) in background
+  // Compute true max possible (with upset bonuses) in background — only when ≤15 games remain
   useEffect(() => {
     if (!leaderboard.length || !regions?.length || !results || !scoringSettings) return;
-    // Only compute if entries have picks data (locked tournament)
     if (!leaderboard.some(e => e.picks)) return;
+
+    const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+    const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g)).length;
+    const remaining = 63 - decided;
+    if (remaining > 15) { setTooManyRemaining(true); return; }
+    setTooManyRemaining(false);
 
     setTrueMaxComputing(true);
     let idx = 0;
@@ -81,7 +87,6 @@ export default function LeaderboardPage() {
         maxMap[key] = computeTrueMax(entry.picks, results, regions!, scoringSettings!);
       }
       idx++;
-      // Update state progressively every 5 entries
       if (idx % 5 === 0 || idx === leaderboard.length) {
         setTrueMax({ ...maxMap });
       }
@@ -268,7 +273,7 @@ export default function LeaderboardPage() {
                     <TableSortLabel active={orderBy === "tb"} direction={orderBy === "tb" ? order : "asc"} onClick={() => handleSort("tb")}>TB</TableSortLabel>
                   </TableCell>}
                   <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.8rem" }}>
-                    <Tooltip title="Best possible rank if remaining games go optimally for this bracket">
+                    <Tooltip title={tooManyRemaining ? "Available from Sweet 16 onward (≤15 games remaining)" : "Best possible rank if remaining games go optimally for this bracket"}>
                       <TableSortLabel active={orderBy === "best"} direction={orderBy === "best" ? order : "asc"} onClick={() => handleSort("best")}>Best</TableSortLabel>
                     </Tooltip>
                   </TableCell>
@@ -308,6 +313,7 @@ export default function LeaderboardPage() {
                     ))}
                     {locked && <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{entry.tiebreaker != null ? entry.tiebreaker : "—"}</TableCell>}
                     <TableCell align="right" sx={{ width: 36, minWidth: 36, maxWidth: 36, px: 0.5, fontSize: "0.85rem" }}>{(() => {
+                      if (tooManyRemaining) return "N/A";
                       const key = `${entry.username}|${entry.bracket_name || ""}`;
                       if (trueBestFinish[key] != null) return `#${trueBestFinish[key]}`;
                       if (entry.picks && trueMaxComputing) return "⏳";

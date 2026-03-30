@@ -26,12 +26,15 @@ src/app/ (pages + API routes)
 2. Read tests/bugs.md — if bugs exist, fix the FIRST one. No tasks until bugs.md is empty.
 3. If no bugs: read PLAN.md, pick the top incomplete task. Read the relevant spec.
 4. Make minimal changes. Only read files you need to change.
-5. `npx next build` — must pass.
+5. Backpressure validation — ALL must pass before committing:
+   - `npx tsc --noEmit` — type checking must pass
+   - `npx next build` — build must pass
 6. `git add -A && git commit -m "message" && git push`
 7. `sleep 60`
 8. Verify: `curl` returns 200 AND `ssh ... "ls .next/static/chunks/*.js | wc -l"` > 10 (see @specs/deployment.md)
-9. If deploy failed: rebuild on server per deployment spec.
-10. Bug fixed? DELETE the line from bugs.md. Task done? Mark [x] in PLAN.md. Commit.
+9. For UI changes: write a temp Nova Act test script at /tmp/test_feature.py to verify the change works in a real browser. Login once, navigate to the page, verify the specific thing you changed. Source ~/.config/marchmadness.env before running. Use `ignore_https_errors=True`. Keep prompts short (1 sentence per act() call). If the test fails, fix and retry. Delete the script after verification.
+10. If deploy failed: rebuild on server per deployment spec.
+11. Bug fixed? DELETE the line from bugs.md. Task done? Mark [x] in PLAN.md. Commit.
 
 ## Rules
 - STRICTLY ONE bug or ONE task per loop. NEVER combine multiple fixes in one commit. If you notice another issue while working, log it in bugs.md and move on. Each commit = exactly one logical change.
