@@ -1,3 +1,1 @@
 # Bugs — Fix these BEFORE working on any PLAN.md tasks
-
-- **"Cannot catch leader" indicator must use the best-possible-finish calculation**: The 🚫 indicator should NOT compare max score vs leader's current score — because the leader will also gain points from remaining games. Instead, it should use the same brute-force best-possible-finish logic that scores ALL brackets for each possible outcome. If a bracket's best possible finish (from the brute force) is never #1 across any outcome, show the 🚫. This is the same calculation Ralph just built for the "Best" column — reuse it. A bracket is eliminated from contention only if there is NO tournament outcome where they finish first. Apply to both global and group leaderboards.
