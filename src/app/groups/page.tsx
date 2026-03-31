@@ -12,6 +12,7 @@ import { useTournament } from "@/hooks/useTournament";
 import { api } from "@/lib/api";
 import { DEFAULT_SCORING } from "@/types";
 import { computeTrueMax } from "@/lib/trueMaxPossible";
+import { computeBestPossibleFinishAsync } from "@/lib/bestPossibleFinish";
 import Navbar from "@/components/common/Navbar";
 import AuthForm from "@/components/auth/AuthForm";
 import ScoringEditor from "@/components/common/ScoringEditor";
@@ -30,6 +31,7 @@ export default function GroupsPage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [groupScoring, setGroupScoring] = useState<any>(null);
   const [trueMax, setTrueMax] = useState<Record<string, number>>({});
+  const [trueBestFinish, setTrueBestFinish] = useState<Record<string, number>>({});
   const [snack, setSnack] = useState("");
   const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
   const [deleteGroup, setDeleteGroup] = useState<{ id: string; name: string } | null>(null);
@@ -52,6 +54,7 @@ export default function GroupsPage() {
         setLeaderboard(d.leaderboard);
         setGroupScoring(d.group?.scoring_settings || null);
         setTrueMax({});
+        setTrueBestFinish({});
       });
     }
   }, [selectedGroup, tournament]);
@@ -71,6 +74,20 @@ export default function GroupsPage() {
       setTimeout(computeNext, 0);
     }
     setTimeout(computeNext, 0);
+  }, [leaderboard, regions, results, groupScoring]);
+
+  // Compute best possible finish (brute-force) for 🚫 indicator — only when ≤15 games remain
+  useEffect(() => {
+    if (!leaderboard.length || !regions?.length || !results || !groupScoring) return;
+    const withPicks = leaderboard.filter((e: any) => e.picks);
+    if (!withPicks.length) return;
+    const SCORABLE_RE = /^(East|West|South|Midwest)-[0-3]-\d+$|^ff-[45]-[01]$/;
+    const decided = Object.keys(results).filter(g => SCORABLE_RE.test(g)).length;
+    if (63 - decided > 15) return;
+    const entries = withPicks.map((e: any) => ({ username: e.username, bracket_name: e.bracket_name, picks: e.picks!, tiebreaker: e.tiebreaker }));
+    const { promise, cancel } = computeBestPossibleFinishAsync(entries, results, regions, groupScoring, setTrueBestFinish);
+    promise.then(setTrueBestFinish);
+    return cancel;
   }, [leaderboard, regions, results, groupScoring]);
 
   if (authLoading) return null;
@@ -266,7 +283,7 @@ export default function GroupsPage() {
                             return (
                             <TableRow key={`${entry.username}-${entry.bracket_name || i}`}>
                               <TableCell>{tied ? `T-${rank}` : rank}</TableCell>
-                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const maxP = trueMax[key] != null ? trueMax[key] : entry.score + (entry.maxRemaining ?? 0); const top = leaderboard.length > 0 ? leaderboard[0].score : 0; return maxP < top ? <Tooltip title="Eliminated from contention — cannot catch the leader"><span> 🚫</span></Tooltip> : null; })()}</TableCell>
+                              <TableCell><Link href={`/bracket/${entry.username}`} underline="hover">{entry.username}</Link>{entry.busted && <Tooltip title={`Championship pick eliminated: ${entry.championPick}`}><span> 💀</span></Tooltip>}{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; const bf = trueBestFinish[key]; return bf != null && bf > 1 ? <Tooltip title="Eliminated from contention — no possible outcome where this bracket finishes #1"><span> 🚫</span></Tooltip> : null; })()}</TableCell>
                               <TableCell>{entry.bracket_name || "—"}</TableCell>
                               <TableCell align="right">{entry.score}</TableCell>
                               <TableCell align="right">{(() => { const key = `${entry.username}|${entry.bracket_name || ""}`; return trueMax[key] != null ? trueMax[key] : entry.score + (entry.maxRemaining ?? 0); })()}</TableCell>
